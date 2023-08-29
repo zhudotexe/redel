@@ -2,6 +2,7 @@ import logging
 from urllib.parse import urljoin
 
 from kani import ChatMessage, Kani
+from markdownify import MarkdownConverter, chomp
 from playwright.async_api import Locator, Page
 from pydantic import BaseModel, RootModel
 
@@ -38,16 +39,74 @@ async def get_links(elem: Page | Locator) -> Links:
     return Links(links)
 
 
+# summarization
 async def web_summarize(content: str, task="Please summarize the main content of the webpage above."):
     """Summarize the contents of a webpage."""
     msg = ChatMessage.user(content)
     summarizer = Kani(long_engine, chat_history=[msg])
-    token_len = summarizer.message_token_len(msg)
+    token_len = summarizer.message_token_len(msg) + summarizer.message_token_len(ChatMessage.user(task))
     log.info(f"Summarizing web content with length {len(content)} ({token_len} tokens)\n{content[:32]}...")
     # recursively summarize chunks if the content is *still* too long
-    if token_len > long_engine.max_context_size - 256:
+    if token_len + summarizer.always_len > long_engine.max_context_size:
         half_len = len(content) // 2
-        first_half = await web_summarize(content[:half_len])
-        second_half = await web_summarize(content[half_len:])
+        first_half = await web_summarize(f"{content[:half_len + 10]}\n[...]", task)
+        second_half = await web_summarize(f"[...]\n{content[half_len - 10:]}", task)
         return f"{first_half}\n---\n{second_half}"
     return await summarizer.chat_round_str(task)
+
+
+# markdownification
+def yeet(*_):
+    return ""
+
+
+def is_valid_url(x):
+    if not x:
+        return False
+    return not x.startswith("data:")
+
+
+class MDConverter(MarkdownConverter):
+    def __init__(self, base_url: str, **kwargs):
+        super().__init__(**kwargs)
+        self.base_url = base_url
+
+    def convert_img(self, el, text, convert_as_inline):
+        alt = el.attrs.get("alt", None) or ""
+        src = el.attrs.get("src", None) or ""
+
+        if not is_valid_url(src):
+            if not alt:
+                return ""
+            src = "image"
+
+        return f"![{alt}]({src})"
+
+    def convert_a(self, el, text, convert_as_inline):
+        prefix, suffix, inner = chomp(text)
+        if not inner:
+            return ""
+        href = el.get("href")
+        if not is_valid_url(href):
+            return text
+        # if the href is relative, resolve relative to the current page
+        href = urljoin(self.base_url, href)
+        # from super
+        if self.options["autolinks"] and inner.replace(r"\_", "_") == href:
+            # Shortcut syntax
+            return f"<{href}>"
+        return f"{prefix}[{inner}]({href}){suffix}" if href else text
+
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def convert_div(self, el, text, convert_as_inline):
+        if not text.endswith("\n"):
+            return f"{text}\n"
+        return text
+
+    # sometimes these appear inline and are just annoying
+    convert_script = yeet
+    convert_style = yeet
+
+
+def web_markdownify(html: str, base_url: str):
+    return MDConverter(base_url=base_url, heading_style="atx").convert(html)
