@@ -7,7 +7,6 @@ from playwright.async_api import Locator, Page
 from pydantic import BaseModel, RootModel
 
 from .base_kani import BaseKani
-from .engines import long_engine
 
 log = logging.getLogger(__name__)
 
@@ -44,12 +43,13 @@ async def get_links(elem: Page | Locator) -> Links:
 # summarization
 async def web_summarize(content: str, parent: BaseKani, task="Please summarize the main content of the webpage above."):
     """Summarize the contents of a webpage."""
+    app = parent.app
     msg = ChatMessage.user(content)
-    summarizer = BaseKani(long_engine, chat_history=[msg], app=parent.app, parent=parent, id=f"{parent.id}-summarizer")
+    summarizer = BaseKani(app.long_engine, chat_history=[msg], app=app, parent=parent, id=f"{parent.id}-summarizer")
     token_len = summarizer.message_token_len(msg) + summarizer.message_token_len(ChatMessage.user(task))
     log.info(f"Summarizing web content with length {len(content)} ({token_len} tokens)\n{content[:32]}...")
     # recursively summarize chunks if the content is *still* too long
-    if token_len + summarizer.always_len > long_engine.max_context_size:
+    if token_len + summarizer.always_len > app.long_engine.max_context_size:
         half_len = len(content) // 2
         first_half = await web_summarize(f"{content[:half_len + 10]}\n[...]", task=task, parent=summarizer)
         second_half = await web_summarize(f"[...]\n{content[half_len - 10:]}", task=task, parent=summarizer)
