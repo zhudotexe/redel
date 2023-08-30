@@ -1,1 +1,1 @@
-from .core import Kanpai
+from .kanis import RootKani

@@ -2,22 +2,22 @@ import logging
 import urllib.parse
 from typing import Annotated, Optional, TYPE_CHECKING
 
-from kani import AIParam, ChatMessage, ChatRole, Kani, ai_function
+from kani import AIParam, ChatMessage, ChatRole, ai_function
 from rapidfuzz import fuzz
 
+from .base_kani import BaseKani
 from .prompts import DELEGATE_KANPAI
 from .webutils import get_links, web_markdownify, web_summarize
 
 if TYPE_CHECKING:
-    from playwright.async_api import Browser, BrowserContext, Page
+    from playwright.async_api import BrowserContext, Page
 
 log = logging.getLogger(__name__)
 
 
-class Kanpai(Kani):
-    def __init__(self, *args, browser: "Browser", **kwargs):
+class RootKani(BaseKani):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.browser = browser
         self.helper = None
 
     # utils
@@ -51,7 +51,7 @@ class Kanpai(Kani):
             # close an existing helper's browser context
             await self.helper.context.close()
         if self.helper is None or new:
-            self.helper = DelegateKanpai(self.engine, browser=self.browser, system_prompt=DELEGATE_KANPAI)
+            self.helper = DelegateKani(self.engine, app=self.app, system_prompt=DELEGATE_KANPAI)
 
         result = []
         async for msg in self.helper.full_round(instructions):
@@ -61,7 +61,7 @@ class Kanpai(Kani):
         return "\n".join(result)
 
 
-class DelegateKanpai(Kanpai):
+class DelegateKani(RootKani):
     def __init__(self, *args, max_webpage_len: int = 1024, **kwargs):
         super().__init__(*args, **kwargs)
         self.context: Optional["BrowserContext"] = None
@@ -73,7 +73,8 @@ class DelegateKanpai(Kanpai):
         """Return the browser context if it's initialized, else create and save a context."""
         if self.context:
             return self.context
-        self.context = await self.browser.new_context()
+        browser = await self.app.get_browser()
+        self.context = await browser.new_context()
         return self.context
 
     async def get_page(self, create=True) -> Optional["Page"]:
@@ -126,12 +127,13 @@ class DelegateKanpai(Kanpai):
             if last_user_msg := self.last_user_message:
                 content = await web_summarize(
                     content,
+                    parent=self,
                     task=(
                         "Please summarize the main content of the webpage above.\n"
                         f"Keep the current goal in mind: {last_user_msg.content}"
                     ),
                 )
             else:
-                content = await web_summarize(content)
+                content = await web_summarize(content, parent=self)
         result = header + content
         return result

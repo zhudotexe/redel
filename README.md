@@ -23,3 +23,9 @@ $ playwright install
     - spawn a code-writing w/ feedback kani
   - retrieve actions from action library
     - spawn a new kani with access to them to complete task
+
+## Code Structure
+
+- Kanpai: app singleton that is responsible for tracking all the kanis
+- RootKani: the one the user interacts with, spawns DelegateKanis
+- DelegateKani: can do anything:tm:
