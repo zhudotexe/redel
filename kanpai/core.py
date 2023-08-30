@@ -3,6 +3,7 @@ import urllib.parse
 from typing import Annotated, Optional, TYPE_CHECKING
 
 from kani import AIParam, ChatMessage, ChatRole, Kani, ai_function
+from rapidfuzz import fuzz
 
 from .prompts import DELEGATE_KANPAI
 from .webutils import get_links, web_markdownify, web_summarize
@@ -39,6 +40,12 @@ class Kanpai(Kani):
         into multiple steps.
         """
         log.info(f"Delegated with instructions: {instructions}")
+        # if the instructions are >95% the same as the current goal, bonk
+        if self.last_user_message and fuzz.ratio(instructions, self.last_user_message.content) > 95:
+            return (
+                "You shouldn't delegate the entire task to a helper. Try breaking it up into smaller steps and call"
+                " this again."
+            )
         # set up the helper
         if new and self.helper is not None and self.helper.context:
             # close an existing helper's browser context
