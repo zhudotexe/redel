@@ -7,6 +7,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from kani import ChatMessage
+from pydantic import BaseModel
 
 from kanpai import Kanpai
 from kanpai.events import BaseEvent, Error, SendMessage
@@ -47,9 +50,38 @@ class KanpaiManager:
 
 manager = KanpaiManager()
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
+)
+
+
+# state utils
+class KaniState(BaseModel):
+    id: str
+    parent: str | None
+    always_included_messages: list[ChatMessage]
+    chat_history: list[ChatMessage]
+
+
+class AppState(BaseModel):
+    kanis: list[KaniState]
 
 
 # routes
+@app.get("/api/state")
+async def get_state() -> AppState:
+    kanis = [
+        KaniState(
+            id=ai.id,
+            parent=ai.parent,
+            always_included_messages=ai.always_included_messages,
+            chat_history=ai.chat_history,
+        )
+        for ai in manager.kanpai_app.kanis.values()
+    ]
+    return AppState(kanis=kanis)
+
+
 @app.websocket("/api/ws")
 async def ws(websocket: WebSocket):
     await manager.connect(websocket)
