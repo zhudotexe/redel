@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import Any, Awaitable, Callable
 from weakref import WeakValueDictionary
 
 from kani import chat_in_terminal_async
@@ -28,14 +29,34 @@ class Kanpai:
         self.playwright = None
         self.browser = None
         # events
+        self.listeners = []
         self.event_queue = asyncio.Queue()
-        self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="kanpai-dispatch")
+        self.dispatch_task = None
         # children
         self.kanis = WeakValueDictionary()
 
+    async def init(self, browser_headless=True):
+        await self.get_browser(headless=browser_headless)
+        if self.dispatch_task is None:
+            self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="kanpai-dispatch")
+
     # entrypoints
+    async def chat_from_queue(self, q: asyncio.Queue):
+        """Get chat messages from the queue."""
+        await self.init()
+        ai = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI)
+        while True:
+            try:
+                user_msg = await q.get()
+                log.info(f"Message from queue: {user_msg.content!r}")
+                async for msg in ai.full_round(user_msg.content):
+                    log.info(f"AI: {msg}")
+                    self.dispatch(events.RootMessage(msg=msg))
+            except Exception:
+                log.exception("Error in chat_from_queue:")
+
     async def chat_in_terminal(self):
-        await self.get_browser(headless=False)
+        await self.init(browser_headless=False)
         ai = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI)
         try:
             await chat_in_terminal_async(ai)
@@ -43,14 +64,16 @@ class Kanpai:
             await self.close()
 
     # events
+    def add_listener(self, callback: Callable[[events.BaseEvent], Awaitable[Any]]):
+        self.listeners.append(callback)
+
     async def _dispatch_task(self):
         while True:
             # noinspection PyBroadException
             try:
                 event = await self.event_queue.get()
-                # todo get listeners, call them
-            except asyncio.CancelledError:
-                return
+                # get listeners, call them
+                await asyncio.gather(*(callback(event) for callback in self.listeners), return_exceptions=True)
             except Exception:
                 log.exception("Exception when dispatching event:")
 
