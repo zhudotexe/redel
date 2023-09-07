@@ -6,7 +6,7 @@ const props = defineProps<{
   content: string;
 }>();
 
-const markdown = new MarkdownIt().use(MarkdownItHighlightjs);
+const markdown = new MarkdownIt({ breaks: true, linkify: true }).use(MarkdownItHighlightjs);
 </script>
 
 <template>

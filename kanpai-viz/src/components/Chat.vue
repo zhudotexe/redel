@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import AssistantMessage from "@/components/AssistantMessage.vue";
-import AssistantThinking from "@/components/AssistantThinking.vue";
-import UserMessage from "@/components/UserMessage.vue";
+import AssistantMessage from "@/components/messages/AssistantMessage.vue";
+import AssistantThinking from "@/components/messages/AssistantThinking.vue";
+import SystemMessage from "@/components/messages/SystemMessage.vue";
+import UserMessage from "@/components/messages/UserMessage.vue";
 import type { KanpaiClient } from "@/kanpai/client";
 import { ChatRole } from "@/kanpai/models";
 import autosize from "autosize";
@@ -38,9 +39,9 @@ onMounted(() => {
     <UserMessage v-if="message.role === ChatRole.user" :message="message" />
     <AssistantMessage v-else-if="message.role === ChatRole.assistant" :message="message" />
     <UserMessage v-else-if="message.role === ChatRole.function" :message="message" />
-    <UserMessage v-else-if="message.role === ChatRole.system" :message="message" />
+    <SystemMessage v-else-if="message.role === ChatRole.system" :message="message" />
   </div>
-  <p v-if="client.rootMessages.length === 0">No messages yet!</p>
+  <p v-if="client.rootMessages.length === 0" class="mb-2">No messages yet!</p>
   <div class="mb-2" v-if="aiThinking">
     <AssistantThinking />
   </div>

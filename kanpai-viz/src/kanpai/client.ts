@@ -1,4 +1,5 @@
 import type { ChatMessage, KaniMessage, KaniSpawn, RootMessage, SendMessage, WSMessage } from "@/kanpai/models";
+import { ChatRole } from "@/kanpai/models";
 import type { AppState, KaniState } from "@/kanpai/state";
 import axios from "axios";
 
@@ -74,7 +75,7 @@ export class KanpaiClient {
 
   onRootMessage(data: RootMessage) {
     this.rootMessages.push(data.msg);
-    if (data.msg.function_call === null) {
+    if (data.msg.role == ChatRole.assistant && data.msg.function_call === null) {
       this.rootMessageWaiterResolvers.forEach((resolve) => resolve(data.msg));
       this.rootMessageWaiterResolvers = [];
     }
