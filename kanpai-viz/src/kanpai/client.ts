@@ -1,4 +1,4 @@
-import type { ChatMessage, KaniMessage, KaniSpawn, RootMessage, WSMessage } from "@/kanpai/models";
+import type { ChatMessage, KaniMessage, KaniSpawn, RootMessage, SendMessage, WSMessage } from "@/kanpai/models";
 import type { AppState, KaniState } from "@/kanpai/state";
 import axios from "axios";
 
@@ -14,6 +14,9 @@ export class KanpaiClient {
   // kanis
   rootMessages: ChatMessage[] = [];
   kaniMap: Map<string, KaniState> = new Map<string, KaniState>();
+
+  // waiters
+  rootMessageWaiterResolvers: ((msg: ChatMessage) => void)[] = [];
 
   // ==== lifecycle ====
   public init() {
@@ -50,6 +53,11 @@ export class KanpaiClient {
     }
   }
 
+  public sendMessage(msg: string) {
+    const payload: SendMessage = { type: "send_message", content: msg };
+    this.ws?.send(JSON.stringify(payload));
+  }
+
   // ==== ws event handlers ====
   onKaniSpawn(data: KaniSpawn) {
     this.kaniMap.set(data.id, data);
@@ -66,6 +74,17 @@ export class KanpaiClient {
 
   onRootMessage(data: RootMessage) {
     this.rootMessages.push(data.msg);
+    if (data.msg.function_call === null) {
+      this.rootMessageWaiterResolvers.forEach((resolve) => resolve(data.msg));
+      this.rootMessageWaiterResolvers = [];
+    }
+  }
+
+  // ==== utils ====
+  public async waitForFullReply() {
+    return new Promise<ChatMessage>((resolve) => {
+      this.rootMessageWaiterResolvers.push(resolve);
+    });
   }
 
   // ==== event handlers ====

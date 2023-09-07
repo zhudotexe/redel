@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import RootMessages from "@/components/RootMessages.vue";
+import Chat from "@/components/Chat.vue";
 import { KanpaiClient } from "@/kanpai/client";
 import { onMounted, onUnmounted, reactive } from "vue";
 
@@ -19,7 +19,7 @@ onUnmounted(() => client.close());
     <div class="hero-body">
       <div class="container">
         <h1 class="title">Kanpai!</h1>
-        <RootMessages :messages="client.rootMessages" />
+        <Chat :client="client" />
       </div>
     </div>
   </section>

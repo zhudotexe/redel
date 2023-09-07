@@ -51,7 +51,6 @@ class Kanpai:
                 log.info(f"Message from queue: {user_msg.content!r}")
                 async for msg in ai.full_round(user_msg.content):
                     log.info(f"AI: {msg}")
-                    self.dispatch(events.RootMessage(msg=msg))
             except Exception:
                 log.exception("Error in chat_from_queue:")
 
