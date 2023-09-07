@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from weakref import WeakValueDictionary
 
-from kani import ChatMessage, Kani
+from kani import ChatMessage, ChatRole, Kani
 
 from . import events
 from .utils import create_kani_id
@@ -25,6 +25,12 @@ class BaseKani(Kani):
         self.app = app
         app.on_kani_creation(self)
 
+    # ==== overrides ====
     async def add_to_history(self, message: ChatMessage):
         await super().add_to_history(message)
         self.app.dispatch(events.KaniMessage(id=self.id, msg=message))
+
+    # ==== utils ====
+    @property
+    def last_user_message(self) -> ChatMessage | None:
+        return next((m for m in self.chat_history if m.role == ChatRole.USER), None)
