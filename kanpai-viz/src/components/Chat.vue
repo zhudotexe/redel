@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AssistantMessage from "@/components/AssistantMessage.vue";
+import AssistantThinking from "@/components/AssistantThinking.vue";
 import UserMessage from "@/components/UserMessage.vue";
 import type { KanpaiClient } from "@/kanpai/client";
 import { ChatRole } from "@/kanpai/models";
@@ -40,6 +41,10 @@ onMounted(() => {
     <UserMessage v-else-if="message.role === ChatRole.system" :message="message" />
   </div>
   <p v-if="client.rootMessages.length === 0">No messages yet!</p>
+  <div class="mb-2" v-if="aiThinking">
+    <AssistantThinking />
+  </div>
+  <!-- msg bar -->
   <div>
     <textarea
       class="textarea has-fixed-size"
