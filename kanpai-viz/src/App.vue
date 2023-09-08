@@ -15,7 +15,7 @@ onUnmounted(() => client.close());
 
 <template>
   <!-- root chat -->
-  <section class="hero is-primary root-chat">
+  <section class="hero is-primary">
     <div class="hero-body">
       <div class="container">
         <h1 class="title">Kanpai!</h1>
@@ -30,8 +30,4 @@ onUnmounted(() => client.close());
   </section>
 </template>
 
-<style scoped>
-.root-chat {
-  max-height: 75vh;
-}
-</style>
+<style scoped></style>

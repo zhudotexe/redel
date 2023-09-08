@@ -6,13 +6,14 @@ import UserMessage from "@/components/messages/UserMessage.vue";
 import type { KanpaiClient } from "@/kanpai/client";
 import { ChatRole } from "@/kanpai/models";
 import autosize from "autosize";
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 
 const props = defineProps<{
   client: KanpaiClient;
 }>();
 
 const chatInput = ref<HTMLInputElement | null>(null);
+const chatHistory = ref<HTMLElement | null>(null);
 let chatMsg = ref("");
 let aiThinking = ref(false);
 
@@ -22,11 +23,18 @@ async function sendChatMsg() {
   chatMsg.value = "";
   aiThinking.value = true;
   props.client.sendMessage(msg);
+  scrollChatToBottom();
+  // wait for reply
   await props.client.waitForFullReply();
   aiThinking.value = false;
   setTimeout(() => {
     chatInput.value?.focus();
   }, 0);
+}
+
+function scrollChatToBottom() {
+  if (chatHistory.value === null) return;
+  chatHistory.value.scrollTop = chatHistory.value.scrollHeight;
 }
 
 onMounted(() => {
@@ -35,18 +43,21 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-for="message in client.rootMessages" class="mb-2">
-    <UserMessage v-if="message.role === ChatRole.user" :message="message" />
-    <AssistantMessage v-else-if="message.role === ChatRole.assistant" :message="message" />
-    <UserMessage v-else-if="message.role === ChatRole.function" :message="message" />
-    <SystemMessage v-else-if="message.role === ChatRole.system" :message="message" />
-  </div>
-  <p v-if="client.rootMessages.length === 0" class="mb-2">No messages yet!</p>
-  <div class="mb-2" v-if="aiThinking">
-    <AssistantThinking />
+  <div class="messages" ref="chatHistory">
+    <div v-for="message in client.rootMessages" class="chat-message">
+      <UserMessage v-if="message.role === ChatRole.user" :message="message" class="user" />
+      <AssistantMessage v-else-if="message.role === ChatRole.assistant" :message="message" />
+      <UserMessage v-else-if="message.role === ChatRole.function" :message="message" />
+      <SystemMessage v-else-if="message.role === ChatRole.system" :message="message" />
+    </div>
+    <p v-if="client.rootMessages.length === 0" class="chat-message">No messages yet!</p>
+    <div class="chat-message" v-if="aiThinking">
+      <AssistantThinking />
+    </div>
+    <div class="scroll-anchor"></div>
   </div>
   <!-- msg bar -->
-  <div>
+  <div class="chat-box">
     <textarea
       class="textarea has-fixed-size"
       :disabled="aiThinking"
@@ -59,4 +70,27 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.messages {
+  overflow: scroll;
+  max-height: 70vh;
+}
+
+.chat-message {
+  overflow-anchor: none;
+}
+
+.chat-message > * {
+  padding: 0.5em;
+}
+
+.scroll-anchor {
+  height: 1px;
+  overflow-anchor: auto;
+}
+
+.user {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 0.5em;
+}
+</style>
