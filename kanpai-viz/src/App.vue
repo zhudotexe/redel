@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Chat from "@/components/Chat.vue";
+import Tree from "@/components/Tree.vue";
 import { KanpaiClient } from "@/kanpai/client";
 import { onMounted, onUnmounted, reactive } from "vue";
 
@@ -26,7 +27,9 @@ onUnmounted(() => client.close());
 
   <!-- viz -->
   <section class="section">
-    <div class="container"></div>
+    <div class="container">
+      <Tree :client="client" />
+    </div>
   </section>
 </template>
 

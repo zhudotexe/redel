@@ -6,7 +6,7 @@ import UserMessage from "@/components/messages/UserMessage.vue";
 import type { KanpaiClient } from "@/kanpai/client";
 import { ChatRole } from "@/kanpai/models";
 import autosize from "autosize";
-import { nextTick, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const props = defineProps<{
   client: KanpaiClient;

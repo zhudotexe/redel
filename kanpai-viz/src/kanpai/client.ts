@@ -14,9 +14,12 @@ export class KanpaiClient {
 
   // kanis
   rootMessages: ChatMessage[] = [];
+  rootKani?: KaniState;
   kaniMap: Map<string, KaniState> = new Map<string, KaniState>();
 
   // waiters
+  isReady: boolean = false;
+  readyWaiterResolvers: ((_: boolean) => void)[] = [];
   rootMessageWaiterResolvers: ((msg: ChatMessage) => void)[] = [];
 
   // ==== lifecycle ====
@@ -44,10 +47,14 @@ export class KanpaiClient {
         this.kaniMap.set(kani.id, kani);
         // also set up the root chat state
         if (kani.parent === null) {
+          this.rootKani = kani;
           // ensure it is a copy
           this.rootMessages = [...kani.chat_history];
         }
       }
+      // notify ready
+      this.isReady = true;
+      this.readyWaiterResolvers.forEach((resolve) => resolve(true));
       console.debug(`Loaded ${this.kaniMap.size} kani states.`);
     } catch (error) {
       console.error("Failed to get app state:", error);
@@ -82,6 +89,13 @@ export class KanpaiClient {
   }
 
   // ==== utils ====
+  public async waitForReady() {
+    if (this.isReady) return true;
+    return new Promise<boolean>((resolve) => {
+      this.readyWaiterResolvers.push(resolve);
+    });
+  }
+
   public async waitForFullReply() {
     return new Promise<ChatMessage>((resolve) => {
       this.rootMessageWaiterResolvers.push(resolve);
