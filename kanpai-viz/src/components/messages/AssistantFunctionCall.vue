@@ -13,10 +13,9 @@ const isOpen = ref(true);
   <article class="message is-small">
     <div class="message-header">
       <p>Called {{ props.functionCall.name }}()...</p>
-<!--      <button class="delete" aria-label="delete"></button>-->
     </div>
     <div class="message-body" v-if="isOpen">
-      {{ functionCall.arguments }}
+      <kbd>{{ functionCall.arguments }}</kbd>
     </div>
   </article>
 </template>

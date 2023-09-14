@@ -7,15 +7,12 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="media">
+  <div class="media function-message">
     <figure class="media-left">
       <p class="image is-32x32"></p>
     </figure>
     <div class="media-content">
-      <article class="message is-small">
-        <div class="message-header">
-          <p>Result</p>
-        </div>
+      <article class="message is-success is-small">
         <div class="message-body">
           {{ props.message.content }}
         </div>
@@ -25,7 +22,7 @@ const props = defineProps<{
 </template>
 
 <style scoped>
-.system-message {
-  padding: 8px;
+.function-message {
+  margin-top: -0.75em;
 }
 </style>

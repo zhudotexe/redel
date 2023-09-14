@@ -43,7 +43,7 @@ export class KanpaiClient {
     try {
       this.kaniMap.clear();
       // const response = await axios.get<AppState>(`${API_BASE}/state`);
-      const response = {data: testAppState};  // todo comment to use real data
+      const response = { data: testAppState }; // todo comment to use real data
       // hydrate the app state
       for (const kani of response.data.kanis) {
         this.kaniMap.set(kani.id, kani);
