@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Markdown from "@/components/Markdown.vue";
+import AssistantFunctionCall from "@/components/messages/AssistantFunctionCall.vue";
 import type { ChatMessage } from "@/kanpai/models";
 
 const props = defineProps<{
@@ -15,9 +16,11 @@ const props = defineProps<{
       </p>
     </figure>
     <div class="media-content">
-      <div class="content">
-        <Markdown :content="props.message.content!" v-if="message.content" />
+      <div class="content" v-if="message.content">
+        <Markdown :content="props.message.content!" />
       </div>
+      <!-- function call -->
+      <AssistantFunctionCall :function-call="message.function_call!" v-if="message.function_call" />
     </div>
   </div>
 </template>

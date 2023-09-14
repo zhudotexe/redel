@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AssistantMessage from "@/components/messages/AssistantMessage.vue";
 import AssistantThinking from "@/components/messages/AssistantThinking.vue";
+import FunctionMessage from "@/components/messages/FunctionMessage.vue";
 import SystemMessage from "@/components/messages/SystemMessage.vue";
 import UserMessage from "@/components/messages/UserMessage.vue";
 import type { KanpaiClient } from "@/kanpai/client";
@@ -47,7 +48,7 @@ onMounted(() => {
     <div v-for="message in client.rootMessages" class="chat-message">
       <UserMessage v-if="message.role === ChatRole.user" :message="message" class="user" />
       <AssistantMessage v-else-if="message.role === ChatRole.assistant" :message="message" />
-      <UserMessage v-else-if="message.role === ChatRole.function" :message="message" />
+      <FunctionMessage v-else-if="message.role === ChatRole.function" :message="message" />
       <SystemMessage v-else-if="message.role === ChatRole.system" :message="message" />
     </div>
     <p v-if="client.rootMessages.length === 0" class="chat-message">No messages yet!</p>
@@ -87,10 +88,5 @@ onMounted(() => {
 .scroll-anchor {
   height: 1px;
   overflow-anchor: auto;
-}
-
-.user {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 0.5em;
 }
 </style>

@@ -8,11 +8,17 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="box has-text-centered mx-4">
-    <div class="content">
-      <Markdown :content="props.message.content!" />
+  <div class="system-message">
+    <div class="box has-text-centered mx-4 p-2">
+      <div class="content">
+        <Markdown :content="props.message.content!" />
+      </div>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.system-message {
+  padding: 8px;
+}
+</style>

@@ -8,7 +8,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="media">
+  <div class="media user-message">
     <figure class="media-left">
       <p class="image is-32x32">
         <img src="@/assets/twemoji/1f9d1-200d-1f4bb.svg" alt="User" />
@@ -22,4 +22,9 @@ const props = defineProps<{
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.user-message {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 0.5em;
+}
+</style>
