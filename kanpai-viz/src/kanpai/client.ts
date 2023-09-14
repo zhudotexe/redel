@@ -18,10 +18,9 @@ export class KanpaiClient {
   rootKani?: KaniState;
   kaniMap: Map<string, KaniState> = new Map<string, KaniState>();
 
-  // waiters
+  // events
+  events = new EventTarget();
   isReady: boolean = false;
-  readyWaiterResolvers: ((_: boolean) => void)[] = [];
-  rootMessageWaiterResolvers: ((msg: ChatMessage) => void)[] = [];
 
   // ==== lifecycle ====
   public init() {
@@ -56,7 +55,7 @@ export class KanpaiClient {
       }
       // notify ready
       this.isReady = true;
-      this.readyWaiterResolvers.forEach((resolve) => resolve(true));
+      this.events.dispatchEvent(new Event("_ready"));
       console.debug(`Loaded ${this.kaniMap.size} kani states.`);
     } catch (error) {
       console.error("Failed to get app state:", error);
@@ -84,23 +83,24 @@ export class KanpaiClient {
 
   onRootMessage(data: RootMessage) {
     this.rootMessages.push(data.msg);
-    if (data.msg.role == ChatRole.assistant && data.msg.function_call === null) {
-      this.rootMessageWaiterResolvers.forEach((resolve) => resolve(data.msg));
-      this.rootMessageWaiterResolvers = [];
-    }
   }
 
   // ==== utils ====
   public async waitForReady() {
     if (this.isReady) return true;
     return new Promise<boolean>((resolve) => {
-      this.readyWaiterResolvers.push(resolve);
+      this.events.addEventListener("_ready", () => resolve(true));
     });
   }
 
   public async waitForFullReply() {
     return new Promise<ChatMessage>((resolve) => {
-      this.rootMessageWaiterResolvers.push(resolve);
+      this.events.addEventListener("root_message", ((e: CustomEvent<RootMessage>) => {
+        const msg = e.detail.msg;
+        if (msg.role == ChatRole.assistant && msg.function_call === null) {
+          resolve(msg);
+        }
+      }) as EventListener);
     });
   }
 
@@ -128,6 +128,7 @@ export class KanpaiClient {
       default:
         console.warn("Unknown websocket event:", message);
     }
+    this.events.dispatchEvent(new CustomEvent(message.type, { detail: message }));
   }
 
   onWSOpen() {
