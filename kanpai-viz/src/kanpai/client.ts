@@ -1,6 +1,7 @@
 import type { ChatMessage, KaniMessage, KaniSpawn, RootMessage, SendMessage, WSMessage } from "@/kanpai/models";
 import { ChatRole } from "@/kanpai/models";
 import type { AppState, KaniState } from "@/kanpai/state";
+import { testAppState } from "@/test-data/testAppState";
 import axios from "axios";
 
 const API_BASE = "http://127.0.0.1:8000/api";
@@ -41,7 +42,8 @@ export class KanpaiClient {
   public async getState() {
     try {
       this.kaniMap.clear();
-      const response = await axios.get<AppState>(`${API_BASE}/state`);
+      // const response = await axios.get<AppState>(`${API_BASE}/state`);
+      const response = {data: testAppState};  // todo comment to use real data
       // hydrate the app state
       for (const kani of response.data.kanis) {
         this.kaniMap.set(kani.id, kani);
