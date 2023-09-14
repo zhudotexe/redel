@@ -34,3 +34,7 @@ class BaseKani(Kani):
     @property
     def last_user_message(self) -> ChatMessage | None:
         return next((m for m in self.chat_history if m.role == ChatRole.USER), None)
+
+    async def cleanup(self):
+        """This kani may run again but is done for now; clean up any ephemeral resources but save its state."""
+        pass

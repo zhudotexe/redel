@@ -5,7 +5,7 @@ from weakref import WeakValueDictionary
 
 from kani import chat_in_terminal_async
 from kani.engines.openai import OpenAIEngine
-from playwright.async_api import Browser, async_playwright
+from playwright.async_api import BrowserContext, async_playwright
 
 from . import events
 from .base_kani import BaseKani
@@ -28,6 +28,7 @@ class Kanpai:
         # browser
         self.playwright = None
         self.browser = None
+        self.browser_context = None
         # events
         self.listeners = []
         self.event_queue = asyncio.Queue()
@@ -98,13 +99,15 @@ class Kanpai:
         )
 
     # resources + app lifecycle
-    async def get_browser(self, **kwargs) -> Browser:
-        """Get the current active browser, or launch it on the first call."""
+    async def get_browser(self, **kwargs) -> BrowserContext:
+        """Get the current active browser context, or launch it on the first call."""
         if self.playwright is None:
             self.playwright = await async_playwright().start()
         if self.browser is None:
             self.browser = await self.playwright.chromium.launch(**kwargs)
-        return self.browser
+        if self.browser_context is None:
+            self.browser_context = await self.browser.new_context()
+        return self.browser_context
 
     async def close(self):
         """Clean up all the app resources."""

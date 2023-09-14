@@ -16,7 +16,7 @@ class Delegate1Mixin(BaseKani):
         self.helper = None
 
     @abstractmethod
-    def create_delegate_kani(self):
+    def create_delegate_kani(self) -> BaseKani:
         raise NotImplementedError
 
     @ai_function()
@@ -40,9 +40,9 @@ class Delegate1Mixin(BaseKani):
                 " this again."
             )
         # set up the helper
-        if new and self.helper is not None and self.helper.context:
+        if new and self.helper is not None:
             # close an existing helper's browser context
-            await self.helper.context.close()
+            await self.helper.cleanup()
         if self.helper is None or new:
             self.helper = self.create_delegate_kani()
 

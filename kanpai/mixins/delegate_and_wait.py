@@ -20,7 +20,7 @@ class DelegateWaitMixin(BaseKani):
         self.helper_futures = {}  # name -> Future[str]
 
     @abstractmethod
-    def create_delegate_kani(self):
+    def create_delegate_kani(self) -> BaseKani:
         raise NotImplementedError
 
     @ai_function()
@@ -32,7 +32,7 @@ class DelegateWaitMixin(BaseKani):
         Ask a capable helper for help looking up a piece of information or performing an action.
         Use wait() to get a helper's result.
         You can call this multiple times to take multiple actions.
-        You should break up user queries into multiple smaller steps if possible.
+        You should break up user queries into multiple smaller queries if possible.
         If the user's query can be resolved in parallel, call this multiple times then use wait("all").
         """
         log.info(f"Delegated with instructions: {instructions}")
@@ -53,6 +53,7 @@ class DelegateWaitMixin(BaseKani):
                 log.info(msg)
                 if msg.content:
                     result.append(msg.content)
+            await helper.cleanup()  # fixme: temp to make it look nice
             return "\n".join(result)
 
         self.helpers[name] = helper

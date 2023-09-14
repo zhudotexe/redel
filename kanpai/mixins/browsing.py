@@ -1,54 +1,45 @@
 import urllib.parse
-from typing import Annotated, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
-from kani import AIParam, ChatMessage, ai_function
+from kani import ChatMessage, ai_function
 
 from kanpai.base_kani import BaseKani
 from kanpai.webutils import get_links, web_markdownify, web_summarize
 
 if TYPE_CHECKING:
-    from playwright.async_api import BrowserContext, Page
+    from playwright.async_api import Page
 
 
 class BrowsingMixin(BaseKani):
     def __init__(self, *args, max_webpage_len: int = 1024, **kwargs):
         super().__init__(*args, **kwargs)
-        self.context: Optional["BrowserContext"] = None
         self.page: Optional["Page"] = None
         self.max_webpage_len = max_webpage_len  # the max number of tokens before asking for a summary
 
     # browser management
-    async def get_context(self) -> "BrowserContext":
-        """Return the browser context if it's initialized, else create and save a context."""
-        if self.context:
-            return self.context
-        browser = await self.app.get_browser()
-        self.context = await browser.new_context()
-        return self.context
-
     async def get_page(self, create=True) -> Optional["Page"]:
         """Get the current page.
 
         Returns None if the browser is not on a page unless `create` is True, in which case it creates a new page.
         """
         if self.page is None and create:
-            context = await self.get_context()
+            context = await self.app.get_browser()
             self.page = await context.new_page()
         return self.page
+
+    async def cleanup(self):
+        await super().cleanup()
+        await self.page.close()
+        self.page = None
 
     # functions
     @ai_function()
     async def search(
         self,
         query: str,
-        new_tab: Annotated[bool, AIParam("Whether to search in a new tab or the current tab.")] = False,
     ):
         """Search a query on Google."""
-        if new_tab:
-            context = await self.get_context()
-            page = await context.new_page()
-        else:
-            page = await self.get_page()
+        page = await self.get_page()
         query_enc = urllib.parse.quote_plus(query)
         await page.goto(f"https://www.google.com/search?q={query_enc}")
         # content
