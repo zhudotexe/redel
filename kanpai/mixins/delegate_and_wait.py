@@ -27,6 +27,7 @@ class DelegateWaitMixin(BaseKani):
     async def delegate(
         self,
         instructions: Annotated[str, AIParam("Detailed instructions on what your helper should do to help you.")],
+        who: Annotated[str, AIParam("Who should handle this request (leave empty for whoever is available).")] = None,
     ):
         """
         Ask a capable helper for help looking up a piece of information or performing an action.
@@ -43,9 +44,19 @@ class DelegateWaitMixin(BaseKani):
                 " this again."
             )
 
-        # set up the helper
-        name = self.namer.get_name()
-        helper = self.create_delegate_kani()
+        # find or set up the helper
+        if who and who in self.helpers:
+            if who in self.helper_futures:
+                return (
+                    f"{who!r} is currently busy. You can leave `who` empty to find a new available helper or wait on"
+                    f" {who!r} and retry."
+                )
+            name = who
+            helper = self.helpers[who]
+        else:
+            name = self.namer.get_name()
+            helper = self.create_delegate_kani()
+            self.helpers[name] = helper
 
         async def _task():
             result = []
@@ -53,10 +64,9 @@ class DelegateWaitMixin(BaseKani):
                 log.info(msg)
                 if msg.content:
                     result.append(msg.content)
-            await helper.cleanup()  # fixme: temp to make it look nice
+            await helper.cleanup()
             return "\n".join(result)
 
-        self.helpers[name] = helper
         self.helper_futures[name] = asyncio.create_task(_task())
         return f"{name!r} is helping you with this request."
 
