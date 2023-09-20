@@ -1,4 +1,4 @@
-import { ChatRole } from "@/kanpai/models";
+import { ChatRole, RunState } from "@/kanpai/models";
 import type { AppState } from "@/kanpai/state";
 
 export const testAppState: AppState = {
@@ -7,6 +7,7 @@ export const testAppState: AppState = {
       id: "f26e79de-15e7-42e0-8eda-a296ad42f571",
       parent: null,
       children: ["3e863a71-03e1-4cd5-a21e-eabb2759e42d"],
+      state: RunState.stopped,
       always_included_messages: [
         {
           role: ChatRole.system,
@@ -70,6 +71,7 @@ export const testAppState: AppState = {
       id: "3e863a71-03e1-4cd5-a21e-eabb2759e42d",
       parent: "f26e79de-15e7-42e0-8eda-a296ad42f571",
       children: [],
+      state: RunState.stopped,
       always_included_messages: [
         {
           role: ChatRole.system,

@@ -8,6 +8,13 @@ export enum ChatRole {
   function = "function",
 }
 
+export enum RunState {
+  stopped = "stopped",
+  running = "running",
+  waiting = "waiting",
+  errored = "errored",
+}
+
 export interface FunctionCall {
   name: string;
   arguments: string;
@@ -31,6 +38,11 @@ export interface WSError extends WSMessage {
 }
 
 export interface KaniSpawn extends WSMessage, KaniState {}
+
+export interface KaniStateChange extends WSMessage {
+  id: string;
+  state: RunState;
+}
 
 export interface KaniMessage extends WSMessage {
   id: string;

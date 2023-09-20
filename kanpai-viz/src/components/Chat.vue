@@ -5,7 +5,7 @@ import FunctionMessage from "@/components/messages/FunctionMessage.vue";
 import SystemMessage from "@/components/messages/SystemMessage.vue";
 import UserMessage from "@/components/messages/UserMessage.vue";
 import type { KanpaiClient } from "@/kanpai/client";
-import { ChatRole } from "@/kanpai/models";
+import { ChatRole, RunState } from "@/kanpai/models";
 import autosize from "autosize";
 import { onMounted, ref } from "vue";
 
@@ -16,18 +16,15 @@ const props = defineProps<{
 const chatInput = ref<HTMLInputElement | null>(null);
 const chatHistory = ref<HTMLElement | null>(null);
 let chatMsg = ref("");
-let aiThinking = ref(false);
 
 async function sendChatMsg() {
   const msg = chatMsg.value;
   if (msg.length === 0) return;
   chatMsg.value = "";
-  aiThinking.value = true;
   props.client.sendMessage(msg);
   scrollChatToBottom();
   // wait for reply
   await props.client.waitForFullReply();
-  aiThinking.value = false;
   setTimeout(() => {
     chatInput.value?.focus();
   }, 0);
@@ -52,7 +49,7 @@ onMounted(() => {
       <SystemMessage v-else-if="message.role === ChatRole.system" :message="message" />
     </div>
     <p v-if="client.rootMessages.length === 0" class="chat-message">No messages yet!</p>
-    <div class="chat-message" v-if="aiThinking">
+    <div class="chat-message" v-if="client.rootKani?.state !== RunState.stopped">
       <AssistantThinking />
     </div>
     <div class="scroll-anchor"></div>
@@ -61,7 +58,7 @@ onMounted(() => {
   <div class="chat-box">
     <textarea
       class="textarea has-fixed-size"
-      :disabled="aiThinking"
+      :disabled="client.rootKani?.state !== RunState.stopped"
       autofocus
       rows="1"
       ref="chatInput"

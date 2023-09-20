@@ -1,4 +1,4 @@
-import type { ChatMessage } from "@/kanpai/models";
+import type { ChatMessage, RunState } from "@/kanpai/models";
 
 export interface KaniState {
   id: string;
@@ -6,6 +6,7 @@ export interface KaniState {
   children: string[];
   always_included_messages: ChatMessage[];
   chat_history: ChatMessage[];
+  state: RunState;
 }
 
 export interface AppState {

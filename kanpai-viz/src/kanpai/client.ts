@@ -1,8 +1,15 @@
-import type { ChatMessage, KaniMessage, KaniSpawn, RootMessage, SendMessage, WSMessage } from "@/kanpai/models";
+import type {
+  ChatMessage,
+  KaniMessage,
+  KaniSpawn,
+  KaniStateChange,
+  RootMessage,
+  SendMessage,
+  WSMessage,
+} from "@/kanpai/models";
 import { ChatRole } from "@/kanpai/models";
-import type { AppState, KaniState } from "@/kanpai/state";
+import type { KaniState } from "@/kanpai/state";
 import { testAppState } from "@/test-data/testAppState";
-import axios from "axios";
 
 const API_BASE = "http://127.0.0.1:8000/api";
 const WS_URL = "ws://127.0.0.1:8000/api/ws";
@@ -72,10 +79,19 @@ export class KanpaiClient {
     this.kaniMap.set(data.id, data);
   }
 
+  onKaniStateChange(data: KaniStateChange) {
+    const kani = this.kaniMap.get(data.id);
+    if (!kani) {
+      console.warn("Got kani_state_change event for nonexistent kani!");
+      return;
+    }
+    kani.state = data.state;
+  }
+
   onKaniMessage(data: KaniMessage) {
     const kani = this.kaniMap.get(data.id);
     if (!kani) {
-      console.warn("Got kani_message event for nonexistant message!");
+      console.warn("Got kani_message event for nonexistent kani!");
       return;
     }
     kani.chat_history.push(data.msg);
@@ -118,6 +134,9 @@ export class KanpaiClient {
     switch (message.type) {
       case "kani_spawn":
         this.onKaniSpawn(message as KaniSpawn);
+        break;
+      case "kani_state_change":
+        this.onKaniStateChange(message as KaniStateChange);
         break;
       case "kani_message":
         this.onKaniMessage(message as KaniMessage);
