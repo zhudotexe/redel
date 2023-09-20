@@ -6,7 +6,7 @@ from markdownify import MarkdownConverter, chomp
 from playwright.async_api import Locator, Page
 from pydantic import BaseModel, RootModel
 
-from .base_kani import BaseKani
+from .base_kani import BaseKani, RunState
 
 log = logging.getLogger(__name__)
 
@@ -48,15 +48,16 @@ async def web_summarize(content: str, parent: BaseKani, task="Please summarize t
     summarizer = BaseKani(app.long_engine, chat_history=[msg], app=app, parent=parent, id=f"{parent.id}-summarizer")
     token_len = summarizer.message_token_len(msg) + summarizer.message_token_len(ChatMessage.user(task))
     log.info(f"Summarizing web content with length {len(content)} ({token_len} tokens)\n{content[:32]}...")
-    # recursively summarize chunks if the content is *still* too long
-    if token_len + summarizer.always_len > app.long_engine.max_context_size:
-        half_len = len(content) // 2
-        first_half = await web_summarize(f"{content[:half_len + 10]}\n[...]", task=task, parent=summarizer)
-        second_half = await web_summarize(f"[...]\n{content[half_len - 10:]}", task=task, parent=summarizer)
-        result = f"{first_half}\n---\n{second_half}"
-    else:
-        result = await summarizer.chat_round_str(task)
-    return result
+    with parent.set_state(RunState.WAITING):
+        # recursively summarize chunks if the content is *still* too long
+        if token_len + summarizer.always_len > app.long_engine.max_context_size:
+            half_len = len(content) // 2
+            first_half = await web_summarize(f"{content[:half_len + 10]}\n[...]", task=task, parent=summarizer)
+            second_half = await web_summarize(f"[...]\n{content[half_len - 10:]}", task=task, parent=summarizer)
+            result = f"{first_half}\n---\n{second_half}"
+        else:
+            result = await summarizer.chat_round_str(task)
+        return result
 
 
 # markdownification
