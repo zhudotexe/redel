@@ -5,7 +5,7 @@ from typing import Annotated
 from kani import AIParam, ai_function
 from rapidfuzz import fuzz
 
-from kanpai.base_kani import BaseKani
+from kanpai.base_kani import BaseKani, RunState
 
 log = logging.getLogger(__name__)
 
@@ -46,9 +46,11 @@ class Delegate1Mixin(BaseKani):
         if self.helper is None or new:
             self.helper = self.create_delegate_kani()
 
-        result = []
-        async for msg in self.helper.full_round(instructions):
-            log.info(msg)
-            if msg.content:
-                result.append(msg.content)
-        return "\n".join(result)
+        # wait for child
+        with self.set_state(RunState.WAITING):
+            result = []
+            async for msg in self.helper.full_round(instructions):
+                log.info(msg)
+                if msg.content:
+                    result.append(msg.content)
+            return "\n".join(result)

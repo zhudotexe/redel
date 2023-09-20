@@ -4,6 +4,8 @@ from typing import Literal
 from kani import ChatMessage
 from pydantic import BaseModel
 
+from kanpai.base_kani import RunState
+
 
 class BaseEvent(BaseModel, abc.ABC):
     type: str
@@ -26,6 +28,15 @@ class KaniSpawn(BaseEvent):
     children: list[str] = []
     always_included_messages: list[ChatMessage]
     chat_history: list[ChatMessage]
+    state: RunState
+
+
+class KaniStateChange(BaseEvent):
+    """A kani's run state changed."""
+
+    type: Literal["kani_state_change"] = "kani_state_change"
+    id: str
+    state: RunState
 
 
 class KaniMessage(BaseEvent):

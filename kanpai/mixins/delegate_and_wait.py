@@ -7,7 +7,7 @@ from typing import Annotated
 from kani import AIParam, ai_function
 from rapidfuzz import fuzz
 
-from kanpai.base_kani import BaseKani
+from kanpai.base_kani import BaseKani, RunState
 
 log = logging.getLogger(__name__)
 
@@ -83,7 +83,8 @@ class DelegateWaitMixin(BaseKani):
             return 'The "until" param must be the name of a running helper, "next", or "all".'
 
         if until == "next":
-            done, _ = await asyncio.wait(self.helper_futures.values(), return_when=asyncio.FIRST_COMPLETED)
+            with self.set_state(RunState.WAITING):
+                done, _ = await asyncio.wait(self.helper_futures.values(), return_when=asyncio.FIRST_COMPLETED)
             future = done.pop()
             # cleanup from task list
             helper_name = next(k for k, v in self.helper_futures.items() if v is future)
@@ -92,7 +93,8 @@ class DelegateWaitMixin(BaseKani):
             result = future.result()
             return f"{helper_name}:\n{result}"
         elif until == "all":
-            done, _ = await asyncio.wait(self.helper_futures.values(), return_when=asyncio.ALL_COMPLETED)
+            with self.set_state(RunState.WAITING):
+                done, _ = await asyncio.wait(self.helper_futures.values(), return_when=asyncio.ALL_COMPLETED)
             # prompt with name
             results = []
             for helper_name, future in self.helper_futures.items():
@@ -103,7 +105,8 @@ class DelegateWaitMixin(BaseKani):
             return "\n\n=====\n\n".join(results)
         else:
             future = self.helper_futures.pop(until)
-            result = await future
+            with self.set_state(RunState.WAITING):
+                result = await future
             return f"{until}:\n{result}"
 
 

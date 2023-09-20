@@ -1,3 +1,5 @@
+import enum
+from contextlib import contextmanager
 from typing import TYPE_CHECKING
 from weakref import WeakValueDictionary
 
@@ -10,9 +12,17 @@ if TYPE_CHECKING:
     from .app import Kanpai
 
 
+class RunState(enum.Enum):
+    STOPPED = "stopped"  # not currently running anything or waiting on a child
+    RUNNING = "running"  # gpt-4 is generating something
+    WAITING = "waiting"  # waiting on a child
+    ERRORED = "errored"  # panic
+
+
 class BaseKani(Kani):
     def __init__(self, *args, app: "Kanpai", parent: "BaseKani" = None, id: str = None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.state = RunState.STOPPED
         # tree management
         if parent is not None:
             self.depth = parent.depth + 1
@@ -26,6 +36,15 @@ class BaseKani(Kani):
         app.on_kani_creation(self)
 
     # ==== overrides ====
+    async def chat_round(self, *args, **kwargs):
+        with self.set_state(RunState.RUNNING):
+            return await super().chat_round(*args, **kwargs)
+
+    async def full_round(self, *args, **kwargs):
+        with self.set_state(RunState.RUNNING):
+            async for msg in super().full_round(*args, **kwargs):
+                yield msg
+
     async def add_to_history(self, message: ChatMessage):
         await super().add_to_history(message)
         self.app.dispatch(events.KaniMessage(id=self.id, msg=message))
@@ -34,6 +53,18 @@ class BaseKani(Kani):
     @property
     def last_user_message(self) -> ChatMessage | None:
         return next((m for m in self.chat_history if m.role == ChatRole.USER), None)
+
+    @contextmanager
+    def set_state(self, state: RunState):
+        """Run the body of this statement with a different run state then set it back after."""
+        old_state = self.state
+        self.state = state
+        self.app.dispatch(events.KaniStateChange(id=self.id, state=self.state))
+        try:
+            yield
+        finally:
+            self.state = old_state
+            self.app.dispatch(events.KaniStateChange(id=self.id, state=self.state))
 
     async def cleanup(self):
         """This kani may run again but is done for now; clean up any ephemeral resources but save its state."""

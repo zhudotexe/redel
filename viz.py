@@ -6,12 +6,13 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from kani import ChatMessage
 from pydantic import BaseModel
 
 from kanpai import Kanpai
+from kanpai.base_kani import RunState
 from kanpai.events import BaseEvent, Error, SendMessage
 
 log = logging.getLogger("viz-app")
@@ -62,6 +63,7 @@ class KaniState(BaseModel):
     children: list[str]
     always_included_messages: list[ChatMessage]
     chat_history: list[ChatMessage]
+    state: RunState
 
 
 class AppState(BaseModel):
@@ -78,6 +80,7 @@ async def get_state() -> AppState:
             children=list(ai.children),
             always_included_messages=ai.always_included_messages,
             chat_history=ai.chat_history,
+            state=ai.state,
         )
         for ai in manager.kanpai_app.kanis.values()
     ]

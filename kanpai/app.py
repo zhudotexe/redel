@@ -95,6 +95,7 @@ class Kanpai:
                 parent=ai.parent.id if ai.parent else None,
                 always_included_messages=ai.always_included_messages,
                 chat_history=ai.chat_history,
+                state=ai.state,
             )
         )
 
