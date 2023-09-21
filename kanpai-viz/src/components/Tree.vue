@@ -16,9 +16,9 @@ const colorForState = (state) => {
     case RunState.stopped:
       return "#fff";
     case RunState.running:
-      return "#CBFFA9";
+      return "#9af362";
     case RunState.waiting:
-      return "#FFFEC4";
+      return "#fffe48";
     case RunState.errored:
       return "#FF9B9B";
     default:
@@ -69,7 +69,7 @@ const tickSimulation = () => {
 // setup simulation
 const simulation = d3.forceSimulation()
   .force("charge", d3.forceManyBody().strength(-50))
-  .force("link", d3.forceLink().id(d => d.id).distance(1).strength(1))
+  .force("link", d3.forceLink().id(d => d.id).distance(15).strength(1))
   .force("x", d3.forceX())
   .force("y", d3.forceY())
   .on("tick", tickSimulation);
@@ -121,7 +121,7 @@ const update = () => {
       // add missing nodes
       .append("circle")
         .attr("id", d => d.data.id)
-        .attr("r", 3.5)
+        .attr("r", 5.5)
         .call(drag(simulation))
         .call(node => node.append("title").text(d => d.data.id))
         .on("click", function() {
