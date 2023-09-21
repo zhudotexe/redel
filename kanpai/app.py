@@ -112,7 +112,8 @@ class Kanpai:
 
     async def close(self):
         """Clean up all the app resources."""
-        self.dispatch_task.cancel()
+        if self.dispatch_task is not None:
+            self.dispatch_task.cancel()
         await self.engine.close()
         await self.long_engine.close()
         if self.browser is not None:
