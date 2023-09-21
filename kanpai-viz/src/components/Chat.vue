@@ -7,24 +7,21 @@ import UserMessage from "@/components/messages/UserMessage.vue";
 import type { KanpaiClient } from "@/kanpai/client";
 import { ChatRole, RunState } from "@/kanpai/models";
 import autosize from "autosize";
-import { onMounted, ref } from "vue";
+import { inject, onMounted, ref } from "vue";
 
-const props = defineProps<{
-  client: KanpaiClient;
-}>();
-
+const client = inject<KanpaiClient>("client")!;
 const chatInput = ref<HTMLInputElement | null>(null);
 const chatHistory = ref<HTMLElement | null>(null);
-let chatMsg = ref("");
+const chatMsg = ref("");
 
 async function sendChatMsg() {
   const msg = chatMsg.value;
   if (msg.length === 0) return;
   chatMsg.value = "";
-  props.client.sendMessage(msg);
+  client.sendMessage(msg);
   scrollChatToBottom();
   // wait for reply
-  await props.client.waitForFullReply();
+  await client.waitForFullReply();
   setTimeout(() => {
     chatInput.value?.focus();
   }, 0);

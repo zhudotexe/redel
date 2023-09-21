@@ -1,19 +1,14 @@
 <!-- @formatter:off -->
 <!-- this file in JS because d3 is wack -->
 <script setup>
-import {KanpaiClient} from "@/kanpai/client";
 import * as d3 from "d3";
-import {onMounted, onUnmounted, ref} from "vue";
+import {inject, onMounted, onUnmounted, ref} from "vue";
 
-const props = defineProps({
-  client: KanpaiClient
-});
-
+const client = inject("client");
 const d3Mount = ref(null);
 let simulation;
 
 const drag = simulation => {
-
   function dragstarted(event, d) {
     if (!event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
@@ -37,17 +32,23 @@ const drag = simulation => {
       .on("end", dragended);
 }
 
+// set up the canvas when the page loads
 onMounted(async () => {
-  await props.client.waitForReady();
+  await client.waitForReady();
 
   // Specify the chart’s dimensions.
   const width = 900;
   const height = 400;
 
+  // Create the container SVG.
+  const svg = d3.select(d3Mount.value)
+      .attr("viewBox", [-width / 2, -height / 2, width, height])
+      .attr("style", "max-width: 100%; height: auto;");
+
   // Compute the graph and start the force simulation.
   const root = d3.hierarchy(
-    props.client.rootKani,
-    (kani) => kani?.children.map(id => props.client.kaniMap.get(id)),
+    client.rootKani,
+    (kani) => kani?.children.map(id => client.kaniMap.get(id)),
   );
   const links = root.links();
   const nodes = root.descendants();
@@ -57,11 +58,6 @@ onMounted(async () => {
       .force("charge", d3.forceManyBody().strength(-50))
       .force("x", d3.forceX())
       .force("y", d3.forceY());
-
-  // Create the container SVG.
-  const svg = d3.select(d3Mount.value)
-      .attr("viewBox", [-width / 2, -height / 2, width, height])
-      .attr("style", "max-width: 100%; height: auto;");
 
   // Append links.
   const link = svg.append("g")
@@ -79,6 +75,7 @@ onMounted(async () => {
     .selectAll("circle")
     .data(nodes)
     .join("circle")
+      .attr("id", d => d.data.id)
       .attr("fill", d => d.children ? null : "#000")
       .attr("stroke", d => d.children ? null : "#fff")
       .attr("r", 3.5)
@@ -87,6 +84,7 @@ onMounted(async () => {
   node.append("title")
       .text(d => d.data.id);
 
+  // simulation: move on each tick
   simulation.on("tick", () => {
     link
         .attr("x1", d => d.source.x)
@@ -97,6 +95,20 @@ onMounted(async () => {
     node
         .attr("cx", d => d.x)
         .attr("cy", d => d.y);
+  });
+
+  // flash on click
+  node.on("click", function() {
+    console.log(this)
+    d3.select(this)
+      .transition() // starts a transition
+      .ease(d3.easeCubic) // controls the timing of the transition
+      .duration(1000) // for one second
+      .style("fill", "red") // change the color to red
+      .transition() // starts a transition
+      .ease(d3.easeCubic) // controls the timing of the transition
+      .duration(1000) // for one second
+      .style("fill", "blue"); // and then change the color back to blue
   });
 });
 

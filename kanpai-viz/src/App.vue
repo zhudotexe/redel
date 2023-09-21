@@ -2,9 +2,11 @@
 import Chat from "@/components/Chat.vue";
 import Tree from "@/components/Tree.vue";
 import { KanpaiClient } from "@/kanpai/client";
-import { onMounted, onUnmounted, reactive } from "vue";
+import { onMounted, onUnmounted, provide, reactive } from "vue";
 
 const client = reactive(new KanpaiClient());
+
+provide("client", client);
 
 // hooks
 onMounted(async () => {
@@ -20,7 +22,7 @@ onUnmounted(() => client.close());
     <div class="hero-body">
       <div class="container">
         <h1 class="title">Kanpai!</h1>
-        <Chat :client="client" />
+        <Chat />
       </div>
     </div>
   </section>
@@ -28,7 +30,7 @@ onUnmounted(() => client.close());
   <!-- viz -->
   <section class="section">
     <div class="container">
-      <Tree :client="client" />
+      <Tree />
     </div>
   </section>
 </template>
