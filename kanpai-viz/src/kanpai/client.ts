@@ -8,8 +8,9 @@ import type {
   WSMessage,
 } from "@/kanpai/models";
 import { ChatRole } from "@/kanpai/models";
-import type { KaniState } from "@/kanpai/state";
-import { testAppState } from "@/test-data/testAppState";
+import type { AppState, KaniState } from "@/kanpai/state";
+import { testAppState2 } from "@/test-data/testAppState";
+import axios from "axios";
 
 const API_BASE = "http://127.0.0.1:8000/api";
 const WS_URL = "ws://127.0.0.1:8000/api/ws";
@@ -49,7 +50,7 @@ export class KanpaiClient {
     try {
       this.kaniMap.clear();
       // const response = await axios.get<AppState>(`${API_BASE}/state`);
-      const response = { data: testAppState }; // todo comment to use real data
+      const response = { data: testAppState2 }; // todo comment to use real data
       // hydrate the app state
       for (const kani of response.data.kanis) {
         this.kaniMap.set(kani.id, kani);
@@ -77,6 +78,13 @@ export class KanpaiClient {
   // ==== ws event handlers ====
   onKaniSpawn(data: KaniSpawn) {
     this.kaniMap.set(data.id, data);
+    if (data.parent === null) return;
+    const parent = this.kaniMap.get(data.parent);
+    if (!parent) {
+      console.warn("Got kani_spawn event but parent kani does not exist!");
+      return;
+    }
+    parent.children.push(data.id);
   }
 
   onKaniStateChange(data: KaniStateChange) {

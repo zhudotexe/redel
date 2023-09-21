@@ -29,8 +29,9 @@ class BrowsingMixin(BaseKani):
 
     async def cleanup(self):
         await super().cleanup()
-        await self.page.close()
-        self.page = None
+        if self.page is not None:
+            await self.page.close()
+            self.page = None
 
     # functions
     @ai_function()
