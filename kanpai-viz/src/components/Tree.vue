@@ -121,7 +121,7 @@ const update = () => {
         .attr("id", d => d.data.id)
         .attr("r", 5.5)
         .call(drag(simulation))
-        .call(node => node.append("title").text(d => d.data.id))
+        .call(node => node.append("title").text(d => `${d.data.name} (${d.data.id})`))
         .on("click", function() {
           emit("nodeClicked", this.id);
         }))

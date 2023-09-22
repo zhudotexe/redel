@@ -1,5 +1,4 @@
 import asyncio
-import itertools
 import logging
 from abc import abstractmethod
 from typing import Annotated
@@ -15,7 +14,6 @@ log = logging.getLogger(__name__)
 class DelegateWaitMixin(BaseKani):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.namer = Namer()
         self.helpers = {}  # name -> delegate
         self.helper_futures = {}  # name -> Future[str]
 
@@ -54,9 +52,8 @@ class DelegateWaitMixin(BaseKani):
             name = who
             helper = self.helpers[who]
         else:
-            name = self.namer.get_name()
             helper = self.create_delegate_kani()
-            self.helpers[name] = helper
+            self.helpers[helper.name] = helper
 
         async def _task():
             result = []
@@ -67,8 +64,8 @@ class DelegateWaitMixin(BaseKani):
             await helper.cleanup()
             return "\n".join(result)
 
-        self.helper_futures[name] = asyncio.create_task(_task())
-        return f"{name!r} is helping you with this request."
+        self.helper_futures[helper.name] = asyncio.create_task(_task())
+        return f"{helper.name!r} is helping you with this request."
 
     @ai_function()
     async def wait(
@@ -108,38 +105,3 @@ class DelegateWaitMixin(BaseKani):
             with self.set_state(RunState.WAITING):
                 result = await future
             return f"{until}:\n{result}"
-
-
-class Namer:
-    all_names = [
-        "alpha",
-        "beta",
-        "gamma",
-        "delta",
-        "epsilon",
-        "zeta",
-        "eta",
-        "theta",
-        "iota",
-        "kappa",
-        "lambda",
-        "mu",
-        "nu",
-        "xi",
-        "omicron",
-        "pi",
-        "rho",
-        "sigma",
-        "tau",
-        "upsilon",
-        "phi",
-        "chi",
-        "psi",
-        "omega",
-    ]
-
-    def __init__(self):
-        self.gen = itertools.cycle(self.all_names)
-
-    def get_name(self):
-        return next(self.gen)

@@ -29,6 +29,7 @@ class KaniSpawn(BaseEvent):
     always_included_messages: list[ChatMessage]
     chat_history: list[ChatMessage]
     state: RunState
+    name: str
 
 
 class KaniStateChange(BaseEvent):

@@ -45,7 +45,7 @@ class Kanpai:
     async def chat_from_queue(self, q: asyncio.Queue):
         """Get chat messages from the queue."""
         await self.init()
-        ai = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI)
+        ai = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI, name="kanpai")
         while True:
             try:
                 user_msg = await q.get()
@@ -57,7 +57,7 @@ class Kanpai:
 
     async def chat_in_terminal(self):
         await self.init(browser_headless=False)
-        ai = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI)
+        ai = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI, name="kanpai")
         try:
             await chat_in_terminal_async(ai)
         except KeyboardInterrupt:
@@ -96,6 +96,7 @@ class Kanpai:
                 always_included_messages=ai.always_included_messages,
                 chat_history=ai.chat_history,
                 state=ai.state,
+                name=ai.name,
             )
         )
 

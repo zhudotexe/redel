@@ -7,6 +7,7 @@ export interface KaniState {
   always_included_messages: ChatMessage[];
   chat_history: ChatMessage[];
   state: RunState;
+  name: string;
 }
 
 export interface AppState {

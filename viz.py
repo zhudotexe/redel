@@ -64,6 +64,7 @@ class KaniState(BaseModel):
     always_included_messages: list[ChatMessage]
     chat_history: list[ChatMessage]
     state: RunState
+    name: str
 
 
 class AppState(BaseModel):
@@ -81,6 +82,7 @@ async def get_state() -> AppState:
             always_included_messages=ai.always_included_messages,
             chat_history=ai.chat_history,
             state=ai.state,
+            name=ai.name,
         )
         for ai in manager.kanpai_app.kanis.values()
     ]
