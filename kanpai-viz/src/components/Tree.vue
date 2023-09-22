@@ -11,19 +11,17 @@ const client = inject("client");
 const d3Mount = ref(null);
 
 // ==== style stuff ====
-const colorForState = (state) => {
-  switch (state) {
-    case RunState.stopped:
-      return "#fff";
+const colorForNode = (kaniState) => {
+  switch (kaniState.state) {
     case RunState.running:
       return "#9af362";
     case RunState.waiting:
       return "#fffe48";
     case RunState.errored:
       return "#FF9B9B";
-    default:
-      return "#fff";
   }
+  // stopped; gray if not root
+  return kaniState.parent ? "#ddd" : "#fff";
 }
 
 // ==== d3 stuff ====
@@ -128,7 +126,7 @@ const update = () => {
           emit("nodeClicked", this.id);
         }))
       // set color based on state
-      .attr("fill", d => colorForState(d.data.state));
+      .attr("fill", d => colorForNode(d.data));
 
   // update link group
   link = link
@@ -142,6 +140,12 @@ const update = () => {
   tickSimulation(); // render now!
 };
 
+// update data based on current state of client
+const updateColors = () => {
+  node = node
+    .attr("fill", d => colorForNode(d.data));
+}
+
 onUnmounted(() => simulation.stop());
 
 // --- reactivity ---
@@ -151,8 +155,9 @@ onMounted(async () => {
   update();
 });
 
-// update when the app state changes
-watch(client.kaniMap, () => update());
+// update on messages and state changes
+client.events.addEventListener("kani_message", () => update());
+client.events.addEventListener("kani_state_change", () => updateColors());
 </script>
 
 <template>
