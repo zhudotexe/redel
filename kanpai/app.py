@@ -9,6 +9,7 @@ from playwright.async_api import BrowserContext, async_playwright
 
 from . import events
 from .base_kani import BaseKani
+from .engines import RatelimitedOpenAIEngine
 from .kanis import RootKani
 from .prompts import ROOT_KANPAI
 
@@ -24,7 +25,7 @@ class Kanpai:
     def __init__(self):
         # engines
         self.engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
-        self.long_engine = OpenAIEngine(model="gpt-4-32k", temperature=0.1)
+        self.long_engine = RatelimitedOpenAIEngine(model="gpt-4-32k", temperature=0.1, max_rate=3)
         # browser
         self.playwright = None
         self.browser = None

@@ -23,6 +23,9 @@ class Links(RootModel):
     def __bool__(self):
         return bool(self.root)
 
+    def to_md_str(self):
+        return "\n".join(f"[{link.content}]({link.href})" for link in self.root)
+
 
 async def get_links(elem: Page | Locator) -> Links:
     """Return a list of all links on a page or in an element."""
@@ -48,9 +51,14 @@ async def web_summarize(content: str, parent: BaseKani, task="Please summarize t
     summarizer = BaseKani(app.long_engine, chat_history=[msg], app=app, parent=parent, id=f"{parent.id}-summarizer")
     token_len = summarizer.message_token_len(msg) + summarizer.message_token_len(ChatMessage.user(task))
     log.info(f"Summarizing web content with length {len(content)} ({token_len} tokens)\n{content[:32]}...")
+
+    # if we can use base gpt-4 to summarize, do that; otherwise use 32k with rate limit controls
+    if token_len + summarizer.always_len <= app.engine.max_context_size:
+        summarizer.engine = app.engine
+
     with parent.set_state(RunState.WAITING):
         # recursively summarize chunks if the content is *still* too long
-        if token_len + summarizer.always_len > app.long_engine.max_context_size:
+        if token_len + summarizer.always_len > summarizer.engine.max_context_size:
             half_len = len(content) // 2
             first_half = await web_summarize(f"{content[:half_len + 10]}\n[...]", task=task, parent=summarizer)
             second_half = await web_summarize(f"[...]\n{content[half_len - 10:]}", task=task, parent=summarizer)
@@ -104,9 +112,10 @@ class MDConverter(MarkdownConverter):
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def convert_div(self, el, text, convert_as_inline):
-        if not text.endswith("\n"):
-            return f"{text}\n"
-        return text
+        content = text.strip()
+        if not content:
+            return ""
+        return f"{content}\n"
 
     # sometimes these appear inline and are just annoying
     convert_script = yeet

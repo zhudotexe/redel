@@ -50,7 +50,7 @@ class BrowsingMixin(BaseKani):
         # links
         search_loc = page.locator("#search")
         links = await get_links(search_loc)
-        return f"{search_text.strip()}\n\n===== Links =====\n{links.model_dump_json(indent=2)}"
+        return f"{search_text.strip()}\n\n===== Links =====\n{links.to_md_str()}"
 
     @ai_function()
     async def visit_page(self, href: str):
