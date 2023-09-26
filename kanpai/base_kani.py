@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from weakref import WeakValueDictionary
 
 from kani import ChatMessage, ChatRole, Kani
+from kani.engines.base import Completion
 
 from . import events
 from .utils import create_kani_id
@@ -49,6 +50,16 @@ class BaseKani(Kani):
     async def add_to_history(self, message: ChatMessage):
         await super().add_to_history(message)
         self.app.dispatch(events.KaniMessage(id=self.id, msg=message))
+
+    async def get_model_completion(self, include_functions: bool = True, **kwargs):
+        completion = await super().get_model_completion(include_functions, **kwargs)
+        message = completion.message
+        # HACK: sometimes openai's function calls are borked; we fix them here
+        if (function_call := message.function_call) and function_call.name.startswith("functions."):
+            fixed_name = function_call.name.removeprefix("functions.")
+            message = message.copy_with(function_call=function_call.copy_with(name=fixed_name))
+            return Completion(message)
+        return completion
 
     # ==== utils ====
     @property
