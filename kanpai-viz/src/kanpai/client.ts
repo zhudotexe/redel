@@ -84,6 +84,7 @@ export class KanpaiClient {
       console.warn("Got kani_spawn event but parent kani does not exist!");
       return;
     }
+    if (parent.children.includes(data.id)) return;
     parent.children.push(data.id);
   }
 
