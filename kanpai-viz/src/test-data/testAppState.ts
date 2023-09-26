@@ -114,7 +114,7 @@ export const testAppState: AppState = {
       ],
     },
   ],
-};
+} as AppState;
 
 export const testAppState2: AppState = {
   kanis: [
@@ -2397,4 +2397,4 @@ export const testAppState2: AppState = {
       state: RunState.running,
     },
   ],
-};
+} as AppState;
