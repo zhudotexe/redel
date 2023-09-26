@@ -17,22 +17,37 @@ onUnmounted(() => client.close());
 </script>
 
 <template>
-  <!-- root chat -->
-  <section class="hero is-primary">
-    <div class="hero-body">
-      <div class="container">
+  <div class="columns is-gapless main">
+    <!-- root chat -->
+    <div class="column">
+      <div class="left-container">
         <h1 class="title">Kanpai!</h1>
-        <Chat />
+        <div class="chat-container">
+          <Chat />
+        </div>
       </div>
     </div>
-  </section>
-
-  <!-- viz -->
-  <section class="section">
-    <div class="container">
+    <!-- viz -->
+    <div class="column">
       <Tree />
     </div>
-  </section>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+@import "@/global.scss";
+
+.main {
+  height: 100vh;
+}
+
+.left-container {
+  height: 100%;
+  padding: 4rem 4rem 2rem 4rem;
+  background: bulmaRgba($beige-light, 0.2);
+}
+
+.chat-container {
+  height: calc(100% - 3.5rem);
+}
+</style>

@@ -73,8 +73,8 @@ const simulation = d3.forceSimulation()
   .on("tick", tickSimulation);
 
 // setup canvas when the page loads
-const width = 900;
-const height = 400;
+const width = 600;
+const height = 300;
 onMounted(() => {
   // Create the container SVG.
   svg = d3.select(d3Mount.value)

@@ -29,23 +29,32 @@ onMounted(() => {
 </script>
 
 <template>
-  <ChatMessages :kani="client.rootKani!" v-if="client.rootKani" ref="chatMessages" class="chat" />
-  <!-- msg bar -->
-  <div class="chat-box">
-    <textarea
-      class="textarea has-fixed-size"
-      :disabled="client.rootKani?.state !== RunState.stopped"
-      autofocus
-      rows="1"
-      ref="chatInput"
-      v-model.trim="chatMsg"
-      @keydown.enter.exact.prevent="sendChatMsg"
-    ></textarea>
+  <div class="is-flex is-flex-direction-column mh-100">
+    <!-- spacer -->
+    <div class="spacer"></div>
+    <!-- chat history -->
+    <ChatMessages :kani="client.rootKani!" v-if="client.rootKani" ref="chatMessages" />
+    <!-- msg bar -->
+    <div class="chat-box">
+      <textarea
+        class="textarea has-fixed-size"
+        :disabled="client.rootKani?.state !== RunState.stopped"
+        autofocus
+        rows="1"
+        ref="chatInput"
+        v-model.trim="chatMsg"
+        @keydown.enter.exact.prevent="sendChatMsg"
+      ></textarea>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.chat {
-  max-height: 50vh;
+.spacer {
+  flex: 1 0 auto;
+}
+
+.mh-100 {
+  max-height: 100%;
 }
 </style>
