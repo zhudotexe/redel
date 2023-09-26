@@ -49,7 +49,6 @@ class DelegateWaitMixin(BaseKani):
                     f"{who!r} is currently busy. You can leave `who` empty to find a new available helper or wait on"
                     f" {who!r} and retry."
                 )
-            name = who
             helper = self.helpers[who]
         else:
             helper = self.create_delegate_kani()
@@ -58,7 +57,7 @@ class DelegateWaitMixin(BaseKani):
         async def _task():
             result = []
             async for msg in helper.full_round(instructions):
-                log.info(msg)
+                log.info(f"{helper.name}-{helper.depth}: {msg}")
                 if msg.content:
                     result.append(msg.content)
             await helper.cleanup()
