@@ -1,5 +1,8 @@
 import asyncio
 import logging
+import pathlib
+import time
+import uuid
 from typing import Any, Awaitable, Callable
 from weakref import WeakValueDictionary
 
@@ -14,6 +17,7 @@ from .kanis import RootKani
 from .prompts import ROOT_KANPAI
 
 log = logging.getLogger(__name__)
+LOG_DIR = pathlib.Path(__file__).parents[1] / ".kanpai"
 
 
 class Kanpai:
@@ -34,37 +38,41 @@ class Kanpai:
         self.listeners = []
         self.event_queue = asyncio.Queue()
         self.dispatch_task = None
+        # logging
+        LOG_DIR.mkdir(exist_ok=True)
+        self.session_id = f"{int(time.time())}-{uuid.uuid4()}"
+        self.log_file = open(LOG_DIR / f"{self.session_id}.jsonl", "w")
+        self.add_listener(self.log_event)
         # children
         self.kanis = WeakValueDictionary()
+        self.root_kani = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI, name="kanpai")
 
     async def init(self, browser_headless=True):
         await self.get_browser(headless=browser_headless)
         if self.dispatch_task is None:
             self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="kanpai-dispatch")
 
-    # entrypoints
+    # === entrypoints ===
     async def chat_from_queue(self, q: asyncio.Queue):
         """Get chat messages from the queue."""
         await self.init()
-        ai = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI, name="kanpai")
         while True:
             try:
                 user_msg = await q.get()
                 log.info(f"Message from queue: {user_msg.content!r}")
-                async for msg in ai.full_round(user_msg.content):
+                async for msg in self.root_kani.full_round(user_msg.content):
                     log.info(f"AI: {msg}")
             except Exception:
                 log.exception("Error in chat_from_queue:")
 
     async def chat_in_terminal(self):
         await self.init(browser_headless=False)
-        ai = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI, name="kanpai")
         try:
-            await chat_in_terminal_async(ai)
+            await chat_in_terminal_async(self.root_kani)
         except KeyboardInterrupt:
             await self.close()
 
-    # events
+    # === events ===
     def add_listener(self, callback: Callable[[events.BaseEvent], Awaitable[Any]]):
         self.listeners.append(callback)
 
@@ -83,7 +91,7 @@ class Kanpai:
         Technically this just adds it to a queue and then an async background task dispatches it."""
         self.event_queue.put_nowait(event)
 
-    # kani lifecycle
+    # --- kani lifecycle ---
     def on_kani_creation(self, ai: BaseKani):
         """Called by the kanpai kani constructor.
         Registers a new kani in the app, handles parent-child bookkeeping, and dispatches a KaniSpawn event."""
@@ -101,7 +109,12 @@ class Kanpai:
             )
         )
 
-    # resources + app lifecycle
+    # === logging ===
+    async def log_event(self, event: events.BaseEvent):
+        self.log_file.write(event.model_dump_json())
+        self.log_file.write("\n")
+
+    # === resources + app lifecycle ===
     async def get_browser(self, **kwargs) -> BrowserContext:
         """Get the current active browser context, or launch it on the first call."""
         if self.playwright is None:
@@ -122,3 +135,4 @@ class Kanpai:
             await self.browser.close()
         if self.playwright is not None:
             await self.playwright.stop()
+        self.log_file.close()
