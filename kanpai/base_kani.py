@@ -6,7 +6,7 @@ from weakref import WeakValueDictionary
 from kani import ChatMessage, ChatRole, Kani
 from kani.engines.base import Completion
 
-from . import events
+from . import events, prompts
 from .utils import create_kani_id
 
 if TYPE_CHECKING:
@@ -43,6 +43,7 @@ class BaseKani(Kani):
             return await super().chat_round(*args, **kwargs)
 
     async def full_round(self, *args, **kwargs):
+        self.always_included_messages[0] = ChatMessage.system(prompts.get_system_prompt(self))
         with self.set_state(RunState.RUNNING):
             async for msg in super().full_round(*args, **kwargs):
                 yield msg

@@ -20,7 +20,7 @@ class RootKani(DelegateWaitMixin, BaseKani):
     def create_delegate_kani(self):
         name = self.namer.get_name()
         return DelegateKani(
-            self.engine, app=self.app, parent=self, system_prompt=DELEGATE_KANPAI.format(name=name.title()), name=name
+            self.engine, app=self.app, parent=self, system_prompt=DELEGATE_KANPAI, name=name
         )
 
     async def add_to_history(self, message: ChatMessage):
