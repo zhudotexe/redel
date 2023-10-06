@@ -4,7 +4,7 @@ from typing import Optional, TYPE_CHECKING
 from kani import ChatMessage, ai_function
 
 from kanpai.base_kani import BaseKani
-from kanpai.webutils import get_links, web_markdownify, web_summarize
+from kanpai.webutils import web_markdownify, web_summarize, get_google_links
 
 if TYPE_CHECKING:
     from playwright.async_api import Page
@@ -44,12 +44,11 @@ class BrowsingMixin(BaseKani):
         query_enc = urllib.parse.quote_plus(query)
         await page.goto(f"https://www.google.com/search?q={query_enc}")
         # content
-        search_text = await page.inner_text("#main")
-        if "Content Navigation Bar" in search_text:
-            _, search_text = search_text.split("Content Navigation Bar", 1)
+        search_html = await page.inner_html("#main")
+        search_text = web_markdownify(search_html, include_links=False)
         # links
         search_loc = page.locator("#search")
-        links = await get_links(search_loc)
+        links = await get_google_links(search_loc)
         return f"{search_text.strip()}\n\n===== Links =====\n{links.to_md_str()}"
 
     @ai_function()
@@ -59,10 +58,10 @@ class BrowsingMixin(BaseKani):
         await page.goto(href)
         # header
         title = await page.title()
-        header = f"{title}\n{'=' * len(title)}\n\n"
+        header = f"{title}\n{'=' * len(title)}\n{page.url}\n\n"
         # content
         content_html = await page.inner_html("body")
-        content = web_markdownify(content_html, page.url)
+        content = web_markdownify(content_html)
         # summarization
         if self.message_token_len(ChatMessage.function("visit_page", content)) > self.max_webpage_len:
             if last_user_msg := self.last_user_message:

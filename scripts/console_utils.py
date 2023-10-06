@@ -1,4 +1,5 @@
 """This file has utilities for poking playwright in a REPL environment."""
+from kanpai.webutils import web_markdownify
 
 
 def start_playwright():
@@ -8,4 +9,6 @@ def start_playwright():
     browser = playwright.chromium.launch(headless=False)
     page = browser.new_page()
     page.goto(f"https://www.google.com/search?q=tokyo+yamanote+line")
-    return page
+    search_html = page.inner_html("#search")
+    content = web_markdownify(search_html)
+    return content

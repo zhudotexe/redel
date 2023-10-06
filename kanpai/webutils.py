@@ -1,8 +1,8 @@
 import logging
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urldefrag, urlparse, parse_qs, urlencode
 
+import trafilatura
 from kani import ChatMessage
-from markdownify import MarkdownConverter, chomp
 from playwright.async_api import Locator, Page
 from pydantic import BaseModel, RootModel
 
@@ -27,7 +27,7 @@ class Links(RootModel):
         return "\n".join(f"[{link.content}]({link.href})" for link in self.root)
 
 
-async def get_links(elem: Page | Locator) -> Links:
+async def get_google_links(elem: Page | Locator) -> Links:
     """Return a list of all links on a page or in an element."""
     page = elem if isinstance(elem, Page) else elem.page
     base_url = page.url
@@ -37,8 +37,15 @@ async def get_links(elem: Page | Locator) -> Links:
         href = await loc.get_attribute("href")
         if not href:
             continue
+        parts = urlparse(href)
         # if the href is relative, resolve relative to the current page
         href = urljoin(base_url, href)
+        # clean up google urls (unimportant query params etc)
+        if parts.netloc.endswith("google.com") and parts.path == "/search":
+            query = parse_qs(parts.query)
+            parts.query = urlencode({"q": query["q"]})
+            href = parts.geturl()
+        href = urldefrag(href).url  # and clean up hashes
         links.append(Link(content=content or "", href=href))
     return Links(links)
 
@@ -68,59 +75,13 @@ async def web_summarize(content: str, parent: BaseKani, task="Please summarize t
         return result
 
 
-# markdownification
-def yeet(*_):
-    return ""
-
-
-def is_valid_url(x):
-    if not x:
-        return False
-    return not x.startswith("data:")
-
-
-class MDConverter(MarkdownConverter):
-    def __init__(self, base_url: str, **kwargs):
-        super().__init__(**kwargs)
-        self.base_url = base_url
-
-    def convert_img(self, el, text, convert_as_inline):
-        alt = el.attrs.get("alt", None) or ""
-        src = el.attrs.get("src", None) or ""
-
-        if not is_valid_url(src):
-            if not alt:
-                return ""
-            src = "image"
-
-        return f"![{alt}]({src})"
-
-    def convert_a(self, el, text, convert_as_inline):
-        prefix, suffix, inner = chomp(text)
-        if not inner:
-            return ""
-        href = el.get("href")
-        if not is_valid_url(href):
-            return text
-        # if the href is relative, resolve relative to the current page
-        href = urljoin(self.base_url, href)
-        # from super
-        if self.options["autolinks"] and inner.replace(r"\_", "_") == href:
-            # Shortcut syntax
-            return f"<{href}>"
-        return f"{prefix}[{inner}]({href}){suffix}" if href else text
-
-    # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def convert_div(self, el, text, convert_as_inline):
-        content = text.strip()
-        if not content:
-            return ""
-        return f"{content}\n"
-
-    # sometimes these appear inline and are just annoying
-    convert_script = yeet
-    convert_style = yeet
-
-
-def web_markdownify(html: str, base_url: str):
-    return MDConverter(base_url=base_url, heading_style="atx").convert(html)
+def web_markdownify(html: str, **kwargs):
+    kwargs = {
+        "include_links": True,
+        "include_formatting": True,
+        "include_tables": True,
+        "favor_recall": True,
+        "deduplicate": True,
+        **kwargs,
+    }
+    return trafilatura.extract(html, **kwargs)
