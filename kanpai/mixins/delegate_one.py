@@ -2,7 +2,7 @@ import logging
 from abc import abstractmethod
 from typing import Annotated
 
-from kani import AIParam, ai_function
+from kani import AIParam, ai_function, ChatRole
 from rapidfuzz import fuzz
 
 from kanpai.base_kani import BaseKani, RunState
@@ -51,6 +51,6 @@ class Delegate1Mixin(BaseKani):
             result = []
             async for msg in self.helper.full_round(instructions):
                 log.info(msg)
-                if msg.content:
+                if msg.role == ChatRole.ASSISTANT and msg.content:
                     result.append(msg.content)
             return "\n".join(result)

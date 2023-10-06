@@ -6,7 +6,7 @@ import uuid
 from typing import Any, Awaitable, Callable
 from weakref import WeakValueDictionary
 
-from kani import chat_in_terminal_async
+from kani import chat_in_terminal_async, ChatRole
 from kani.engines.openai import OpenAIEngine
 from playwright.async_api import BrowserContext, async_playwright
 
@@ -61,7 +61,8 @@ class Kanpai:
                 user_msg = await q.get()
                 log.info(f"Message from queue: {user_msg.content!r}")
                 async for msg in self.root_kani.full_round(user_msg.content):
-                    log.info(f"AI: {msg}")
+                    if msg.role == ChatRole.ASSISTANT:
+                        log.info(f"AI: {msg}")
             except Exception:
                 log.exception("Error in chat_from_queue:")
 

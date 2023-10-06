@@ -3,7 +3,7 @@ import logging
 from abc import abstractmethod
 from typing import Annotated
 
-from kani import AIParam, ai_function
+from kani import AIParam, ai_function, ChatRole
 from rapidfuzz import fuzz
 
 from kanpai.base_kani import BaseKani, RunState
@@ -36,7 +36,7 @@ class DelegateWaitMixin(BaseKani):
         """
         log.info(f"Delegated with instructions: {instructions}")
         # if the instructions are >95% the same as the current goal, bonk
-        if self.last_user_message and fuzz.ratio(instructions, self.last_user_message.content) > 95:
+        if self.last_user_message and fuzz.ratio(instructions, self.last_user_message.content) > 80:
             return (
                 "You shouldn't delegate the entire task to a helper. Try breaking it up into smaller steps and call"
                 " this again."
@@ -58,7 +58,7 @@ class DelegateWaitMixin(BaseKani):
             result = []
             async for msg in helper.full_round(instructions):
                 log.info(f"{helper.name}-{helper.depth}: {msg}")
-                if msg.content:
+                if msg.role == ChatRole.ASSISTANT and msg.content:
                     result.append(msg.content)
             await helper.cleanup()
             return "\n".join(result)
@@ -66,7 +66,7 @@ class DelegateWaitMixin(BaseKani):
         self.helper_futures[helper.name] = asyncio.create_task(_task())
         return f"{helper.name!r} is helping you with this request."
 
-    @ai_function()
+    @ai_function(auto_truncate=True)
     async def wait(
         self,
         until: Annotated[
