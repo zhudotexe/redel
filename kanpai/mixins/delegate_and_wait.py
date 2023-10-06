@@ -66,7 +66,7 @@ class DelegateWaitMixin(BaseKani):
         self.helper_futures[helper.name] = asyncio.create_task(_task())
         return f"{helper.name!r} is helping you with this request."
 
-    @ai_function(auto_truncate=True)
+    @ai_function(auto_truncate=6000)
     async def wait(
         self,
         until: Annotated[
