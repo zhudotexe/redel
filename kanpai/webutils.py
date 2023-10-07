@@ -31,6 +31,7 @@ async def get_google_links(elem: Page | Locator) -> Links:
     """Return a list of all links on a page or in an element."""
     page = elem if isinstance(elem, Page) else elem.page
     base_url = page.url
+    seen_links = set()
     links = []
     for loc in await elem.get_by_role("link").all():
         content = await loc.inner_text()
@@ -46,6 +47,10 @@ async def get_google_links(elem: Page | Locator) -> Links:
             parts.query = urlencode({"q": query["q"]})
             href = parts.geturl()
         href = urldefrag(href).url  # and clean up hashes
+        # only report a link once
+        if href in seen_links:
+            continue
+        seen_links.add(href)
         links.append(Link(content=content or "", href=href))
     return Links(links)
 

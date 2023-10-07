@@ -9,6 +9,9 @@ def start_playwright():
     browser = playwright.chromium.launch(headless=False)
     page = browser.new_page()
     page.goto(f"https://www.google.com/search?q=tokyo+yamanote+line")
-    search_html = page.inner_html("#search")
+    search_html = page.content()
     content = web_markdownify(search_html)
     return content
+
+if __name__ == '__main__':
+    start_playwright()

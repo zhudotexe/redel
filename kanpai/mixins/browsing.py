@@ -60,7 +60,7 @@ class BrowsingMixin(BaseKani):
         title = await page.title()
         header = f"{title}\n{'=' * len(title)}\n{page.url}\n\n"
         # content
-        content_html = await page.inner_html("body")
+        content_html = await page.content()
         content = web_markdownify(content_html)
         # summarization
         if self.message_token_len(ChatMessage.function("visit_page", content)) > self.max_webpage_len:
