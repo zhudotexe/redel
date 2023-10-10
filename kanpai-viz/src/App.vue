@@ -23,7 +23,7 @@ onUnmounted(() => client.close());
   <div class="columns is-gapless main">
     <!-- root chat -->
     <div class="column">
-      <div class="left-container">
+      <div class="left-container is-flex is-flex-direction-column">
         <h1 class="title">Kanpai!</h1>
         <div class="chat-container">
           <Chat />
@@ -32,8 +32,10 @@ onUnmounted(() => client.close());
     </div>
     <!-- viz -->
     <div class="column">
-      <div class="right-container">
-        <Tree class="tree" @node-clicked="(id) => (introspectedKani = client.kaniMap.get(id) ?? null)" />
+      <div class="right-container is-flex is-flex-direction-column">
+        <div class="is-flex-shrink-0">
+          <Tree @node-clicked="(id) => (introspectedKani = client.kaniMap.get(id) ?? null)" />
+        </div>
         <div class="introspection-container">
           <ChatMessages :kani="introspectedKani" v-if="introspectedKani" />
           <p v-else>Click on a node on the tree above to view its state.</p>
@@ -52,22 +54,23 @@ onUnmounted(() => client.close());
 
 .left-container {
   height: 100%;
-  max-width: 50vw;
+  width: 50vw;
   padding: 4rem 4rem 2rem 4rem;
   background: bulmaRgba($beige-light, 0.2);
 }
 
 .chat-container {
-  height: calc(100% - 3.5rem);
+  min-height: 0;
 }
 
 .right-container {
   max-height: 100%;
+  width: 50vw;
 }
 
 .introspection-container {
   padding: 0 2rem;
-  max-height: calc(100vh - (100vw / 4) - 2px);
+  min-height: 0;
   overflow: scroll;
 }
 </style>

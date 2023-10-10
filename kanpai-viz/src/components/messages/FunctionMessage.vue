@@ -14,7 +14,9 @@ const props = defineProps<{
     <div class="media-content">
       <article class="message is-success is-small">
         <div class="message-body">
-          {{ props.message.content }}
+          <p class="content">
+            {{ props.message.content }}
+          </p>
         </div>
       </article>
     </div>
@@ -24,5 +26,14 @@ const props = defineProps<{
 <style scoped>
 .function-message {
   margin-top: -0.75em;
+}
+
+/* https://stackoverflow.com/questions/36230944/prevent-flex-items-from-overflowing-a-container */
+.media-content {
+  min-width: 0;
+}
+
+.content {
+  overflow-wrap: break-word;
 }
 </style>
