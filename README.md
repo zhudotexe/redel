@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="256" height="256" alt="kanpai logo" src="assets/kanpi-vector.png">
+</p>
+
 # kan-pi (乾杯)
 
 kan-pi is an experimental project intended to see how well LLMs with function calling can achieve high-level goals
