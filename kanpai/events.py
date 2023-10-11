@@ -24,6 +24,7 @@ class KaniSpawn(BaseEvent):
 
     type: Literal["kani_spawn"] = "kani_spawn"
     id: str
+    depth: int
     parent: str | None
     children: list[str] = []
     always_included_messages: list[ChatMessage]

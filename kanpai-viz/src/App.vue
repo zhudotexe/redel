@@ -36,6 +36,9 @@ onUnmounted(() => client.close());
         <div class="is-flex-shrink-0">
           <Tree @node-clicked="(id) => (introspectedKani = client.kaniMap.get(id) ?? null)" />
         </div>
+        <p v-if="introspectedKani" class="has-text-centered">
+          Selected: {{ introspectedKani.name }}-{{ introspectedKani.depth }}
+        </p>
         <div class="introspection-container">
           <ChatMessages :kani="introspectedKani" v-if="introspectedKani" />
           <p v-else>Click on a node on the tree above to view its state.</p>

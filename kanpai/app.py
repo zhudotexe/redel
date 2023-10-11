@@ -102,6 +102,7 @@ class Kanpai:
         self.dispatch(
             events.KaniSpawn(
                 id=ai.id,
+                depth=ai.depth,
                 parent=ai.parent.id if ai.parent else None,
                 always_included_messages=ai.always_included_messages,
                 chat_history=ai.chat_history,

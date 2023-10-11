@@ -59,6 +59,7 @@ app.add_middleware(
 # state utils
 class KaniState(BaseModel):
     id: str
+    depth: int
     parent: str | None
     children: list[str]
     always_included_messages: list[ChatMessage]
@@ -77,6 +78,7 @@ async def get_state() -> AppState:
     kanis = [
         KaniState(
             id=ai.id,
+            depth=ai.depth,
             parent=ai.parent.id if ai.parent else None,
             children=list(ai.children),
             always_included_messages=ai.always_included_messages,
