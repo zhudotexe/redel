@@ -140,11 +140,11 @@ const update = () => {
         .attr("stroke-width", 3);
 
       // add text
-      const text = g.append("text")
+      g.append("text")
         .style("dominant-baseline", "central")
         .style("text-anchor", "middle")
         .text(d => displayNameForNode(d.data));
-      
+
       return g;
     })
       // set color based on state
