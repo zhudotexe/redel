@@ -1,9 +1,10 @@
 <!-- @formatter:off -->
 <!-- this file in JS because d3 is wack -->
 <script setup>
-import { RunState } from "@/kanpai/models";
+import {RunState} from "@/kanpai/models";
+import {greekLetter} from "@/utils";
 import * as d3 from "d3";
-import {inject, onMounted, onUnmounted, ref, watch} from "vue";
+import {inject, onMounted, onUnmounted, ref} from "vue";
 
 const emit = defineEmits(["nodeClicked"]);
 
@@ -22,6 +23,14 @@ const colorForNode = (kaniState) => {
   }
   // stopped; gray if not root
   return kaniState.parent ? "#ddd" : "#fff";
+}
+
+const displayNameForNode = (kaniState) => {
+  if (!kaniState.depth)
+    return "☆";
+  if (kaniState.name.endsWith("summarizer"))
+    return "∑";
+  return greekLetter(kaniState.name);
 }
 
 // ==== d3 stuff ====
@@ -54,8 +63,9 @@ const drag = simulation => {
 
 const tickSimulation = () => {
   node
-    .attr("cx", d => d.x)
-    .attr("cy", d => d.y);
+    .attr("transform", function(d) {
+      return "translate(" + d.x + "," + d.y + ")";
+    });
 
   link
     .attr("x1", d => d.source.x)
@@ -66,15 +76,15 @@ const tickSimulation = () => {
 
 // setup simulation
 const simulation = d3.forceSimulation()
-  .force("charge", d3.forceManyBody().strength(-50))
-  .force("link", d3.forceLink().id(d => d.id).distance(15).strength(1))
+  .force("charge", d3.forceManyBody().strength(-200))
+  .force("link", d3.forceLink().id(d => d.id).distance(55).strength(3))
   .force("x", d3.forceX())
   .force("y", d3.forceY())
   .on("tick", tickSimulation);
 
 // setup canvas when the page loads
-const width = 600;
-const height = 300;
+const width = 1000;
+const height = 500;
 onMounted(() => {
   // Create the container SVG.
   svg = d3.select(d3Mount.value)
@@ -92,8 +102,7 @@ onMounted(() => {
     .append("g")
       .attr("fill", "#fff")
       .attr("stroke", "#000")
-      .attr("stroke-width", 1.5)
-    .selectAll("circle");
+    .selectAll("g");
 });
 
 // update data based on current state of client
@@ -115,16 +124,29 @@ const update = () => {
   // update node group
   node = node
     .data(nodes, d => d.id)
-    .join(enter => enter
+    .join(enter => {
       // add missing nodes
-      .append("circle")
+      const g = enter.append("g")
         .attr("id", d => d.data.id)
-        .attr("r", 5.5)
         .call(drag(simulation))
-        .call(node => node.append("title").text(d => `${d.data.name} (${d.data.id})`))
         .on("click", function() {
           emit("nodeClicked", this.id);
-        }))
+        })
+        .call(node => node.append("title").text(d => `${d.data.name} (${d.data.id})`));
+
+      // add circle
+      g.append("circle")
+        .attr("r", 14)
+        .attr("stroke-width", 3);
+
+      // add text
+      const text = g.append("text")
+        .style("dominant-baseline", "central")
+        .style("text-anchor", "middle")
+        .text(d => displayNameForNode(d.data));
+      
+      return g;
+    })
       // set color based on state
       .attr("fill", d => colorForNode(d.data));
 
