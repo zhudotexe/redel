@@ -8,12 +8,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from kani import ChatMessage
 from pydantic import BaseModel
 
 from kanpai import Kanpai
-from kanpai.base_kani import RunState
 from kanpai.events import BaseEvent, Error, SendMessage
+from kanpai.state import KaniState
 
 log = logging.getLogger("viz-app")
 
@@ -57,17 +56,6 @@ app.add_middleware(
 
 
 # state utils
-class KaniState(BaseModel):
-    id: str
-    depth: int
-    parent: str | None
-    children: list[str]
-    always_included_messages: list[ChatMessage]
-    chat_history: list[ChatMessage]
-    state: RunState
-    name: str
-
-
 class AppState(BaseModel):
     kanis: list[KaniState]
 
@@ -75,19 +63,7 @@ class AppState(BaseModel):
 # routes
 @app.get("/api/state")
 async def get_state() -> AppState:
-    kanis = [
-        KaniState(
-            id=ai.id,
-            depth=ai.depth,
-            parent=ai.parent.id if ai.parent else None,
-            children=list(ai.children),
-            always_included_messages=ai.always_included_messages,
-            chat_history=ai.chat_history,
-            state=ai.state,
-            name=ai.name,
-        )
-        for ai in manager.kanpai_app.kanis.values()
-    ]
+    kanis = [ai.get_save_state() for ai in manager.kanpai_app.kanis.values()]
     return AppState(kanis=kanis)
 
 
