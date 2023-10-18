@@ -1,4 +1,3 @@
-import enum
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
 from weakref import WeakValueDictionary
@@ -7,17 +6,11 @@ from kani import ChatMessage, ChatRole, Kani
 from kani.engines.base import Completion
 
 from . import events, prompts
+from .state import KaniState, RunState
 from .utils import create_kani_id
 
 if TYPE_CHECKING:
     from .app import Kanpai
-
-
-class RunState(enum.Enum):
-    STOPPED = "stopped"  # not currently running anything or waiting on a child
-    RUNNING = "running"  # gpt-4 is generating something
-    WAITING = "waiting"  # waiting on a child
-    ERRORED = "errored"  # panic
 
 
 class BaseKani(Kani):
@@ -78,6 +71,19 @@ class BaseKani(Kani):
         finally:
             self.state = old_state
             self.app.dispatch(events.KaniStateChange(id=self.id, state=self.state))
+
+    def get_save_state(self) -> KaniState:
+        """Get a Pydantic state suitable for saving/loading."""
+        return KaniState(
+            id=self.id,
+            depth=self.depth,
+            parent=self.parent.id if self.parent else None,
+            children=list(self.children),
+            always_included_messages=self.always_included_messages,
+            chat_history=self.chat_history,
+            state=self.state,
+            name=self.name,
+        )
 
     async def cleanup(self):
         """This kani may run again but is done for now; clean up any ephemeral resources but save its state."""

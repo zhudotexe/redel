@@ -1,12 +1,13 @@
 import logging
-from urllib.parse import urljoin, urldefrag, urlparse, parse_qs, urlencode
+from urllib.parse import parse_qs, urldefrag, urlencode, urljoin, urlparse
 
 import trafilatura
 from kani import ChatMessage
 from playwright.async_api import Locator, Page
 from pydantic import BaseModel, RootModel
 
-from .base_kani import BaseKani, RunState
+from .base_kani import BaseKani
+from .state import RunState
 
 log = logging.getLogger(__name__)
 

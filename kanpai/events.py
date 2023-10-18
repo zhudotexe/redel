@@ -4,7 +4,7 @@ from typing import Literal
 from kani import ChatMessage
 from pydantic import BaseModel
 
-from kanpai.base_kani import RunState
+from .state import KaniState, RunState
 
 
 class BaseEvent(BaseModel, abc.ABC):
@@ -17,20 +17,12 @@ class Error(BaseEvent):
     msg: str
 
 
-class KaniSpawn(BaseEvent):
+class KaniSpawn(KaniState, BaseEvent):
     """A new kani was spawned.
     The ID can be the same as an existing ID, in which case this event should overwrite the previous state.
     """
 
     type: Literal["kani_spawn"] = "kani_spawn"
-    id: str
-    depth: int
-    parent: str | None
-    children: list[str] = []
-    always_included_messages: list[ChatMessage]
-    chat_history: list[ChatMessage]
-    state: RunState
-    name: str
 
 
 class KaniStateChange(BaseEvent):

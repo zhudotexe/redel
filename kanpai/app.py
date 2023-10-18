@@ -1,12 +1,11 @@
 import asyncio
 import logging
-import pathlib
 import time
 import uuid
 from typing import Any, Awaitable, Callable
 from weakref import WeakValueDictionary
 
-from kani import chat_in_terminal_async, ChatRole
+from kani import ChatRole, chat_in_terminal_async
 from kani.engines.openai import OpenAIEngine
 from playwright.async_api import BrowserContext, async_playwright
 
@@ -14,10 +13,10 @@ from . import events
 from .base_kani import BaseKani
 from .engines import RatelimitedOpenAIEngine
 from .kanis import RootKani
+from .logger import Logger
 from .prompts import ROOT_KANPAI
 
 log = logging.getLogger(__name__)
-LOG_DIR = pathlib.Path(__file__).parents[1] / ".kanpai"
 
 
 class Kanpai:
@@ -39,10 +38,9 @@ class Kanpai:
         self.event_queue = asyncio.Queue()
         self.dispatch_task = None
         # logging
-        LOG_DIR.mkdir(exist_ok=True)
         self.session_id = f"{int(time.time())}-{uuid.uuid4()}"
-        self.log_file = open(LOG_DIR / f"{self.session_id}.jsonl", "w")
-        self.add_listener(self.log_event)
+        self.logger = Logger(self, self.session_id)
+        self.add_listener(self.logger.log_event)
         # children
         self.kanis = WeakValueDictionary()
         self.root_kani = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI, name="kanpai")
@@ -111,11 +109,6 @@ class Kanpai:
             )
         )
 
-    # === logging ===
-    async def log_event(self, event: events.BaseEvent):
-        self.log_file.write(event.model_dump_json())
-        self.log_file.write("\n")
-
     # === resources + app lifecycle ===
     async def get_browser(self, **kwargs) -> BrowserContext:
         """Get the current active browser context, or launch it on the first call."""
@@ -131,10 +124,12 @@ class Kanpai:
         """Clean up all the app resources."""
         if self.dispatch_task is not None:
             self.dispatch_task.cancel()
-        await self.engine.close()
-        await self.long_engine.close()
         if self.browser is not None:
             await self.browser.close()
         if self.playwright is not None:
             await self.playwright.stop()
-        self.log_file.close()
+        await asyncio.gather(
+            self.engine.close(),
+            self.long_engine.close(),
+            self.logger.close(),
+        )

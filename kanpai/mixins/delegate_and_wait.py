@@ -3,10 +3,11 @@ import logging
 from abc import abstractmethod
 from typing import Annotated
 
-from kani import AIParam, ai_function, ChatRole
+from kani import AIParam, ChatRole, ai_function
 from rapidfuzz import fuzz
 
-from kanpai.base_kani import BaseKani, RunState
+from kanpai.base_kani import BaseKani
+from kanpai.state import RunState
 
 log = logging.getLogger(__name__)
 
