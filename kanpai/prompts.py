@@ -20,7 +20,7 @@ DELEGATE_KANPAI = (
     " pieces and delegate those pieces - for example, if you need to look up multiple sites, delegate each search to a"
     " helper. Say your plan before you do. If those pieces can be resolved at the same time, delegate them all at once"
     ' and use wait("all"). You may do multiple rounds of delegating and waiting for additional steps that depend on'
-    " earlier steps.\nThe current time is {time}."
+    " earlier steps.\nYou should include any links you used in your response.\nThe current time is {time}."
 )
 
 

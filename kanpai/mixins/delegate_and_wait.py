@@ -24,7 +24,13 @@ class DelegateWaitMixin(BaseKani):
     @ai_function()
     async def delegate(
         self,
-        instructions: Annotated[str, AIParam("Detailed instructions on what your helper should do to help you.")],
+        instructions: Annotated[
+            str,
+            AIParam(
+                "Detailed instructions on what your helper should do to help you. This should include all the"
+                " information the helper needs."
+            ),
+        ],
         who: Annotated[str, AIParam("Who should handle this request (leave empty for whoever is available).")] = None,
     ):
         """
