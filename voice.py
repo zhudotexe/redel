@@ -18,7 +18,7 @@ lock = asyncio.Lock()
 log = logging.getLogger("voice")
 
 # 11labs
-voice_settings = elevenlabs.VoiceSettings(stability=0.33, similarity_boost=1.0, style=0.5, use_speaker_boost=True)
+voice_settings = elevenlabs.VoiceSettings(stability=0.33, similarity_boost=1.0, style=0.0, use_speaker_boost=False)
 voice = elevenlabs.Voice(voice_id=VOICE_ID, settings=voice_settings)
 elevenlabs.set_api_key(ELEVEN_API_KEY)
 
@@ -31,10 +31,12 @@ async def handle_message(content: str):
     log.info(f"Got content: {content}")
     ai = Kani(engine)
     transformed_content = await ai.chat_round_str(
-        "Please rewrite the following message to be more concise, suitable for speaking out load, while maintaining"
-        f" its personality:\n\n{content}"
+        "Please rewrite the following message to be suitable for speaking out load, while maintaining"
+        f' its personality. If no change is needed, say "No change."\n\nMessage\n=======\n{content}'
     )
     log.info(f"Transformed: {transformed_content}")
+    if transformed_content.lower().startswith("no change"):
+        transformed_content = content
     # generate speech and stream it
     async with lock:
         asyncio.get_event_loop().run_in_executor(None, tts, transformed_content)
@@ -62,4 +64,7 @@ async def main():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass
