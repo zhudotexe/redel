@@ -40,7 +40,7 @@ class Logger:
         if (
             self.title is None
             and isinstance(event, events.RootMessage)
-            and self.event_count[events.RootMessage.type] >= 4
+            and self.event_count["root_message"] >= 4
             and event.msg.role == ChatRole.ASSISTANT
             and event.msg.content
         ):

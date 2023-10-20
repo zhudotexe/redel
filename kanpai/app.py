@@ -102,6 +102,7 @@ class Kanpai:
                 id=ai.id,
                 depth=ai.depth,
                 parent=ai.parent.id if ai.parent else None,
+                children=list(ai.children),
                 always_included_messages=ai.always_included_messages,
                 chat_history=ai.chat_history,
                 state=ai.state,
