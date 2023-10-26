@@ -1,4 +1,5 @@
 """Listen along to the websocket and narrate any assistant root message contents."""
+
 import asyncio
 import logging
 import os

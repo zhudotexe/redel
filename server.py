@@ -1,6 +1,7 @@
 """
 Visualized UI for interacting with kanpai.
 """
+
 import asyncio
 import logging
 from contextlib import asynccontextmanager
