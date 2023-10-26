@@ -1,5 +1,5 @@
 import logging
-from urllib.parse import parse_qs, urldefrag, urlencode, urljoin, urlparse
+from urllib.parse import parse_qs, urldefrag, urlencode, urljoin, urlparse, urlunparse
 
 import trafilatura
 from kani import ChatMessage
@@ -40,19 +40,19 @@ async def get_google_links(elem: Page | Locator) -> Links:
         if not href:
             continue
         parts = urlparse(href)
+        # clean up google urls (unimportant query params etc)
+        if (not parts.netloc or parts.netloc.endswith("www.google.com")) and parts.path == "/search":
+            query = parse_qs(parts.query)
+            new_query = urlencode({"q": query["q"]}, doseq=True)
+            href = urlunparse(parts._replace(query=new_query))
         # if the href is relative, resolve relative to the current page
         href = urljoin(base_url, href)
-        # clean up google urls (unimportant query params etc)
-        if parts.netloc.endswith("google.com") and parts.path == "/search":
-            query = parse_qs(parts.query)
-            parts.query = urlencode({"q": query["q"]})
-            href = parts.geturl()
         href = urldefrag(href).url  # and clean up hashes
         # only report a link once
         if href in seen_links:
             continue
         seen_links.add(href)
-        links.append(Link(content=content or "", href=href))
+        links.append(Link(content=content.strip() or "", href=href))
     return Links(links)
 
 

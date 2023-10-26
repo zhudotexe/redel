@@ -29,7 +29,7 @@ export function greekLetter(name: string): string {
     case "xi":
       return "ξ";
     case "omicron":
-      return "�";
+      return "Ο";
     case "pi":
       return "π";
     case "rho":
