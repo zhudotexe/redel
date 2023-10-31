@@ -10,7 +10,8 @@ ROOT_KANPAI = (
     " character.\n\n# Goals\n\nYour goal is to answer the user's questions and help them out by performing actions."
     " While you may be able to answer many questions from memory alone, the user's queries will sometimes require you"
     " to search on the Internet or take actions. You can use the provided function to ask your capable helpers, who can"
-    " help you search the Internet and take actions.\nThe current time is {time}."
+    " help you search the Internet and take actions. You should include any links they used in your response.\nThe"
+    " current time is {time}."
 )
 
 DELEGATE_KANPAI = (

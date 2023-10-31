@@ -32,17 +32,18 @@ class DelegateWaitMixin(BaseKani):
                 " information the helper needs."
             ),
         ],
-        who: Annotated[str, AIParam("Who should handle this request (leave empty for whoever is available).")] = None,
+        who: Annotated[str, AIParam("The name of an existing helper who should handle this request.")] = None,
     ):
         """
         Ask a capable helper for help looking up a piece of information or performing an action.
         Use wait() to get a helper's result.
         You can call this multiple times to take multiple actions.
         You should break up user queries into multiple smaller queries if possible.
+        Do not delegate the entire task you were given.
         If the user's query can be resolved in parallel, call this multiple times then use wait("all").
         """
         log.info(f"Delegated with instructions: {instructions}")
-        # if the instructions are >95% the same as the current goal, bonk
+        # if the instructions are >80% the same as the current goal, bonk
         if self.last_user_message and fuzz.ratio(instructions, self.last_user_message.content) > 80:
             return (
                 "You shouldn't delegate the entire task to a helper. Try breaking it up into smaller steps and call"
@@ -68,7 +69,7 @@ class DelegateWaitMixin(BaseKani):
                 if msg.role == ChatRole.ASSISTANT and msg.content:
                     result.append(msg.content)
             await helper.cleanup()
-            return "\n".join(result)
+            return "\n".join(result), helper.name
 
         self.helper_futures[helper.name] = asyncio.create_task(_task())
         return f"{helper.name!r} is helping you with this request."
@@ -89,19 +90,18 @@ class DelegateWaitMixin(BaseKani):
             with self.set_state(RunState.WAITING):
                 done, _ = await asyncio.wait(self.helper_futures.values(), return_when=asyncio.FIRST_COMPLETED)
             future = done.pop()
-            # cleanup from task list
-            helper_name = next(k for k, v in self.helper_futures.items() if v is future)
-            self.helper_futures.pop(helper_name)
             # prompt with name
-            result = future.result()
+            result, helper_name = future.result()
+            # cleanup from task list
+            self.helper_futures.pop(helper_name)
             return f"{helper_name}:\n{result}"
         elif until == "all":
             with self.set_state(RunState.WAITING):
                 done, _ = await asyncio.wait(self.helper_futures.values(), return_when=asyncio.ALL_COMPLETED)
             # prompt with name
             results = []
-            for helper_name, future in self.helper_futures.items():
-                result = future.result()
+            for future in done:
+                result, helper_name = future.result()
                 results.append(f"{helper_name}:\n{result}")
             # cleanup from task list
             self.helper_futures.clear()
@@ -109,5 +109,5 @@ class DelegateWaitMixin(BaseKani):
         else:
             future = self.helper_futures.pop(until)
             with self.set_state(RunState.WAITING):
-                result = await future
+                result, _ = await future
             return f"{until}:\n{result}"
