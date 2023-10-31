@@ -33,6 +33,15 @@ class KaniStateChange(BaseEvent):
     state: RunState
 
 
+class TokensUsed(BaseEvent):
+    """A kani just finishes a request to the engine, which used this many tokens."""
+
+    type: Literal["tokens_used"] = "tokens_used"
+    id: str
+    prompt_tokens: int
+    completion_tokens: int
+
+
 class KaniMessage(BaseEvent):
     """A kani added a message to its chat history."""
 

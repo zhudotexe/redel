@@ -47,12 +47,19 @@ class BaseKani(Kani):
 
     async def get_model_completion(self, include_functions: bool = True, **kwargs):
         completion = await super().get_model_completion(include_functions, **kwargs)
+        self.app.dispatch(
+            events.TokensUsed(
+                id=self.id, prompt_tokens=completion.prompt_tokens, completion_tokens=completion.completion_tokens
+            )
+        )
         message = completion.message
         # HACK: sometimes openai's function calls are borked; we fix them here
         if (function_call := message.function_call) and function_call.name.startswith("functions."):
             fixed_name = function_call.name.removeprefix("functions.")
             message = message.copy_with(function_call=function_call.copy_with(name=fixed_name))
-            return Completion(message)
+            return Completion(
+                message, prompt_tokens=completion.prompt_tokens, completion_tokens=completion.completion_tokens
+            )
         return completion
 
     # ==== utils ====
