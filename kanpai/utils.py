@@ -1,7 +1,8 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from kani import ChatMessage
+from kani import ChatRole
+from kani.engines.openai.models import OpenAIChatMessage
 
 if TYPE_CHECKING:
     from .base_kani import BaseKani
@@ -17,10 +18,13 @@ async def generate_conversation_title(ai: "BaseKani"):
     completion = await ai.app.engine.client.create_chat_completion(
         "gpt-4",
         [
-            ChatMessage.user("Here is the start of a conversation:"),
-            *ai.chat_history,
-            ChatMessage.user(
-                "Come up with a punchy title for this conversation.\n\nReply with your answer only and be specific."
+            OpenAIChatMessage(role=ChatRole.USER, content="Here is the start of a conversation:"),
+            *[OpenAIChatMessage.from_chatmessage(m) for m in ai.chat_history],
+            OpenAIChatMessage(
+                role=ChatRole.USER,
+                content=(
+                    "Come up with a punchy title for this conversation.\n\nReply with your answer only and be specific."
+                ),
             ),
         ],
     )
