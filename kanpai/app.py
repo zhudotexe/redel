@@ -15,6 +15,7 @@ from .engines import RatelimitedOpenAIEngine
 from .kanis import RootKani
 from .logger import Logger
 from .prompts import ROOT_KANPAI
+from .utils import generate_conversation_title
 
 log = logging.getLogger(__name__)
 
@@ -37,8 +38,11 @@ class Kanpai:
         self.listeners = []
         self.event_queue = asyncio.Queue()
         self.dispatch_task = None
-        # logging
+        # state
         self.session_id = f"{int(time.time())}-{uuid.uuid4()}"
+        self.title = None
+        self.add_listener(self.create_title_listener)
+        # logging
         self.logger = Logger(self, self.session_id)
         self.add_listener(self.logger.log_event)
         # children
@@ -55,6 +59,7 @@ class Kanpai:
         """Get chat messages from the queue."""
         await self.init()
         while True:
+            # main loop
             try:
                 user_msg = await q.get()
                 log.info(f"Message from queue: {user_msg.content!r}")
@@ -120,6 +125,24 @@ class Kanpai:
         if self.browser_context is None:
             self.browser_context = await self.browser.new_context()
         return self.browser_context
+
+    async def create_title_listener(self, event):
+        """A listener that generates a conversation title after 4 root message events."""
+        if (
+            self.title is None
+            and isinstance(event, events.RootMessage)
+            and self.logger.event_count["root_message"] >= 4
+            and event.msg.role == ChatRole.ASSISTANT
+            and event.msg.content
+        ):
+            self.title = "..."  # prevent another message from generating a title
+            try:
+                self.title = await generate_conversation_title(self.root_kani)
+            except Exception:
+                log.exception("Could not generate conversation title:")
+                self.title = None
+            else:
+                self.listeners.remove(self.create_title_listener)
 
     async def close(self):
         """Clean up all the app resources."""
