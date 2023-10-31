@@ -47,7 +47,7 @@ class Logger:
             self.title = "..."  # prevent another message from generating a title
             try:
                 self.title = await generate_conversation_title(self.app.root_kani)
-            except KaniException:
+            except Exception:
                 log.exception("Could not generate conversation title:")
                 self.title = None
 

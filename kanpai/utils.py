@@ -28,4 +28,4 @@ async def generate_conversation_title(ai: "BaseKani"):
             ),
         ],
     )
-    return completion.text.strip(' "')
+    return completion.message.text.strip(' "')
