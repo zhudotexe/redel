@@ -16,7 +16,7 @@ class DelegateWaitMixin(BaseKani):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helpers = {}  # name -> delegate
-        self.helper_futures = {}  # name -> Future[str]
+        self.helper_futures = {}  # name -> Future[tuple[str, str]]
 
     @abstractmethod
     def create_delegate_kani(self) -> BaseKani:
@@ -32,7 +32,12 @@ class DelegateWaitMixin(BaseKani):
                 " information the helper needs."
             ),
         ],
-        who: Annotated[str, AIParam("The name of an existing helper who should handle this request.")] = None,
+        who: Annotated[
+            str,
+            AIParam(
+                "If you need to ask a previous helper a follow-up, pass their name here; otherwise leave this blank."
+            ),
+        ] = None,
     ):
         """
         Ask a capable helper for help looking up a piece of information or performing an action.
