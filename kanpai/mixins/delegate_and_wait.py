@@ -34,9 +34,7 @@ class DelegateWaitMixin(BaseKani):
         ],
         who: Annotated[
             str,
-            AIParam(
-                "If you need to ask a previous helper a follow-up, pass their name here; otherwise leave this blank."
-            ),
+            AIParam("If you need to ask a previous helper a follow-up, pass their name here; otherwise omit."),
         ] = None,
     ):
         """
