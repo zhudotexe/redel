@@ -3,7 +3,7 @@ import ChatMessages from "@/components/ChatMessages.vue";
 import type { KanpaiClient } from "@/kanpai/client";
 import { RunState } from "@/kanpai/models";
 import autosize from "autosize";
-import { inject, onMounted, ref } from "vue";
+import { inject, nextTick, onMounted, ref } from "vue";
 
 const client = inject<KanpaiClient>("client")!;
 const chatInput = ref<HTMLInputElement | null>(null);
@@ -11,9 +11,10 @@ const chatMsg = ref("");
 const chatMessages = ref<InstanceType<typeof ChatMessages> | null>(null);
 
 async function sendChatMsg() {
-  const msg = chatMsg.value;
+  const msg = chatMsg.value.trim();
   if (msg.length === 0) return;
   chatMsg.value = "";
+  nextTick(() => autosize.update(chatInput.value!));
   client.sendMessage(msg);
   chatMessages.value?.scrollChatToBottom();
   // wait for reply
