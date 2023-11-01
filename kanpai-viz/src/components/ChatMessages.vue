@@ -8,7 +8,7 @@ import { ChatRole, RunState } from "@/kanpai/models";
 import type { KaniState } from "@/kanpai/state";
 import { ref } from "vue";
 
-const props = defineProps<{
+defineProps<{
   kani: KaniState;
 }>();
 

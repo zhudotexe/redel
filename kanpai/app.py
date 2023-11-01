@@ -25,6 +25,7 @@ class Kanpai:
     It's responsible for keeping track of all the spawned kani, and reporting their relations.
     It also manages any app-global resources, like playwright.
     """
+
     # app-global browser instance
     playwright = None
     browser = None
