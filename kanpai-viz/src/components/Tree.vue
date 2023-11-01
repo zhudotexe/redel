@@ -4,8 +4,9 @@
 import {RunState} from "@/kanpai/models";
 import {greekLetter} from "@/utils";
 import * as d3 from "d3";
-import {inject, onMounted, onUnmounted, ref} from "vue";
+import {inject, onMounted, onUnmounted, ref, watch} from "vue";
 
+const props = defineProps(['selectedId']);
 const emit = defineEmits(["nodeClicked"]);
 
 const client = inject("client");
@@ -13,6 +14,10 @@ const d3Mount = ref(null);
 
 // ==== style stuff ====
 const colorForNode = (kaniState) => {
+  // blueish if selected
+  if (kaniState.id === props.selectedId)
+    return "#a9e5ff";
+  // if not selected, based on state
   switch (kaniState.state) {
     case RunState.running:
       return "#9af362";
@@ -176,6 +181,9 @@ onMounted(async () => {
   await client.waitForReady();
   update();
 });
+
+// update colors when selected changes
+watch(() => props.selectedId, () => updateColors());
 
 // update on messages and state changes
 client.events.addEventListener("kani_message", () => update());

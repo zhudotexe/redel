@@ -34,7 +34,10 @@ onUnmounted(() => client.close());
     <div class="column">
       <div class="right-container is-flex is-flex-direction-column">
         <div class="is-flex-shrink-0">
-          <Tree @node-clicked="(id) => (introspectedKani = client.kaniMap.get(id) ?? null)" />
+          <Tree
+            @node-clicked="(id) => (introspectedKani = client.kaniMap.get(id) ?? null)"
+            :selected-id="introspectedKani?.id"
+          />
         </div>
         <p v-if="introspectedKani" class="has-text-centered">
           Selected: {{ introspectedKani.name }}-{{ introspectedKani.depth }}
