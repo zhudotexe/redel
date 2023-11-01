@@ -25,14 +25,16 @@ class Kanpai:
     It's responsible for keeping track of all the spawned kani, and reporting their relations.
     It also manages any app-global resources, like playwright.
     """
+    # app-global browser instance
+    playwright = None
+    browser = None
+
+    # app-global engines
+    engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
+    long_engine = RatelimitedOpenAIEngine(model="gpt-4-32k", temperature=0.1, max_rate=3)
 
     def __init__(self):
-        # engines
-        self.engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
-        self.long_engine = RatelimitedOpenAIEngine(model="gpt-4-32k", temperature=0.1, max_rate=3)
-        # browser
-        self.playwright = None
-        self.browser = None
+        # instance-specific browser context
         self.browser_context = None
         # events
         self.listeners = []
@@ -118,10 +120,10 @@ class Kanpai:
     # === resources + app lifecycle ===
     async def get_browser(self, **kwargs) -> BrowserContext:
         """Get the current active browser context, or launch it on the first call."""
-        if self.playwright is None:
-            self.playwright = await async_playwright().start()
-        if self.browser is None:
-            self.browser = await self.playwright.chromium.launch(**kwargs)
+        if Kanpai.playwright is None:
+            Kanpai.playwright = await async_playwright().start()
+        if Kanpai.browser is None:
+            Kanpai.browser = await Kanpai.playwright.chromium.launch(**kwargs)
         if self.browser_context is None:
             self.browser_context = await self.browser.new_context()
         return self.browser_context

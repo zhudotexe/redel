@@ -10,8 +10,8 @@ from . import events
 if TYPE_CHECKING:
     from .app import Kanpai
 
-LOG_BASE = pathlib.Path(__file__).parents[1] / ".kanpai"
-LOG_BASE.mkdir(exist_ok=True)
+LOG_BASE = pathlib.Path(__file__).parents[1] / ".kanpai/instances"
+LOG_BASE.mkdir(parents=True, exist_ok=True)
 
 log = logging.getLogger(__name__)
 
