@@ -2,7 +2,6 @@
 
 import asyncio
 import logging
-import os
 
 import aiohttp
 import elevenlabs
@@ -10,17 +9,14 @@ from kani import ChatRole, Kani
 from kani.engines.openai import OpenAIEngine
 
 from kanpai import events
-
-ELEVEN_API_KEY = os.getenv("ELEVEN_API_KEY")
-VOICE_ID = os.getenv("ELEVEN_VOICE_ID")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+from kanpai.config import ELEVEN_API_KEY, ELEVEN_VOICE_ID
 
 lock = asyncio.Lock()
 log = logging.getLogger("voice")
 
 # 11labs
 voice_settings = elevenlabs.VoiceSettings(stability=0.33, similarity_boost=1.0, style=0.0, use_speaker_boost=False)
-voice = elevenlabs.Voice(voice_id=VOICE_ID, settings=voice_settings)
+voice = elevenlabs.Voice(voice_id=ELEVEN_VOICE_ID, settings=voice_settings)
 elevenlabs.set_api_key(ELEVEN_API_KEY)
 
 # openai
