@@ -15,7 +15,7 @@ Requires Python 3.10+
 
 ```shell
 $ pip install -r requirements.txt
-$ playwright install
+$ playwright install chrome
 ```
 
 ## Core Loop
