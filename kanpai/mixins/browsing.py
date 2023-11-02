@@ -1,10 +1,12 @@
+import contextlib
 import urllib.parse
 from typing import Optional, TYPE_CHECKING
 
 from kani import ChatMessage, ai_function
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 from kanpai.base_kani import BaseKani
-from kanpai.webutils import web_markdownify, web_summarize, get_google_links
+from kanpai.webutils import get_google_links, web_markdownify, web_summarize
 
 if TYPE_CHECKING:
     from playwright.async_api import Page
@@ -35,27 +37,32 @@ class BrowsingMixin(BaseKani):
 
     # functions
     @ai_function()
-    async def search(
-        self,
-        query: str,
-    ):
+    async def search(self, query: str):
         """Search a query on Google."""
         page = await self.get_page()
         query_enc = urllib.parse.quote_plus(query)
         await page.goto(f"https://www.google.com/search?q={query_enc}")
         # content
-        search_html = await page.inner_html("#main")
-        search_text = web_markdownify(search_html, include_links=False)
-        # links
-        search_loc = page.locator("#search")
-        links = await get_google_links(search_loc)
-        return f"{search_text.strip()}\n\n===== Links =====\n{links.to_md_str()}"
+        try:
+            # if the main content is borked, fallback
+            search_html = await page.inner_html("#main", timeout=5000)
+            search_text = web_markdownify(search_html, include_links=False)
+            # links
+            search_loc = page.locator("#search")
+            links = await get_google_links(search_loc)
+            return f"{search_text.strip()}\n\n===== Links =====\n{links.to_md_str()}"
+        except PlaywrightTimeoutError:
+            content_html = await page.content()
+            content = web_markdownify(content_html)
+            return content
 
     @ai_function()
     async def visit_page(self, href: str):
         """Visit a web page and view its contents."""
         page = await self.get_page()
         await page.goto(href)
+        with contextlib.suppress(PlaywrightTimeoutError):
+            await page.wait_for_load_state("networkidle", timeout=10_000)
         # header
         title = await page.title()
         header = f"{title}\n{'=' * len(title)}\n{page.url}\n\n"
