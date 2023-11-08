@@ -18,10 +18,10 @@ async def generate_conversation_title(ai: "BaseKani"):
     completion = await ai.app.engine.client.create_chat_completion(
         "gpt-4",
         [
-            OpenAIChatMessage(role=ChatRole.USER, content="Here is the start of a conversation:"),
+            OpenAIChatMessage(role="user", content="Here is the start of a conversation:"),
             *[OpenAIChatMessage.from_chatmessage(m) for m in ai.chat_history],
             OpenAIChatMessage(
-                role=ChatRole.USER,
+                role="user",
                 content=(
                     "Come up with a punchy title for this conversation.\n\nReply with your answer only and be specific."
                 ),

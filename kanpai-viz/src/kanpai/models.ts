@@ -20,11 +20,18 @@ export interface FunctionCall {
   arguments: string;
 }
 
+export interface ToolCall {
+  id: string;
+  type: string;
+  function: FunctionCall;
+}
+
 export interface ChatMessage {
   role: ChatRole;
   content: string | null;
   name: string | null;
-  function_call: FunctionCall | null;
+  tool_call_id: string | null;
+  tool_calls: ToolCall[] | null;
 }
 
 // ===== kanpai ws =====

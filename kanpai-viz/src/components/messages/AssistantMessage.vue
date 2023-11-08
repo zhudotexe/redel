@@ -20,7 +20,9 @@ const props = defineProps<{
         <Markdown :content="props.message.content!" />
       </div>
       <!-- function call -->
-      <AssistantFunctionCall :function-call="message.function_call!" v-if="message.function_call" />
+      <div v-if="message.tool_calls">
+        <AssistantFunctionCall :function-call="tc.function" v-for="tc in message.tool_calls" />
+      </div>
     </div>
   </div>
 </template>

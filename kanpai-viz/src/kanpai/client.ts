@@ -9,7 +9,6 @@ import type {
 } from "@/kanpai/models";
 import { ChatRole } from "@/kanpai/models";
 import type { AppState, KaniState } from "@/kanpai/state";
-import { testAppState2 } from "@/test-data/testAppState";
 import axios from "axios";
 
 const API_BASE = "http://127.0.0.1:8000/api";
@@ -122,7 +121,7 @@ export class KanpaiClient {
     return new Promise<ChatMessage>((resolve) => {
       this.events.addEventListener("root_message", ((e: CustomEvent<RootMessage>) => {
         const msg = e.detail.msg;
-        if (msg.role == ChatRole.assistant && msg.function_call === null) {
+        if (msg.role == ChatRole.assistant && msg.tool_calls === null) {
           resolve(msg);
         }
       }) as EventListener);
