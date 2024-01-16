@@ -66,13 +66,17 @@ class DelegateWaitMixin(BaseKani):
             self.helpers[helper.name] = helper
 
         async def _task():
-            result = []
-            async for msg in helper.full_round(instructions):
-                log.info(f"{helper.name}-{helper.depth}: {msg}")
-                if msg.role == ChatRole.ASSISTANT and msg.content:
-                    result.append(msg.content)
-            await helper.cleanup()
-            return "\n".join(result), helper.name
+            try:
+                result = []
+                async for msg in helper.full_round(instructions):
+                    log.info(f"{helper.name}-{helper.depth}: {msg}")
+                    if msg.role == ChatRole.ASSISTANT and msg.content:
+                        result.append(msg.content)
+                await helper.cleanup()
+                return "\n".join(result), helper.name
+            except Exception as e:
+                log.exception(f"{helper.name}-{helper.depth} encountered an exception!")
+                return f"encountered an exception: {e}", helper.name
 
         self.helper_futures[helper.name] = asyncio.create_task(_task())
         return f"{helper.name!r} is helping you with this request."
