@@ -71,7 +71,7 @@ async def web_summarize(content: str, parent: BaseKani, task="Please summarize t
     token_len = summarizer.message_token_len(msg) + summarizer.message_token_len(ChatMessage.user(task))
     log.info(f"Summarizing web content with length {len(content)} ({token_len} tokens)\n{content[:32]}...")
 
-    # if we can use base gpt-4 to summarize, do that; otherwise use 32k with rate limit controls
+    # if we can use base gpt-4 to summarize, do that; otherwise use long engine with rate limit controls
     if token_len + summarizer.always_len <= app.engine.max_context_size:
         summarizer.engine = app.engine
 
@@ -83,7 +83,8 @@ async def web_summarize(content: str, parent: BaseKani, task="Please summarize t
             second_half = await web_summarize(f"[...]\n{content[half_len - 10:]}", task=task, parent=summarizer)
             result = f"{first_half}\n---\n{second_half}"
         else:
-            result = await summarizer.chat_round_str(task)
+            prompt = f"<content>\n{content}</content>\n\n{task}"
+            result = await summarizer.chat_round_str(prompt)
         return result
 
 

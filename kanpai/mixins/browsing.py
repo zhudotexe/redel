@@ -71,16 +71,15 @@ class BrowsingMixin(BaseKani):
         content = web_markdownify(content_html)
         # summarization
         if self.message_token_len(ChatMessage.function("visit_page", content)) > self.max_webpage_len:
-            if last_user_msg := self.last_user_message:
-                content = await web_summarize(
-                    content,
-                    parent=self,
-                    task=(
-                        "Please summarize the main content of the webpage above.\n"
-                        f"Keep the current goal in mind: {last_user_msg.content}"
-                    ),
-                )
-            else:
-                content = await web_summarize(content, parent=self)
+            msg_ctx = "\n\n".join(m.text for m in self.chat_history)
+            content = await web_summarize(
+                content,
+                parent=self,
+                task=(
+                    "Keep the current context in mind:\n"
+                    f"<context>\n{msg_ctx}\n</context>\n\n"
+                    "Keeping the context and task in mind, please summarize the main content of the webpage above."
+                ),
+            )
         result = header + content
         return result
