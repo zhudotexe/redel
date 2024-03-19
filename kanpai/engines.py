@@ -26,6 +26,10 @@ class RatelimitedEngine(BaseEngine):
         self.rpm_limiter = rpm_limiter
         self.tpm_limiter = tpm_limiter
 
+        # passthrough attrs
+        self.max_context_size = self.engine.max_context_size
+        self.token_reserve = self.engine.token_reserve
+
     async def predict(
         self, messages: list[ChatMessage], functions: list[AIFunction] | None = None, **hyperparams
     ) -> BaseCompletion:
@@ -37,5 +41,12 @@ class RatelimitedEngine(BaseEngine):
         async with self.concurrency_semaphore:
             return await self.engine.predict(messages, functions, **hyperparams)
 
-    def __getattr__(self, item):
-        return getattr(self.engine, item)
+    # passthrough
+    def message_len(self, message: ChatMessage) -> int:
+        return self.engine.message_len(message)
+
+    def function_token_reserve(self, functions: list[AIFunction]) -> int:
+        return self.engine.function_token_reserve(functions)
+
+    async def close(self):
+        await self.engine.close()

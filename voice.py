@@ -5,6 +5,7 @@ import logging
 
 import aiohttp
 import elevenlabs
+from elevenlabs.client import ElevenLabs
 from kani import ChatRole, Kani
 from kani.engines.openai import OpenAIEngine
 
@@ -15,9 +16,9 @@ lock = asyncio.Lock()
 log = logging.getLogger("voice")
 
 # 11labs
+client = ElevenLabs(api_key=ELEVEN_API_KEY)
 voice_settings = elevenlabs.VoiceSettings(stability=0.33, similarity_boost=1.0, style=0.0, use_speaker_boost=False)
 voice = elevenlabs.Voice(voice_id=ELEVEN_VOICE_ID, settings=voice_settings)
-elevenlabs.set_api_key(ELEVEN_API_KEY)
 
 # openai
 engine = OpenAIEngine(model="gpt-4")
@@ -40,7 +41,7 @@ async def handle_message(content: str):
 
 
 def tts(text: str):
-    stream = elevenlabs.generate(text=text, voice=voice, model="eleven_multilingual_v2", stream=True)
+    stream = client.generate(text=text, voice=voice, model="eleven_multilingual_v2", stream=True)
     audio = elevenlabs.stream(stream)
     return audio
 
