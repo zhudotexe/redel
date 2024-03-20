@@ -14,8 +14,15 @@ kan-pi uses the kani framework under the hood (kani + raspberry pi = kanpai :bee
 Requires Python 3.10+
 
 ```shell
+# install python dependencies
 $ pip install -r requirements.txt
 $ playwright install chrome
+# build visualizer
+$ cd kanpai-viz
+$ npm i
+$ npm run build
+# run
+$ OPENAI_API_KEY="..." python server.py
 ```
 
 ## Core Loop
