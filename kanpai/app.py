@@ -8,15 +8,16 @@ from weakref import WeakValueDictionary
 from kani import ChatRole, chat_in_terminal_async
 from kani.engines.anthropic import AnthropicEngine
 from kani.engines.openai import OpenAIEngine
+from kani.ext.ratelimits import RatelimitedEngine
 from playwright.async_api import BrowserContext, async_playwright
 
 from . import events
 from .base_kani import BaseKani
-from .engines import RatelimitedEngine
 from .kanis import RootKani
 from .logger import Logger
 from .prompts import ROOT_KANPAI
 from .utils import generate_conversation_title
+from .webutils import CHROME_UA
 
 log = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ class Kanpai:
 
     # app-global engines
     engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
-    long_engine = RatelimitedEngine(AnthropicEngine(model="claude-2.1", temperature=0.1), max_concurrency=1)
+    long_engine = RatelimitedEngine(AnthropicEngine(model="claude-3-opus-20240229", temperature=0.1), max_concurrency=1)
 
     def __init__(self):
         # instance-specific browser context
@@ -125,10 +126,10 @@ class Kanpai:
         if Kanpai.playwright is None:
             Kanpai.playwright = await async_playwright().start()
         if Kanpai.browser is None:
-            # Kanpai.browser = await Kanpai.playwright.chromium.launch(
-            #     channel="chrome", args=[f"--user-agent={CHROME_UA}"], **kwargs
-            # )
-            Kanpai.browser = await Kanpai.playwright.firefox.launch(**kwargs)
+            Kanpai.browser = await Kanpai.playwright.chromium.launch(
+                channel="chrome", args=[f"--user-agent={CHROME_UA}"], **kwargs
+            )
+            # Kanpai.browser = await Kanpai.playwright.firefox.launch(**kwargs)
         if self.browser_context is None:
             self.browser_context = await self.browser.new_context()
         return self.browser_context

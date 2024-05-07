@@ -50,7 +50,10 @@ class BrowsingMixin(BaseKani):
             # links
             search_loc = page.locator("#search")
             links = await get_google_links(search_loc)
-            return f"{search_text.strip()}\n\n===== Links =====\n{links.to_md_str()}"
+            return (
+                f"{search_text.strip()}\n\nYou should visit some of these links for more information or delegate"
+                f" helpers to visit multiple:\n\n===== Links =====\n{links.to_md_str()}"
+            )
         except PlaywrightTimeoutError:
             content_html = await page.content()
             content = web_markdownify(content_html)
