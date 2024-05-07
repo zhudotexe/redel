@@ -71,7 +71,7 @@ class BrowsingMixin(BaseKani):
         content = web_markdownify(content_html)
         # summarization
         if self.message_token_len(ChatMessage.function("visit_page", content)) > self.max_webpage_len:
-            msg_ctx = "\n\n".join(m.text for m in self.chat_history)
+            msg_ctx = "\n\n".join(m.text for m in self.chat_history if m.text is not None)
             content = await web_summarize(
                 content,
                 parent=self,
