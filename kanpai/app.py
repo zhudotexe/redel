@@ -17,7 +17,6 @@ from .kanis import RootKani
 from .logger import Logger
 from .prompts import ROOT_KANPAI
 from .utils import generate_conversation_title
-from .webutils import CHROME_UA
 
 log = logging.getLogger(__name__)
 
@@ -126,9 +125,10 @@ class Kanpai:
         if Kanpai.playwright is None:
             Kanpai.playwright = await async_playwright().start()
         if Kanpai.browser is None:
-            Kanpai.browser = await Kanpai.playwright.chromium.launch(
-                channel="chrome", args=[f"--user-agent={CHROME_UA}"], **kwargs
-            )
+            # Kanpai.browser = await Kanpai.playwright.chromium.launch(
+            #     channel="chrome", args=[f"--user-agent={CHROME_UA}"], **kwargs
+            # )
+            Kanpai.browser = await Kanpai.playwright.firefox.launch(**kwargs)
         if self.browser_context is None:
             self.browser_context = await self.browser.new_context()
         return self.browser_context

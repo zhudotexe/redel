@@ -16,7 +16,7 @@ Requires Python 3.10+
 ```shell
 # install python dependencies
 $ pip install -r requirements.txt
-$ playwright install chrome
+$ playwright install firefox
 # build visualizer
 $ cd kanpai-viz
 $ npm i
