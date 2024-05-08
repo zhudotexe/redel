@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 
 class RootKani(DelegateWaitMixin, BaseKani):
     def __init__(self, *args, **kwargs):
+        kwargs.setdefault("retry_attempts", 10)
         super().__init__(*args, **kwargs)
         self.namer = Namer()
 

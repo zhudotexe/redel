@@ -2,7 +2,7 @@ import contextlib
 import urllib.parse
 from typing import Optional, TYPE_CHECKING
 
-from kani import ChatMessage, ai_function
+from kani import ChatMessage, ChatRole, ai_function
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 from kanpai.base_kani import BaseKani
@@ -13,10 +13,15 @@ if TYPE_CHECKING:
 
 
 class BrowsingMixin(BaseKani):
-    def __init__(self, *args, max_webpage_len: int = 1024, **kwargs):
+    def __init__(self, *args, max_webpage_len: int = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.page: Optional["Page"] = None
-        self.max_webpage_len = max_webpage_len  # the max number of tokens before asking for a summary
+
+        # the max number of tokens before asking for a summary - default 1/3rd ctx len
+        if max_webpage_len is None:
+            max_webpage_len = self.engine.max_context_size // 3
+
+        self.max_webpage_len = max_webpage_len
 
     # browser management
     async def get_page(self, create=True) -> Optional["Page"]:
@@ -74,7 +79,9 @@ class BrowsingMixin(BaseKani):
         content = web_markdownify(content_html)
         # summarization
         if self.message_token_len(ChatMessage.function("visit_page", content)) > self.max_webpage_len:
-            msg_ctx = "\n\n".join(m.text for m in self.chat_history if m.text is not None)
+            msg_ctx = "\n\n".join(
+                m.text for m in self.chat_history if m.role != ChatRole.FUNCTION and m.text is not None
+            )
             content = await web_summarize(
                 content,
                 parent=self,
