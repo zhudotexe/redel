@@ -34,6 +34,9 @@ class Kanpai:
 
     # app-global engines
     engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
+    # engine = RatelimitedEngine(
+    #     AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
+    # )
     long_engine = RatelimitedEngine(AnthropicEngine(model="claude-3-opus-20240229", temperature=0.1), max_concurrency=1)
 
     def __init__(self):
