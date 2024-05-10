@@ -26,6 +26,8 @@ class Logger:
         self.event_count = Counter()
 
     async def log_event(self, event: events.BaseEvent):
+        if not event.__log_event__:
+            return
         self.events.write(event.model_dump_json())
         self.events.write("\n")
         self.event_count[event.type] += 1

@@ -75,7 +75,7 @@ async def web_summarize(content: str, parent: BaseKani, task="Please summarize t
     if token_len + summarizer.always_len <= app.engine.max_context_size:
         summarizer.engine = app.engine
 
-    with parent.set_state(RunState.WAITING):
+    with parent.run_state(RunState.WAITING):
         # recursively summarize chunks if the content is *still* too long
         if token_len + summarizer.always_len > summarizer.engine.max_context_size:
             half_len = len(content) // 2

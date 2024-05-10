@@ -71,7 +71,8 @@ class Kanpai:
             try:
                 user_msg = await q.get()
                 log.info(f"Message from queue: {user_msg.content!r}")
-                async for msg in self.root_kani.full_round(user_msg.content):
+                async for stream in self.root_kani.full_round_stream(user_msg.content):
+                    msg = await stream.message()
                     if msg.role == ChatRole.ASSISTANT:
                         log.info(f"AI: {msg}")
             except Exception:
@@ -80,7 +81,7 @@ class Kanpai:
     async def chat_in_terminal(self):
         await self.init(browser_headless=False)
         try:
-            await chat_in_terminal_async(self.root_kani)
+            await chat_in_terminal_async(self.root_kani, show_function_args=True)
         except KeyboardInterrupt:
             await self.close()
 

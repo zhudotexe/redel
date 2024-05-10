@@ -1,9 +1,10 @@
 from contextlib import contextmanager
-from typing import TYPE_CHECKING
+from typing import AsyncIterable, TYPE_CHECKING
 from weakref import WeakValueDictionary
 
 from kani import ChatMessage, ChatRole, Kani
 from kani.engines.base import Completion
+from kani.streaming import StreamManager
 
 from . import events, prompts
 from .state import KaniState, RunState
@@ -32,14 +33,39 @@ class BaseKani(Kani):
 
     # ==== overrides ====
     async def chat_round(self, *args, **kwargs):
-        with self.set_state(RunState.RUNNING):
+        with self.run_state(RunState.RUNNING):
             return await super().chat_round(*args, **kwargs)
+
+    def chat_round_stream(self, *args, **kwargs) -> StreamManager:
+        stream = super().chat_round_stream(*args, **kwargs)
+
+        # consume from the inner StreamManager and re-yield with bookkeeping
+        async def _impl():
+            with self.run_state(RunState.RUNNING):
+                async for token in stream:
+                    yield token
+                    self.app.dispatch(events.StreamDelta(id=self.id, delta=token, role=stream.role))
+                yield await stream.completion()
+
+        return StreamManager(_impl(), role=stream.role)
 
     async def full_round(self, *args, **kwargs):
         self.always_included_messages[0] = ChatMessage.system(prompts.get_system_prompt(self))
-        with self.set_state(RunState.RUNNING):
+        with self.run_state(RunState.RUNNING):
             async for msg in super().full_round(*args, **kwargs):
                 yield msg
+
+    async def full_round_stream(self, *args, **kwargs) -> AsyncIterable[StreamManager]:
+        with self.run_state(RunState.RUNNING):
+            async for stream in super().full_round_stream(*args, **kwargs):
+                # consume from the inner StreamManager and re-yield with bookkeeping
+                async def _impl():
+                    async for token in stream:
+                        yield token
+                        self.app.dispatch(events.StreamDelta(id=self.id, delta=token, role=stream.role))
+                    yield await stream.completion()
+
+                yield StreamManager(_impl(), role=stream.role)
 
     async def add_to_history(self, message: ChatMessage):
         await super().add_to_history(message)
@@ -67,17 +93,20 @@ class BaseKani(Kani):
     def last_user_message(self) -> ChatMessage | None:
         return next((m for m in self.chat_history if m.role == ChatRole.USER), None)
 
-    @contextmanager
-    def set_state(self, state: RunState):
-        """Run the body of this statement with a different run state then set it back after."""
-        old_state = self.state
+    def set_run_state(self, state: RunState):
+        """Set the run state and dispatch the event."""
         self.state = state
         self.app.dispatch(events.KaniStateChange(id=self.id, state=self.state))
+
+    @contextmanager
+    def run_state(self, state: RunState):
+        """Run the body of this statement with a different run state then set it back after."""
+        old_state = self.state
+        self.set_run_state(state)
         try:
             yield
         finally:
-            self.state = old_state
-            self.app.dispatch(events.KaniStateChange(id=self.id, state=self.state))
+            self.set_run_state(old_state)
 
     def get_save_state(self) -> KaniState:
         """Get a Pydantic state suitable for saving/loading."""

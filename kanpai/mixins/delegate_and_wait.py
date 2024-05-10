@@ -68,7 +68,8 @@ class DelegateWaitMixin(BaseKani):
         async def _task():
             try:
                 result = []
-                async for msg in helper.full_round(instructions):
+                async for stream in helper.full_round_stream(instructions):
+                    msg = await stream.message()
                     log.info(f"{helper.name}-{helper.depth}: {msg}")
                     if msg.role == ChatRole.ASSISTANT and msg.content:
                         result.append(msg.content)
@@ -94,7 +95,7 @@ class DelegateWaitMixin(BaseKani):
             return 'The "until" param must be the name of a running helper, "next", or "all".'
 
         if until == "next":
-            with self.set_state(RunState.WAITING):
+            with self.run_state(RunState.WAITING):
                 done, _ = await asyncio.wait(self.helper_futures.values(), return_when=asyncio.FIRST_COMPLETED)
             future = done.pop()
             # prompt with name
@@ -103,7 +104,7 @@ class DelegateWaitMixin(BaseKani):
             self.helper_futures.pop(helper_name)
             return f"{helper_name}:\n{result}"
         elif until == "all":
-            with self.set_state(RunState.WAITING):
+            with self.run_state(RunState.WAITING):
                 done, _ = await asyncio.wait(self.helper_futures.values(), return_when=asyncio.ALL_COMPLETED)
             # prompt with name
             results = []
@@ -115,6 +116,6 @@ class DelegateWaitMixin(BaseKani):
             return "\n\n=====\n\n".join(results)
         else:
             future = self.helper_futures.pop(until)
-            with self.set_state(RunState.WAITING):
+            with self.run_state(RunState.WAITING):
                 result, _ = await future
             return f"{until}:\n{result}"

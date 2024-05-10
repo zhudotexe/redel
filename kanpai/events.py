@@ -1,13 +1,14 @@
 import abc
 from typing import Literal
 
-from kani import ChatMessage
+from kani import ChatMessage, ChatRole
 from pydantic import BaseModel
 
 from .state import KaniState, RunState
 
 
 class BaseEvent(BaseModel, abc.ABC):
+    __log_event__ = True  # whether or not the event should be logged
     type: str
 
 
@@ -55,6 +56,17 @@ class RootMessage(BaseEvent):
 
     type: Literal["root_message"] = "root_message"
     msg: ChatMessage
+
+
+class StreamDelta(BaseEvent):
+    """A kani is streaming and emitted a new token."""
+
+    __log_event__ = False
+
+    type: Literal["kani_message"] = "stream_delta"
+    id: str
+    delta: str
+    role: ChatRole
 
 
 # user events
