@@ -60,6 +60,12 @@ export interface RootMessage extends WSMessage {
   msg: ChatMessage;
 }
 
+export interface StreamDelta extends WSMessage {
+  id: string;
+  delta: string;
+  role: ChatRole;
+}
+
 // ---- client events ----
 export interface SendMessage extends WSMessage {
   type: "send_message";

@@ -5,6 +5,7 @@ import type {
   KaniStateChange,
   RootMessage,
   SendMessage,
+  StreamDelta,
   WSMessage,
 } from "@/kanpai/models";
 import { ChatRole } from "@/kanpai/models";
@@ -24,6 +25,7 @@ export class KanpaiClient {
   rootMessages: ChatMessage[] = [];
   rootKani?: KaniState;
   kaniMap: Map<string, KaniState> = new Map<string, KaniState>();
+  streamMap: Map<string, string> = new Map<string, string>();
 
   // events
   events = new EventTarget();
@@ -103,10 +105,23 @@ export class KanpaiClient {
       return;
     }
     kani.chat_history.push(data.msg);
+    // also reset the stream buffer for that kani
+    this.streamMap.delete(data.id);
   }
 
   onRootMessage(data: RootMessage) {
     this.rootMessages.push(data.msg);
+  }
+
+  onStreamDelta(data: StreamDelta) {
+    // only for assistant messages
+    if (data.role != ChatRole.assistant) return;
+    const buf = this.streamMap.get(data.id);
+    if (!buf) {
+      this.streamMap.set(data.id, data.delta);
+      return;
+    }
+    this.streamMap.set(data.id, buf + data.delta);
   }
 
   // ==== utils ====
@@ -151,6 +166,9 @@ export class KanpaiClient {
         break;
       case "root_message":
         this.onRootMessage(message as RootMessage);
+        break;
+      case "stream_delta":
+        this.onStreamDelta(message as StreamDelta);
         break;
       default:
         console.warn("Unknown websocket event:", message);
