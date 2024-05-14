@@ -1,27 +1,41 @@
 import contextlib
+import logging
+import tempfile
 import urllib.parse
 from typing import Optional, TYPE_CHECKING
 
+import httpx
+import pymupdf
+import pymupdf4llm
 from kani import ChatMessage, ChatRole, ai_function
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 from kanpai.base_kani import BaseKani
-from kanpai.webutils import get_google_links, web_markdownify, web_summarize
+from kanpai.mixins.browsing.webutils import get_google_links, web_markdownify, web_summarize
 
 if TYPE_CHECKING:
     from playwright.async_api import Page
+
+log = logging.getLogger(__name__)
 
 
 class BrowsingMixin(BaseKani):
     def __init__(self, *args, max_webpage_len: int = None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.http = httpx.AsyncClient(follow_redirects=True)
         self.page: Optional["Page"] = None
 
         # the max number of tokens before asking for a summary - default 1/3rd ctx len
         if max_webpage_len is None:
             max_webpage_len = self.engine.max_context_size // 3
-
         self.max_webpage_len = max_webpage_len
+
+        # content handlers
+        self.content_handlers = {
+            "application/pdf": self.pdf_content,
+            "application/json": self.json_content,
+            "text/": self.html_content,
+        }
 
     # browser management
     async def get_page(self, create=True) -> Optional["Page"]:
@@ -67,6 +81,56 @@ class BrowsingMixin(BaseKani):
     @ai_function()
     async def visit_page(self, href: str):
         """Visit a web page and view its contents."""
+        # first, let's do a HEAD request and get the content-type so we know how to actually process the info
+        resp = await self.http.head(href)
+        content_type = resp.headers.get("Content-Type", "").lower()
+
+        # then delegate to the content type handler
+        handler = next((f for t, f in self.content_handlers.items() if content_type.startswith(t)), None)
+        if handler is None:
+            log.warning(f"Could not find handler for content type: {content_type}")
+            handler = self.html_content
+
+        return await handler(href)
+
+    # ==== content renderers ====
+    async def pdf_content(self, href: str) -> str:
+        """Handler for application/pdf content types."""
+        with tempfile.NamedTemporaryFile() as f:
+            # download into a tempfile
+            async with self.http.stream("GET", href) as response:
+                async for chunk in response.aiter_bytes():
+                    f.write(chunk)
+
+            # then read it
+            doc = pymupdf.open(f.name, filetype="pdf")
+            content = pymupdf4llm.to_markdown(doc)
+
+        # summarization
+        if self.message_token_len(ChatMessage.function("visit_page", content)) > self.max_webpage_len:
+            msg_ctx = "\n\n".join(
+                m.text for m in self.chat_history if m.role != ChatRole.FUNCTION and m.text is not None
+            )
+            content = await web_summarize(
+                content,
+                parent=self,
+                task=(
+                    "Keep the current context in mind:\n"
+                    f"<context>\n{msg_ctx}\n</context>\n\n"
+                    "Keeping the context and task in mind, please summarize the main content of the PDF above."
+                ),
+            )
+        return content
+
+    async def json_content(self, href: str) -> str:
+        """Handler for application/json content types."""
+        resp = await self.http.get(href)
+        resp.raise_for_status()
+        await resp.aread()
+        return resp.text
+
+    async def html_content(self, href: str) -> str:
+        """Default handler for all other content types."""
         page = await self.get_page()
         await page.goto(href)
         with contextlib.suppress(PlaywrightTimeoutError):
@@ -74,7 +138,7 @@ class BrowsingMixin(BaseKani):
         # header
         title = await page.title()
         header = f"{title}\n{'=' * len(title)}\n{page.url}\n\n"
-        # content
+
         content_html = await page.content()
         content = web_markdownify(content_html)
         # summarization
@@ -91,5 +155,6 @@ class BrowsingMixin(BaseKani):
                     "Keeping the context and task in mind, please summarize the main content of the webpage above."
                 ),
             )
+        # result
         result = header + content
         return result

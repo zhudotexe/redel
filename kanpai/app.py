@@ -11,13 +11,13 @@ from kani.engines.openai import OpenAIEngine
 from kani.ext.ratelimits import RatelimitedEngine
 from playwright.async_api import BrowserContext, async_playwright
 
+from kanpai.mixins.browsing.webutils import CHROME_UA
 from . import events
 from .base_kani import BaseKani
 from .eventlogger import EventLogger
 from .kanis import RootKani
 from .prompts import ROOT_KANPAI
 from .utils import generate_conversation_title
-from .webutils import CHROME_UA
 
 log = logging.getLogger(__name__)
 
