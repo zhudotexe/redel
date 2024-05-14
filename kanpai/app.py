@@ -13,8 +13,8 @@ from playwright.async_api import BrowserContext, async_playwright
 
 from . import events
 from .base_kani import BaseKani
+from .eventlogger import EventLogger
 from .kanis import RootKani
-from .logger import Logger
 from .prompts import ROOT_KANPAI
 from .utils import generate_conversation_title
 from .webutils import CHROME_UA
@@ -51,7 +51,7 @@ class Kanpai:
         self.title = None
         self.add_listener(self.create_title_listener)
         # logging
-        self.logger = Logger(self, self.session_id)
+        self.logger = EventLogger(self, self.session_id)
         self.add_listener(self.logger.log_event)
         # children
         self.kanis = WeakValueDictionary()
@@ -153,7 +153,7 @@ class Kanpai:
             except Exception:
                 log.exception("Could not generate conversation title:")
                 self.title = None
-            else:
+            finally:
                 self.listeners.remove(self.create_title_listener)
 
     async def close(self):

@@ -16,9 +16,10 @@ LOG_BASE.mkdir(parents=True, exist_ok=True)
 log = logging.getLogger(__name__)
 
 
-class Logger:
+class EventLogger:
     def __init__(self, app: "Kanpai", session_id: str):
         self.app = app
+        self.session_id = session_id
         self.log_dir = LOG_BASE / session_id
         self.log_dir.mkdir(exist_ok=True)
         self.events = open(self.log_dir / f"events.jsonl", "a")
@@ -36,7 +37,7 @@ class Logger:
         """Write the full state of the app to the state file, with a basic checksum against the AOF to check validity"""
         state = [ai.get_save_state().model_dump(mode="json") for ai in self.app.kanis.values()]
         data = {
-            "id": self.app.session_id,
+            "id": self.session_id,
             "title": self.app.title,
             "last_modified": time.time(),
             "n_events": self.event_count.total(),
