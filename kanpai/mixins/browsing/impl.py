@@ -107,19 +107,7 @@ class BrowsingMixin(BaseKani):
             content = pymupdf4llm.to_markdown(doc)
 
         # summarization
-        if self.message_token_len(ChatMessage.function("visit_page", content)) > self.max_webpage_len:
-            msg_ctx = "\n\n".join(
-                m.text for m in self.chat_history if m.role != ChatRole.FUNCTION and m.text is not None
-            )
-            content = await web_summarize(
-                content,
-                parent=self,
-                task=(
-                    "Keep the current context in mind:\n"
-                    f"<context>\n{msg_ctx}\n</context>\n\n"
-                    "Keeping the context and task in mind, please summarize the main content of the PDF above."
-                ),
-            )
+        content = await self.maybe_summarize(content)
         return content
 
     async def json_content(self, href: str) -> str:
@@ -142,7 +130,15 @@ class BrowsingMixin(BaseKani):
         content_html = await page.content()
         content = web_markdownify(content_html)
         # summarization
-        if self.message_token_len(ChatMessage.function("visit_page", content)) > self.max_webpage_len:
+        content = await self.maybe_summarize(content)
+        # result
+        result = header + content
+        return result
+
+    # ==== helpers ====
+    async def maybe_summarize(self, content, max_len=None):
+        max_len = max_len or self.max_webpage_len
+        if self.message_token_len(ChatMessage.function("visit_page", content)) > max_len:
             msg_ctx = "\n\n".join(
                 m.text for m in self.chat_history if m.role != ChatRole.FUNCTION and m.text is not None
             )
@@ -152,9 +148,7 @@ class BrowsingMixin(BaseKani):
                 task=(
                     "Keep the current context in mind:\n"
                     f"<context>\n{msg_ctx}\n</context>\n\n"
-                    "Keeping the context and task in mind, please summarize the main content of the webpage above."
+                    "Keeping the context and task in mind, please summarize the main content of the PDF above."
                 ),
             )
-        # result
-        result = header + content
-        return result
+        return content
