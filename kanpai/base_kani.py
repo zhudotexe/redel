@@ -6,7 +6,7 @@ from kani import ChatMessage, ChatRole, Kani
 from kani.engines.base import Completion
 from kani.streaming import StreamManager
 
-from . import events, prompts
+from . import events
 from .state import KaniState, RunState
 from .utils import create_kani_id
 
@@ -50,7 +50,6 @@ class BaseKani(Kani):
         return StreamManager(_impl(), role=stream.role)
 
     async def full_round(self, *args, **kwargs):
-        self.always_included_messages[0] = ChatMessage.system(prompts.get_system_prompt(self))
         with self.run_state(RunState.RUNNING):
             async for msg in super().full_round(*args, **kwargs):
                 yield msg

@@ -15,8 +15,7 @@ from kanpai.mixins.browsing.webutils import CHROME_UA
 from . import events
 from .base_kani import BaseKani
 from .eventlogger import EventLogger
-from .kanis import RootKani
-from .prompts import ROOT_KANPAI
+from .kanis import ROOT_KANPAI, RootKani
 from .utils import generate_conversation_title
 
 log = logging.getLogger(__name__)
