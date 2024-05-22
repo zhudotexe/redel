@@ -6,13 +6,11 @@ from typing import Any, Awaitable, Callable
 from weakref import WeakValueDictionary
 
 from kani import ChatRole, chat_in_terminal_async
-from kani.engines.anthropic import AnthropicEngine
 from kani.engines.openai import OpenAIEngine
-from kani.ext.ratelimits import RatelimitedEngine
 from playwright.async_api import BrowserContext, async_playwright
 
 from kanpai.mixins.browsing.webutils import CHROME_UA
-from . import events
+from . import config, events
 from .base_kani import BaseKani
 from .eventlogger import EventLogger
 from .kanis import ROOT_KANPAI, RootKani
@@ -36,7 +34,7 @@ class Kanpai:
     # engine = RatelimitedEngine(
     #     AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
     # )
-    long_engine = RatelimitedEngine(AnthropicEngine(model="claude-3-opus-20240229", temperature=0.1), max_concurrency=1)
+    long_engine = OpenAIEngine(model="gpt-4o", temperature=0.1, organization=config.OPENAI_ORG_ID_2)
 
     def __init__(self):
         # instance-specific browser context
