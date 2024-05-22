@@ -2,7 +2,8 @@ import os
 
 # ==== core ====
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_ORG_ID_2 = os.getenv("OPENAI_ORG_ID_2", os.getenv("OPENAI_ORG_ID"))  # for long engine edge cases
+# if gpt-4 (not variant models) should use a different org id
+OPENAI_ORG_ID_GPT4 = os.getenv("OPENAI_ORG_ID_GPT4", os.getenv("OPENAI_ORG_ID"))
 
 # ==== voice ====
 ELEVEN_API_KEY = os.getenv("ELEVEN_API_KEY")

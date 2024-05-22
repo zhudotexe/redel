@@ -11,7 +11,7 @@ from kani import ChatMessage, ChatRole, ai_function
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 from kanpai.base_kani import BaseKani
-from kanpai.mixins.browsing.webutils import get_google_links, web_markdownify, web_summarize
+from kanpai.functions.browsing.webutils import get_google_links, web_markdownify, web_summarize
 
 if TYPE_CHECKING:
     from playwright.async_api import Page

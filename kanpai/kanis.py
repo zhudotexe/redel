@@ -5,8 +5,8 @@ from kani import ChatMessage
 
 from . import events
 from .base_kani import BaseKani
-from .mixins.browsing import BrowsingMixin
-from .mixins.delegate_and_wait import DelegateWaitMixin
+from .delegation.delegate_and_wait import DelegateWaitMixin
+from .functions.browsing import BrowsingMixin
 from .namer import Namer
 
 log = logging.getLogger(__name__)

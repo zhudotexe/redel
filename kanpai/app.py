@@ -9,7 +9,7 @@ from kani import ChatRole, chat_in_terminal_async
 from kani.engines.openai import OpenAIEngine
 from playwright.async_api import BrowserContext, async_playwright
 
-from kanpai.mixins.browsing.webutils import CHROME_UA
+from kanpai.functions.browsing.webutils import CHROME_UA
 from . import config, events
 from .base_kani import BaseKani
 from .eventlogger import EventLogger
@@ -30,11 +30,12 @@ class Kanpai:
     browser = None
 
     # app-global engines
-    engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
+    engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95, organization=config.OPENAI_ORG_ID_GPT4)
+    long_engine = OpenAIEngine(model="gpt-4o", temperature=0.1)
+
     # engine = RatelimitedEngine(
     #     AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
     # )
-    long_engine = OpenAIEngine(model="gpt-4o", temperature=0.1, organization=config.OPENAI_ORG_ID_2)
 
     def __init__(self):
         # instance-specific browser context
