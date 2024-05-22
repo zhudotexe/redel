@@ -7,9 +7,7 @@ from weakref import WeakValueDictionary
 
 from kani import ChatRole, chat_in_terminal_async
 from kani.engines.openai import OpenAIEngine
-from playwright.async_api import BrowserContext, async_playwright
 
-from kanpai.functions.browsing.webutils import CHROME_UA
 from . import config, events
 from .base_kani import BaseKani
 from .eventlogger import EventLogger
@@ -22,12 +20,7 @@ log = logging.getLogger(__name__)
 class Kanpai:
     """Kanpai is the core app.
     It's responsible for keeping track of all the spawned kani, and reporting their relations.
-    It also manages any app-global resources, like playwright.
     """
-
-    # app-global browser instance
-    playwright = None
-    browser = None
 
     # app-global engines
     engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95, organization=config.OPENAI_ORG_ID_GPT4)
@@ -38,8 +31,6 @@ class Kanpai:
     # )
 
     def __init__(self):
-        # instance-specific browser context
-        self.browser_context = None
         # events
         self.listeners = []
         self.event_queue = asyncio.Queue()
@@ -55,8 +46,7 @@ class Kanpai:
         self.kanis = WeakValueDictionary()
         self.root_kani = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI, name="kanpai")
 
-    async def init(self, browser_headless=True):
-        await self.get_browser(headless=browser_headless)
+    async def init(self):
         if self.dispatch_task is None:
             self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="kanpai-dispatch")
 
@@ -77,7 +67,7 @@ class Kanpai:
                 log.exception("Error in chat_from_queue:")
 
     async def chat_in_terminal(self):
-        await self.init(browser_headless=False)
+        await self.init()
         try:
             await chat_in_terminal_async(self.root_kani, show_function_args=True)
         except KeyboardInterrupt:
@@ -123,19 +113,6 @@ class Kanpai:
         )
 
     # === resources + app lifecycle ===
-    async def get_browser(self, **kwargs) -> BrowserContext:
-        """Get the current active browser context, or launch it on the first call."""
-        if Kanpai.playwright is None:
-            Kanpai.playwright = await async_playwright().start()
-        if Kanpai.browser is None:
-            Kanpai.browser = await Kanpai.playwright.chromium.launch(
-                channel="chrome", args=[f"--user-agent={CHROME_UA}"], **kwargs
-            )
-            # Kanpai.browser = await Kanpai.playwright.firefox.launch(**kwargs)
-        if self.browser_context is None:
-            self.browser_context = await self.browser.new_context()
-        return self.browser_context
-
     async def create_title_listener(self, event):
         """A listener that generates a conversation title after 4 root message events."""
         if (
@@ -158,12 +135,10 @@ class Kanpai:
         """Clean up all the app resources."""
         if self.dispatch_task is not None:
             self.dispatch_task.cancel()
-        if self.browser is not None:
-            await self.browser.close()
-        if self.playwright is not None:
-            await self.playwright.stop()
         await asyncio.gather(
             self.engine.close(),
             self.long_engine.close(),
             self.logger.close(),
+            self.root_kani.close(),
+            *(child.close() for child in self.kanis.values()),
         )

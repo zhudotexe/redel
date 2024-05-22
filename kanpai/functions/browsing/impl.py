@@ -8,10 +8,10 @@ import httpx
 import pymupdf
 import pymupdf4llm
 from kani import ChatMessage, ChatRole, ai_function
-from playwright.async_api import TimeoutError as PlaywrightTimeoutError
+from playwright.async_api import BrowserContext, TimeoutError as PlaywrightTimeoutError, async_playwright
 
 from kanpai.base_kani import BaseKani
-from kanpai.functions.browsing.webutils import get_google_links, web_markdownify, web_summarize
+from .webutils import CHROME_UA, get_google_links, web_markdownify, web_summarize
 
 if TYPE_CHECKING:
     from playwright.async_api import Page
@@ -20,8 +20,14 @@ log = logging.getLogger(__name__)
 
 
 class BrowsingMixin(BaseKani):
+    # app-global browser instance
+    playwright = None
+    browser = None
+    browser_context = None
+
     def __init__(self, *args, max_webpage_len: int = None, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.http = httpx.AsyncClient(follow_redirects=True)
         self.page: Optional["Page"] = None
 
@@ -37,14 +43,28 @@ class BrowsingMixin(BaseKani):
             "text/": self.html_content,
         }
 
-    # browser management
+    # === resources + app lifecycle ===
+    # noinspection PyMethodMayBeStatic
+    async def get_browser(self, **kwargs) -> BrowserContext:
+        """Get the current active browser context, or launch it on the first call."""
+        if BrowsingMixin.playwright is None:
+            BrowsingMixin.playwright = await async_playwright().start()
+        if BrowsingMixin.browser is None:
+            BrowsingMixin.browser = await BrowsingMixin.playwright.chromium.launch(
+                channel="chrome", args=[f"--user-agent={CHROME_UA}"], **kwargs
+            )
+            # Kanpai.browser = await Kanpai.playwright.firefox.launch(**kwargs)
+        if BrowsingMixin.browser_context is None:
+            BrowsingMixin.browser_context = await BrowsingMixin.browser.new_context()
+        return BrowsingMixin.browser_context
+
     async def get_page(self, create=True) -> Optional["Page"]:
         """Get the current page.
 
         Returns None if the browser is not on a page unless `create` is True, in which case it creates a new page.
         """
         if self.page is None and create:
-            context = await self.app.get_browser()
+            context = await self.get_browser()
             self.page = await context.new_page()
         return self.page
 
@@ -54,7 +74,16 @@ class BrowsingMixin(BaseKani):
             await self.page.close()
             self.page = None
 
-    # functions
+    async def close(self):
+        await super().close()
+        if BrowsingMixin.browser is not None:
+            await BrowsingMixin.browser.close()
+            BrowsingMixin.browser = None
+        if BrowsingMixin.playwright is not None:
+            await BrowsingMixin.playwright.stop()
+            BrowsingMixin.playwright = None
+
+    # ==== functions ====
     @ai_function()
     async def search(self, query: str):
         """Search a query on Google."""

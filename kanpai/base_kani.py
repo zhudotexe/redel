@@ -123,3 +123,7 @@ class BaseKani(Kani):
     async def cleanup(self):
         """This kani may run again but is done for now; clean up any ephemeral resources but save its state."""
         pass
+
+    async def close(self):
+        """The application is shutting down and all resources should be gracefully cleaned up."""
+        pass
