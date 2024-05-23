@@ -6,8 +6,8 @@ from kani import ChatMessage
 from playwright.async_api import Locator, Page
 from pydantic import BaseModel, RootModel
 
-from kanpai.base_kani import BaseKani
-from kanpai.state import RunState
+from redel.base_kani import BaseKani
+from redel.state import RunState
 
 log = logging.getLogger(__name__)
 

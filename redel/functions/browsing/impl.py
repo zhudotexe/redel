@@ -10,7 +10,7 @@ import pymupdf4llm
 from kani import ChatMessage, ChatRole, ai_function
 from playwright.async_api import BrowserContext, TimeoutError as PlaywrightTimeoutError, async_playwright
 
-from kanpai.base_kani import BaseKani
+from redel.base_kani import BaseKani
 from .webutils import CHROME_UA, get_google_links, web_markdownify, web_summarize
 
 if TYPE_CHECKING:

@@ -48,7 +48,7 @@ class ReDelBase(BaseKani):
         delegation_scheme: type,
         always_included_mixins: Iterable[type] = (),
         max_delegation_depth: int = None,
-        **kwargs
+        **kwargs,
     ):
         """
         :param delegation_scheme: The delegation scheme to use (Delegate1Mixin or DelegateWaitMixin).

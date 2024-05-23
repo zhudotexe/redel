@@ -4,7 +4,7 @@ from email.message import EmailMessage
 
 from kani import ai_function
 
-from kanpai.config import EMAIL_FROM, EMAIL_HOST, EMAIL_PASS
+from redel.config import EMAIL_FROM, EMAIL_HOST, EMAIL_PASS
 
 
 class EmailMixin:

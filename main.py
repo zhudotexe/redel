@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from kanpai.app import Kanpai
+from redel.app import Kanpai
 
 
 async def main():

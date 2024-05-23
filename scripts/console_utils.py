@@ -4,7 +4,7 @@ import asyncio
 
 from playwright.async_api import async_playwright
 
-from kanpai.functions.browsing.webutils import CHROME_UA, get_google_links, web_markdownify
+from redel.functions.browsing.webutils import CHROME_UA, get_google_links, web_markdownify
 
 
 #  from playwright.sync_api import sync_playwright

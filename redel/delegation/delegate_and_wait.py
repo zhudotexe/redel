@@ -6,8 +6,8 @@ from typing import Annotated
 from kani import AIParam, ChatRole, ai_function
 from rapidfuzz import fuzz
 
-from kanpai.base_kani import BaseKani
-from kanpai.state import RunState
+from redel.base_kani import BaseKani
+from redel.state import RunState
 
 log = logging.getLogger(__name__)
 

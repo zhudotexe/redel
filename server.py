@@ -11,9 +11,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from kanpai import Kanpai
-from kanpai.events import BaseEvent, Error, SendMessage
-from kanpai.state import KaniState
+from redel import Kanpai
+from redel.events import BaseEvent, Error, SendMessage
+from redel.state import KaniState
 
 log = logging.getLogger("viz-app")
 
@@ -85,7 +85,7 @@ async def ws(websocket: WebSocket):
             await websocket.send_text(Error(msg=str(e)).model_dump_json())
 
 
-app.mount("/", StaticFiles(directory="kanpai-viz/dist", html=True), name="viz")
+app.mount("/", StaticFiles(directory="viz/dist", html=True), name="viz")
 
 if __name__ == "__main__":
     import uvicorn

@@ -9,8 +9,8 @@ from elevenlabs.client import ElevenLabs
 from kani import ChatRole, Kani
 from kani.engines.openai import OpenAIEngine
 
-from kanpai import events
-from kanpai.config import ELEVEN_API_KEY, ELEVEN_VOICE_ID
+from redel import events
+from redel.config import ELEVEN_API_KEY, ELEVEN_VOICE_ID
 
 lock = asyncio.Lock()
 log = logging.getLogger("voice")
