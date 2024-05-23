@@ -1,13 +1,9 @@
-<p align="center">
-  <img width="256" height="256" alt="kanpai logo" src="assets/kanpi-vector.png">
-</p>
+# ReDel (WIP)
 
-# kan-pi (乾杯)
+*A framework for recursive delegation of LLMs*
 
-kan-pi is an experimental project intended to see how well LLMs with function calling can achieve high-level goals
+ReDel is an experimental project intended to see how well LLMs with function calling can achieve high-level goals
 through delegation and decomposition.
-
-kan-pi uses the kani framework under the hood (kani + raspberry pi = kanpai :beers:)
 
 ## Installation
 
@@ -25,18 +21,27 @@ $ npm run build
 $ OPENAI_API_KEY="..." python server.py
 ```
 
-## Core Loop
+## Related Literature
 
-- Main Kani ingests query, calls do() if need to take an action
-- spawn subkani, which can:
-  - decompose action into tasks
-  - write a new action
-    - spawn a code-writing w/ feedback kani
-  - retrieve actions from action library
-    - spawn a new kani with access to them to complete task
+TODO
 
-## Code Structure
+## Screenshots
 
-- Kanpai: app singleton that is responsible for tracking all the kanis
-- RootKani: the one the user interacts with, spawns DelegateKanis
-- DelegateKani: can do anything:tm:
+TODO
+
+## Customization
+
+TODO
+
+- how to change the delegation policy
+- how to change the engine
+- how to change the prompt
+- how to add additional functions
+- how to set which functions are always included in a delegate
+- other options
+
+## Addons
+
+TODO
+
+- voice
