@@ -3,7 +3,6 @@ from typing import AsyncIterable, TYPE_CHECKING
 from weakref import WeakValueDictionary
 
 from kani import ChatMessage, ChatRole, Kani
-from kani.engines.base import Completion
 from kani.streaming import StreamManager
 
 from . import events
@@ -15,6 +14,8 @@ if TYPE_CHECKING:
 
 
 class BaseKani(Kani):
+    """Base class for all kani in the application, regardless of recursive delegation."""
+
     def __init__(self, *args, app: "Kanpai", parent: "BaseKani" = None, id: str = None, name: str = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.state = RunState.STOPPED
@@ -69,6 +70,8 @@ class BaseKani(Kani):
     async def add_to_history(self, message: ChatMessage):
         await super().add_to_history(message)
         self.app.dispatch(events.KaniMessage(id=self.id, msg=message))
+        if self.parent is None:
+            self.app.dispatch(events.RootMessage(msg=message))
 
     async def get_model_completion(self, include_functions: bool = True, **kwargs):
         completion = await super().get_model_completion(include_functions, **kwargs)
@@ -80,11 +83,7 @@ class BaseKani(Kani):
         message = completion.message
         # HACK: sometimes openai's function calls are borked; we fix them here
         if (function_call := message.function_call) and function_call.name.startswith("functions."):
-            fixed_name = function_call.name.removeprefix("functions.")
-            message = message.copy_with(function_call=function_call.copy_with(name=fixed_name))
-            return Completion(
-                message, prompt_tokens=completion.prompt_tokens, completion_tokens=completion.completion_tokens
-            )
+            function_call.name = function_call.name.removeprefix("functions.")
         return completion
 
     # ==== utils ====
