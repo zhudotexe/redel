@@ -1,12 +1,10 @@
 import datetime
 import logging
+from typing import Iterable, Type
 
 from kani import ChatMessage
 
-from . import events
 from .base_kani import BaseKani
-from .delegation.delegate_and_wait import DelegateWaitMixin
-from .functions.browsing import BrowsingMixin
 from .namer import Namer
 
 log = logging.getLogger(__name__)
@@ -41,26 +39,62 @@ def get_system_prompt(kani: "BaseKani") -> str:
 
 
 # ==== implementation ====
-class RootKani(DelegateWaitMixin, BaseKani):
-    def __init__(self, *args, **kwargs):
+class ReDelBase(BaseKani):
+    """Base class for recursive delegation kanis."""
+
+    def __init__(
+        self,
+        *args,
+        delegation_scheme: type,
+        always_included_mixins: Iterable[type] = (),
+        max_delegation_depth: int = None,
+        **kwargs
+    ):
+        """
+        :param delegation_scheme: The delegation scheme to use (Delegate1Mixin or DelegateWaitMixin).
+        :param always_included_mixins: Mixins to include for each delegate (but not the root).
+        :param max_delegation_depth: The maximum depth of the delegation chain - any kanis created at this depth will
+            not inherit from the *delegation_scheme*.
+        """
         kwargs.setdefault("retry_attempts", 10)
         super().__init__(*args, **kwargs)
         self.namer = Namer()
+        self.delegation_scheme = delegation_scheme
+        self.always_included_mixins = always_included_mixins
+        self.max_delegation_depth = max_delegation_depth
 
     async def get_prompt(self) -> list[ChatMessage]:
         if self.system_prompt is not None:
             self.always_included_messages[0] = ChatMessage.system(get_system_prompt(self))
         return await super().get_prompt()
 
-    def create_delegate_kani(self):
+    # noinspection PyTypeChecker
+    async def build_delegate_type(self) -> Type["ReDelBase"]:
+        # construct the type for the new delegate, TODO with the retrieved functions to use
+        if self.depth == self.max_delegation_depth:
+            return type("DelegateKani", (*self.always_included_mixins, ReDelBase), {})
+        else:
+            return type("DelegateKani", (*self.always_included_mixins, ReDelBase, self.delegation_scheme), {})
+
+    # noinspection PyPep8Naming
+    async def create_delegate_kani(self):
+        DelegateKani = await self.build_delegate_type()
+        # then create an instance of that type
         name = self.namer.get_name()
-        return DelegateKani(self.engine, app=self.app, parent=self, system_prompt=DELEGATE_KANPAI, name=name)
+        return DelegateKani(
+            self.engine,
+            # redel args
+            delegation_scheme=self.delegation_scheme,
+            always_included_mixins=self.always_included_mixins,
+            # app args
+            app=self.app,
+            parent=self,
+            system_prompt=DELEGATE_KANPAI,
+            name=name,
+        )
 
-    async def add_to_history(self, message: ChatMessage):
-        await super().add_to_history(message)
-        if self.parent is None:
-            self.app.dispatch(events.RootMessage(msg=message))
 
-
-class DelegateKani(BrowsingMixin, RootKani):
-    pass
+def build_root_type(delegation_scheme: type) -> Type[ReDelBase]:
+    """Dynamically create the root type for the kani delegation tree."""
+    # noinspection PyTypeChecker
+    return type("RootKani", (ReDelBase, delegation_scheme), {})

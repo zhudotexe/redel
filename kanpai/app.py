@@ -10,8 +10,10 @@ from kani.engines.openai import OpenAIEngine
 
 from . import config, events
 from .base_kani import BaseKani
+from .delegation.delegate_and_wait import DelegateWaitMixin
 from .eventlogger import EventLogger
-from .kanis import ROOT_KANPAI, RootKani
+from .functions.browsing import BrowsingMixin
+from .kanis import ROOT_KANPAI, build_root_type
 from .utils import generate_conversation_title
 
 log = logging.getLogger(__name__)
@@ -42,9 +44,20 @@ class Kanpai:
         # logging
         self.logger = EventLogger(self, self.session_id)
         self.add_listener(self.logger.log_event)
-        # children
+        # kanis
+        # noinspection PyPep8Naming
+        RootKani = build_root_type(delegation_scheme=DelegateWaitMixin)
         self.kanis = WeakValueDictionary()
-        self.root_kani = RootKani(self.engine, app=self, system_prompt=ROOT_KANPAI, name="kanpai")
+        self.root_kani = RootKani(
+            self.engine,
+            # redel args
+            delegation_scheme=DelegateWaitMixin,
+            always_included_mixins=(BrowsingMixin,),
+            # app args
+            app=self,
+            system_prompt=ROOT_KANPAI,
+            name="kanpai",
+        )
 
     async def init(self):
         if self.dispatch_task is None:

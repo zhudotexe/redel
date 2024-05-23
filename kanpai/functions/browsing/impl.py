@@ -177,7 +177,7 @@ class BrowsingMixin(BaseKani):
                 task=(
                     "Keep the current context in mind:\n"
                     f"<context>\n{msg_ctx}\n</context>\n\n"
-                    "Keeping the context and task in mind, please summarize the main content of the PDF above."
+                    "Keeping the context and task in mind, please summarize the main content above."
                 ),
             )
         return content

@@ -19,7 +19,7 @@ class DelegateWaitMixin(BaseKani):
         self.helper_futures = {}  # name -> Future[tuple[str, str]]
 
     @abstractmethod
-    def create_delegate_kani(self) -> BaseKani:
+    async def create_delegate_kani(self) -> BaseKani:
         raise NotImplementedError
 
     @ai_function()
@@ -62,7 +62,7 @@ class DelegateWaitMixin(BaseKani):
                 )
             helper = self.helpers[who]
         else:
-            helper = self.create_delegate_kani()
+            helper = await self.create_delegate_kani()
             self.helpers[helper.name] = helper
 
         async def _task():
