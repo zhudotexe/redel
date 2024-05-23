@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "redel"
+version = "0.0.1"
+authors = [
+    { name = "Andrew Zhu", email = "andrew@zhu.codes" },
+]
+description = "A framework for recursive delegation of LLMs"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    # https://pypi.org/classifiers/
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "kani[openai]",
+    "kani-ratelimits",
+    "playwright~=1.43.0",
+    "rapidfuzz~=3.9.0",
+    "trafilatura~=1.9.0",
+    "PyMuPDF~=1.24.3",
+    "pymupdf4llm~=0.0.1",
+]
+
+[project.optional-dependencies]
+all = [
+    "redel[web,voice]"
+]
+
+web = [
+    "fastapi~=0.111.0",
+    "uvicorn~=0.23.2",
+    "websockets~=11.0.3",
+]
+
+voice = [
+    "elevenlabs~=1.0.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/zhudotexe/redel"
+"Bug Tracker" = "https://github.com/zhudotexe/redel/issues"
+
+[tool.black]
+line-length = 120
+preview = true
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true
+line_length = 120
+# I am bound by pycharm's import autosorting rules
+no_lines_before = "LOCALFOLDER"
+reverse_relative = true
+combine_as_imports = true
