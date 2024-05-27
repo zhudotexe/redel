@@ -1,6 +1,6 @@
 import datetime
 import logging
-from typing import Iterable, Type
+from typing import Iterable
 
 from kani import ChatMessage
 
@@ -68,17 +68,14 @@ class ReDelBase(BaseKani):
             self.always_included_messages[0] = ChatMessage.system(get_system_prompt(self))
         return await super().get_prompt()
 
-    # noinspection PyTypeChecker
-    async def build_delegate_type(self) -> Type["ReDelBase"]:
-        # construct the type for the new delegate, TODO with the retrieved functions to use
-        if self.depth == self.max_delegation_depth:
-            return type("DelegateKani", (*self.always_included_mixins, ReDelBase), {})
-        else:
-            return type("DelegateKani", (*self.always_included_mixins, ReDelBase, self.delegation_scheme), {})
-
     # noinspection PyPep8Naming
     async def create_delegate_kani(self):
-        DelegateKani = await self.build_delegate_type()
+        # construct the type for the new delegate, TODO with the retrieved functions to use
+        if self.depth == self.max_delegation_depth:
+            DelegateKani = type("DelegateKani", (*self.always_included_mixins, ReDelBase), {})
+        else:
+            DelegateKani = type("DelegateKani", (*self.always_included_mixins, ReDelBase, self.delegation_scheme), {})
+
         # then create an instance of that type
         name = self.namer.get_name()
         return DelegateKani(
@@ -94,7 +91,7 @@ class ReDelBase(BaseKani):
         )
 
 
-def build_root_type(delegation_scheme: type) -> Type[ReDelBase]:
-    """Dynamically create the root type for the kani delegation tree."""
-    # noinspection PyTypeChecker
-    return type("RootKani", (ReDelBase, delegation_scheme), {})
+def create_root_kani(*args, delegation_scheme: type, **kwargs) -> ReDelBase:
+    """Create the root kani for the kani delegation tree."""
+    t = type("RootKani", (ReDelBase, delegation_scheme), {})
+    return t(*args, delegation_scheme=delegation_scheme, **kwargs)

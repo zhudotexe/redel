@@ -2,6 +2,7 @@ import asyncio
 import logging
 import time
 import uuid
+from collections.abc import AsyncIterable
 from typing import Any, Awaitable, Callable
 from weakref import WeakValueDictionary
 
@@ -13,7 +14,7 @@ from .base_kani import BaseKani
 from .delegation.delegate_and_wait import DelegateWaitMixin
 from .eventlogger import EventLogger
 from .functions.browsing import BrowsingMixin
-from .kanis import ROOT_KANPAI, build_root_type
+from .kanis import ROOT_KANPAI, create_root_kani
 from .utils import generate_conversation_title
 
 log = logging.getLogger(__name__)
@@ -45,28 +46,27 @@ class Kanpai:
         self.logger = EventLogger(self, self.session_id)
         self.add_listener(self.logger.log_event)
         # kanis
-        # noinspection PyPep8Naming
-        RootKani = build_root_type(delegation_scheme=DelegateWaitMixin)
         self.kanis = WeakValueDictionary()
-        self.root_kani = RootKani(
+        self.root_kani = create_root_kani(
             self.engine,
-            # redel args
+            # ReDelBase args
             delegation_scheme=DelegateWaitMixin,
             always_included_mixins=(BrowsingMixin,),
-            # app args
+            max_delegation_depth=8,
+            # BaseKani args
             app=self,
             system_prompt=ROOT_KANPAI,
             name="kanpai",
         )
 
-    async def init(self):
+    async def ensure_init(self):
         if self.dispatch_task is None:
             self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="kanpai-dispatch")
 
     # === entrypoints ===
     async def chat_from_queue(self, q: asyncio.Queue):
         """Get chat messages from the queue."""
-        await self.init()
+        await self.ensure_init()
         while True:
             # main loop
             try:
@@ -78,17 +78,59 @@ class Kanpai:
                         log.info(f"AI: {msg}")
             except Exception:
                 log.exception("Error in chat_from_queue:")
+            finally:
+                self.dispatch(events.RoundComplete(session_id=self.session_id))
 
     async def chat_in_terminal(self):
-        await self.init()
-        try:
-            await chat_in_terminal_async(self.root_kani, show_function_args=True)
-        except KeyboardInterrupt:
-            await self.close()
+        await self.ensure_init()
+        while True:
+            try:
+                await chat_in_terminal_async(self.root_kani, show_function_args=True, rounds=1)
+            except KeyboardInterrupt:
+                await self.close()
+            finally:
+                self.dispatch(events.RoundComplete(session_id=self.session_id))
+
+    async def query(self, query: str) -> AsyncIterable[events.BaseEvent]:
+        """Run one round with the given query.
+
+        Yields all loggable events from the app (i.e. no stream deltas) during the query. To get only messages
+        from the root, filter for `events.RootMessage`.
+        """
+        await self.ensure_init()
+
+        # register a new listener which passes events into a local queue
+        q = asyncio.Queue()
+        self.add_listener(q.put)
+
+        # submit query to the kani to run in bg
+        async def _task():
+            try:
+                async for _ in self.root_kani.full_round(query):
+                    pass
+            finally:
+                self.dispatch(events.RoundComplete(session_id=self.session_id))
+
+        task = asyncio.create_task(_task())
+
+        # yield from the q until we get a RoundComplete
+        while True:
+            event = await q.get()
+            if event.__log_event__:
+                yield event
+            if event.type == events.RoundComplete.type:
+                break
+
+        # ensure task is completed and cleanup
+        await task
+        self.remove_listener(q.put)
 
     # === events ===
     def add_listener(self, callback: Callable[[events.BaseEvent], Awaitable[Any]]):
         self.listeners.append(callback)
+
+    def remove_listener(self, callback):
+        self.listeners.remove(callback)
 
     async def _dispatch_task(self):
         while True:
@@ -142,7 +184,7 @@ class Kanpai:
                 log.exception("Could not generate conversation title:")
                 self.title = None
             finally:
-                self.listeners.remove(self.create_title_listener)
+                self.remove_listener(self.create_title_listener)
 
     async def close(self):
         """Clean up all the app resources."""

@@ -69,6 +69,13 @@ class StreamDelta(BaseEvent):
     role: ChatRole
 
 
+class RoundComplete(BaseEvent):
+    """The root kani has finished a full round and control should be handed off to the user."""
+
+    type: Literal["round_complete"] = "round_complete"
+    session_id: str
+
+
 # user events
 class SendMessage(BaseEvent):
     type: Literal["send_message"] = "send_message"
