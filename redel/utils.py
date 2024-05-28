@@ -15,7 +15,7 @@ def create_kani_id() -> str:
 async def generate_conversation_title(ai: "BaseKani"):
     """Given an kani, create a title for its current conversation state."""
     helper = Kani(
-        ai.app.engine, chat_history=[ChatMessage.user("Here is the start of a conversation:"), *ai.chat_history]
+        ai.engine, chat_history=[ChatMessage.user("Here is the start of a conversation:"), *ai.chat_history]
     )
     title = await helper.chat_round_str(
         "Come up with a punchy title for this conversation.\n\nReply with your answer only and be specific."

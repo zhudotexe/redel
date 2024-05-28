@@ -108,16 +108,7 @@ class BaseKani(Kani):
 
     def get_save_state(self) -> KaniState:
         """Get a Pydantic state suitable for saving/loading."""
-        return KaniState(
-            id=self.id,
-            depth=self.depth,
-            parent=self.parent.id if self.parent else None,
-            children=list(self.children),
-            always_included_messages=self.always_included_messages,
-            chat_history=self.chat_history,
-            state=self.state,
-            name=self.name,
-        )
+        return KaniState.from_kani(self)
 
     async def cleanup(self):
         """This kani may run again but is done for now; clean up any ephemeral resources but save its state."""

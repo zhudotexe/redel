@@ -17,10 +17,10 @@ log = logging.getLogger(__name__)
 
 
 class EventLogger:
-    def __init__(self, app: "Kanpai", session_id: str):
+    def __init__(self, app: "Kanpai", session_id: str, log_dir: pathlib.Path = None):
         self.app = app
         self.session_id = session_id
-        self.log_dir = LOG_BASE / session_id
+        self.log_dir = log_dir or (LOG_BASE / session_id)
         self.log_dir.mkdir(exist_ok=True)
         self.events = open(self.log_dir / f"events.jsonl", "a")
 
