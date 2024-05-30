@@ -73,18 +73,17 @@ class BaseKani(Kani):
         if self.parent is None:
             self.app.dispatch(events.RootMessage(msg=message))
 
-    async def get_model_completion(self, include_functions: bool = True, **kwargs):
-        completion = await super().get_model_completion(include_functions, **kwargs)
+    async def add_completion_to_history(self, completion):
+        message = await super().add_completion_to_history(completion)
         self.app.dispatch(
             events.TokensUsed(
                 id=self.id, prompt_tokens=completion.prompt_tokens, completion_tokens=completion.completion_tokens
             )
         )
-        message = completion.message
         # HACK: sometimes openai's function calls are borked; we fix them here
         if (function_call := message.function_call) and function_call.name.startswith("functions."):
             function_call.name = function_call.name.removeprefix("functions.")
-        return completion
+        return message
 
     # ==== utils ====
     @property
