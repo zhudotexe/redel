@@ -1,14 +1,27 @@
+from typing import Literal
+
 import fanoutqa
 from fanoutqa.retrieval import Corpus
 from kani import ChatMessage, ai_function
 
 from redel.base_kani import BaseKani
+from redel.events import BaseEvent
 
 
+# custom event
+class ArticleRetrieved(BaseEvent):
+    type: Literal["article_retrieved"] = "article_retrieved"
+    id: str
+    article_title: str
+    article_pageid: int
+    article_revid: int
+
+
+# ai function
 class FanOutQAMixin(BaseKani):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.max_search_tokens = self.engine.max_context_size // 2
+    @property
+    def max_search_tokens(self):
+        return self.engine.max_context_size // 2
 
     @ai_function()
     def search(self, query: str):
@@ -28,10 +41,23 @@ class FanOutQAMixin(BaseKani):
 
         # found match
         prompt = f"<document>\n<title>{found_article.title}</title>\n{{}}</document>"
+        self.app.dispatch(
+            ArticleRetrieved(
+                id=self.id,
+                article_title=found_article.title,
+                article_pageid=found_article.pageid,
+                article_revid=found_article.revid,
+            )
+        )
 
         # if the content fits in the context, return that
         wiki_content = fanoutqa.wiki_content(found_article)
         full_content = prompt.format(f"<content>\n{wiki_content}\n</content>\n")
+        if self.message_token_len(ChatMessage.user(full_content)) <= self.max_search_tokens:
+            return full_content
+
+        # else, upgrade the engine to long_engine and try again
+        self.engine = self.app.long_engine
         if self.message_token_len(ChatMessage.user(full_content)) <= self.max_search_tokens:
             return full_content
 
