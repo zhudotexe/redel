@@ -17,6 +17,7 @@ from .base_kani import BaseKani
 from .delegation.delegate_and_wait import DelegateWaitMixin
 from .eventlogger import EventLogger
 from .functions.browsing import BrowsingMixin
+from .functions.fanoutqa import FanOutQAMixin
 from .kanis import DELEGATE_KANPAI, ROOT_KANPAI, create_root_kani
 from .utils import generate_conversation_title
 
@@ -58,6 +59,7 @@ class Kanpai:
         delegation_scheme: type = DelegateWaitMixin,
         max_delegation_depth: int = 8,
         always_included_mixins: Iterable[type] = (BrowsingMixin,),
+        root_has_functions: bool = False,
         # logging
         title: str = None,
         log_dir: Path = None,
@@ -73,10 +75,13 @@ class Kanpai:
         :param delegate_kani_kwargs: Additional keyword args to pass to :class:``kani.Kani``.
         :param delegation_scheme: A class that each kani capable of delegation will inherit from. See
             ``redel.delegation`` for examples. This class can assume the existence of a ``create_delegate_kani`` method.
+            Can be ``None`` to disable delegation (this makes ReDel a nice kani visualization tool).
         :param max_delegation_depth: The maximum delegation depth. Kanis created at this depth will not inherit from the
             ``delegation_scheme`` class.
         :param always_included_mixins: A list of mixins (i.e., classes containing one or more ``@ai_function`` methods)
             that each delegate kani will *always* inherit from.
+        :param root_has_functions: Whether the root kani should have access to the ``always_included_mixins`` (default
+            False).
         :param title: The title of this session. Set to ``AUTOGENERATE_TITLE`` to automatically generate one.
         :param log_dir: A path to a directory to save logs for this session. Defaults to ``.kanpai/{session_id}/``.
         """
@@ -120,6 +125,7 @@ class Kanpai:
             always_included_mixins=always_included_mixins,
             max_delegation_depth=max_delegation_depth,
             delegate_kani_kwargs=delegate_kani_kwargs,
+            root_has_functions=root_has_functions,
             # BaseKani args
             app=self,
             name="kanpai",

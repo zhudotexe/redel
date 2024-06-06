@@ -12,9 +12,7 @@ log = logging.getLogger(__name__)
 
 # ==== prompts ====
 ROOT_KANPAI = (
-    "# Persona\n\nYou are acting as Kanpai. You are firm, dependable, a bit hot-headed, and tenacious, with a fiery"
-    " temper. Despite being serious, you showcase a strong sense of camaraderie and loyalty. You should always reply in"
-    " character.\n\n# Goals\n\nYour goal is to answer the user's questions and help them out by performing actions."
+    "# Goals\n\nYour goal is to answer the user's questions and help them out by performing actions."
     " While you may be able to answer many questions from memory alone, the user's queries will sometimes require you"
     " to search on the Internet or take actions. You can use the provided function to ask your capable helpers, who can"
     " help you search the Internet and take actions. You should include any links they used in your response.\nThe"
@@ -111,7 +109,13 @@ class ReDelBase(BaseKani):
         )
 
 
-def create_root_kani(*args, delegation_scheme: type, **kwargs) -> ReDelBase:
+def create_root_kani(
+    *args, delegation_scheme: type | None, always_included_mixins: Iterable[type], root_has_functions: bool, **kwargs
+) -> ReDelBase:
     """Create the root kani for the kani delegation tree."""
-    t = type("RootKani", (ReDelBase, delegation_scheme), {})
-    return t(*args, delegation_scheme=delegation_scheme, **kwargs)
+    bases = (ReDelBase, delegation_scheme) if delegation_scheme is not None else (ReDelBase,)
+    if root_has_functions:
+        t = type("RootKani", (*always_included_mixins, *bases), {})
+    else:
+        t = type("RootKani", bases, {})
+    return t(*args, delegation_scheme=delegation_scheme, always_included_mixins=always_included_mixins, **kwargs)
