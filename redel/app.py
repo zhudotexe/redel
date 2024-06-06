@@ -17,7 +17,6 @@ from .base_kani import BaseKani
 from .delegation.delegate_and_wait import DelegateWaitMixin
 from .eventlogger import EventLogger
 from .functions.browsing import BrowsingMixin
-from .functions.fanoutqa import FanOutQAMixin
 from .kanis import DELEGATE_KANPAI, ROOT_KANPAI, create_root_kani
 from .utils import generate_conversation_title
 
