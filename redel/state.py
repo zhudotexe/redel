@@ -1,7 +1,11 @@
 import enum
+from typing import TYPE_CHECKING
 
-from kani import ChatMessage
+from kani import AIFunction, ChatMessage, ChatRole
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from redel.base_kani import BaseKani
 
 
 class RunState(enum.Enum):
@@ -9,6 +13,26 @@ class RunState(enum.Enum):
     RUNNING = "running"  # gpt-4 is generating something
     WAITING = "waiting"  # waiting on a child
     ERRORED = "errored"  # panic
+
+
+class AIFunctionState(BaseModel):
+    name: str
+    desc: str
+    auto_retry: bool
+    auto_truncate: int | None
+    after: ChatRole
+    json_schema: dict
+
+    @classmethod
+    def from_aifunction(cls, f: AIFunction):
+        return cls(
+            name=f.name,
+            desc=f.desc,
+            auto_retry=f.auto_retry,
+            auto_truncate=f.auto_truncate,
+            after=f.after,
+            json_schema=f.json_schema,
+        )
 
 
 class KaniState(BaseModel):
@@ -20,3 +44,21 @@ class KaniState(BaseModel):
     chat_history: list[ChatMessage]
     state: RunState
     name: str
+    engine_type: str
+    functions: list[AIFunctionState]
+
+    @classmethod
+    def from_kani(cls, ai: "BaseKani", **kwargs):
+        return cls(
+            id=ai.id,
+            depth=ai.depth,
+            parent=ai.parent.id if ai.parent else None,
+            children=list(ai.children),
+            always_included_messages=ai.always_included_messages,
+            chat_history=ai.chat_history,
+            state=ai.state,
+            name=ai.name,
+            engine_type=type(ai.engine).__name__,
+            functions=[AIFunctionState.from_aifunction(f) for f in ai.functions.values()],
+            **kwargs,
+        )

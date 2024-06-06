@@ -3,6 +3,7 @@ import logging
 from typing import Iterable
 
 from kani import ChatMessage
+from kani.engines import BaseEngine
 
 from .base_kani import BaseKani
 from .namer import Namer
@@ -45,23 +46,40 @@ class ReDelBase(BaseKani):
     def __init__(
         self,
         *args,
+        # prompting
+        delegate_engine: BaseEngine = None,
+        delegate_system_prompt: str | None = DELEGATE_KANPAI,
+        # delegation
         delegation_scheme: type,
         always_included_mixins: Iterable[type] = (),
         max_delegation_depth: int = None,
+        # base kani stuff
+        delegate_kani_kwargs: dict = None,
         **kwargs,
     ):
         """
+        :param delegate_system_prompt: The system prompt to use for each delegate kani.
         :param delegation_scheme: The delegation scheme to use (Delegate1Mixin or DelegateWaitMixin).
-        :param always_included_mixins: Mixins to include for each delegate (but not the root).
         :param max_delegation_depth: The maximum depth of the delegation chain - any kanis created at this depth will
             not inherit from the *delegation_scheme*.
+        :param always_included_mixins: Mixins to include for each delegate (but not the root).
+        :param delegate_kani_kwargs: Additional kwargs to pass to each constructed delegate kani.
         """
         kwargs.setdefault("retry_attempts", 10)
         super().__init__(*args, **kwargs)
+
+        if delegate_engine is None:
+            delegate_engine = self.engine
+        if delegate_kani_kwargs is None:
+            delegate_kani_kwargs = {}
+
         self.namer = Namer()
+        self.delegate_engine = delegate_engine
+        self.delegate_system_prompt = delegate_system_prompt
         self.delegation_scheme = delegation_scheme
-        self.always_included_mixins = always_included_mixins
         self.max_delegation_depth = max_delegation_depth
+        self.always_included_mixins = always_included_mixins
+        self.delegate_kani_kwargs = delegate_kani_kwargs
 
     async def get_prompt(self) -> list[ChatMessage]:
         if self.system_prompt is not None:
@@ -79,15 +97,17 @@ class ReDelBase(BaseKani):
         # then create an instance of that type
         name = self.namer.get_name()
         return DelegateKani(
-            self.engine,
+            self.delegate_engine,
             # redel args
             delegation_scheme=self.delegation_scheme,
             always_included_mixins=self.always_included_mixins,
             # app args
             app=self.app,
             parent=self,
-            system_prompt=DELEGATE_KANPAI,
             name=name,
+            # kani args
+            system_prompt=self.delegate_system_prompt,
+            **self.delegate_kani_kwargs,
         )
 
 

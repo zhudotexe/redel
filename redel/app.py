@@ -1,12 +1,15 @@
 import asyncio
+import functools
 import logging
 import time
 import uuid
 from collections.abc import AsyncIterable
-from typing import Any, Awaitable, Callable
+from pathlib import Path
+from typing import Any, Awaitable, Callable, Iterable
 from weakref import WeakValueDictionary
 
 from kani import ChatRole, chat_in_terminal_async
+from kani.engines import BaseEngine
 from kani.engines.openai import OpenAIEngine
 
 from . import config, events
@@ -14,10 +17,23 @@ from .base_kani import BaseKani
 from .delegation.delegate_and_wait import DelegateWaitMixin
 from .eventlogger import EventLogger
 from .functions.browsing import BrowsingMixin
-from .kanis import ROOT_KANPAI, create_root_kani
+from .kanis import DELEGATE_KANPAI, ROOT_KANPAI, create_root_kani
 from .utils import generate_conversation_title
 
 log = logging.getLogger(__name__)
+
+
+@functools.cache
+def default_engine():
+    return OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95, organization=config.OPENAI_ORG_ID_GPT4)
+
+
+@functools.cache
+def default_long_engine():
+    # engine = RatelimitedEngine(
+    #     AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
+    # )
+    return OpenAIEngine(model="gpt-4o", temperature=0.1)
 
 
 class Kanpai:
@@ -25,38 +41,70 @@ class Kanpai:
     It's responsible for keeping track of all the spawned kani, and reporting their relations.
     """
 
-    # app-global engines
-    engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95, organization=config.OPENAI_ORG_ID_GPT4)
-    long_engine = OpenAIEngine(model="gpt-4o", temperature=0.1)
+    def __init__(
+        self,
+        *,
+        # engines
+        root_engine: BaseEngine = None,
+        delegate_engine: BaseEngine = None,
+        long_engine: BaseEngine = None,
+        # prompt/kani
+        root_system_prompt: str | None = ROOT_KANPAI,
+        root_kani_kwargs: dict = None,
+        delegate_system_prompt: str | None = DELEGATE_KANPAI,
+        delegate_kani_kwargs: dict = None,
+        # delegation/function calling
+        delegation_scheme: type = DelegateWaitMixin,
+        max_delegation_depth: int = 8,
+        always_included_mixins: Iterable[type] = (BrowsingMixin,),
+        # logging
+        title: str = None,
+        log_dir: Path = None,
+    ):
+        if root_engine is None:
+            root_engine = default_engine()
+        if delegate_engine is None:
+            delegate_engine = default_engine()
+        if long_engine is None:
+            long_engine = default_long_engine()
+        if root_kani_kwargs is None:
+            root_kani_kwargs = {}
+        if delegate_kani_kwargs is None:
+            delegate_kani_kwargs = {}
 
-    # engine = RatelimitedEngine(
-    #     AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
-    # )
-
-    def __init__(self):
+        # engines
+        self.root_engine = root_engine
+        self.delegate_engine = delegate_engine
+        self.long_engine = long_engine
         # events
         self.listeners = []
         self.event_queue = asyncio.Queue()
         self.dispatch_task = None
         # state
         self.session_id = f"{int(time.time())}-{uuid.uuid4()}"
-        self.title = None
-        self.add_listener(self.create_title_listener)
+        self.title = title
+        if not title:
+            self.add_listener(self.create_title_listener)
         # logging
-        self.logger = EventLogger(self, self.session_id)
+        self.logger = EventLogger(self, self.session_id, log_dir=log_dir)
         self.add_listener(self.logger.log_event)
         # kanis
         self.kanis = WeakValueDictionary()
         self.root_kani = create_root_kani(
-            self.engine,
+            self.root_engine,
             # ReDelBase args
-            delegation_scheme=DelegateWaitMixin,
-            always_included_mixins=(BrowsingMixin,),
-            max_delegation_depth=8,
+            delegate_engine=delegate_engine,
+            delegate_system_prompt=delegate_system_prompt,
+            delegation_scheme=delegation_scheme,
+            always_included_mixins=always_included_mixins,
+            max_delegation_depth=max_delegation_depth,
+            delegate_kani_kwargs=delegate_kani_kwargs,
             # BaseKani args
             app=self,
-            system_prompt=ROOT_KANPAI,
             name="kanpai",
+            # Kani args
+            system_prompt=root_system_prompt,
+            **root_kani_kwargs,
         )
 
     async def ensure_init(self):
@@ -154,18 +202,7 @@ class Kanpai:
         self.kanis[ai.id] = ai
         if ai.parent:
             ai.parent.children[ai.id] = ai
-        self.dispatch(
-            events.KaniSpawn(
-                id=ai.id,
-                depth=ai.depth,
-                parent=ai.parent.id if ai.parent else None,
-                children=list(ai.children),
-                always_included_messages=ai.always_included_messages,
-                chat_history=ai.chat_history,
-                state=ai.state,
-                name=ai.name,
-            )
-        )
+        self.dispatch(events.KaniSpawn.from_kani(ai))
 
     # === resources + app lifecycle ===
     async def create_title_listener(self, event):
@@ -191,8 +228,6 @@ class Kanpai:
         if self.dispatch_task is not None:
             self.dispatch_task.cancel()
         await asyncio.gather(
-            self.engine.close(),
-            self.long_engine.close(),
             self.logger.close(),
             self.root_kani.close(),
             *(child.close() for child in self.kanis.values()),
