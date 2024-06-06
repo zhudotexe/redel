@@ -21,6 +21,7 @@ from .kanis import DELEGATE_KANPAI, ROOT_KANPAI, create_root_kani
 from .utils import generate_conversation_title
 
 log = logging.getLogger(__name__)
+AUTOGENERATE_TITLE = object()
 
 
 @functools.cache
@@ -61,6 +62,24 @@ class Kanpai:
         title: str = None,
         log_dir: Path = None,
     ):
+        """
+        :param root_engine: The engine to use for the root kani. Requires function calling. (default: gpt-4)
+        :param delegate_engine: The engine to use for each delegate kani. Requires function calling. (default: gpt-4)
+        :param long_engine: The engine to use for long-context tasks (e.g. summarization of long web pages). Does not
+            require function calling. (default: gpt-4o)
+        :param root_system_prompt: The system prompt for the root kani. See ``redel.kanis`` for default.
+        :param root_kani_kwargs: Additional keyword args to pass to :class:``kani.Kani``.
+        :param delegate_system_prompt: The system prompt for the each delegate kani. See ``redel.kanis`` for default.
+        :param delegate_kani_kwargs: Additional keyword args to pass to :class:``kani.Kani``.
+        :param delegation_scheme: A class that each kani capable of delegation will inherit from. See
+            ``redel.delegation`` for examples. This class can assume the existence of a ``create_delegate_kani`` method.
+        :param max_delegation_depth: The maximum delegation depth. Kanis created at this depth will not inherit from the
+            ``delegation_scheme`` class.
+        :param always_included_mixins: A list of mixins (i.e., classes containing one or more ``@ai_function`` methods)
+            that each delegate kani will *always* inherit from.
+        :param title: The title of this session. Set to ``AUTOGENERATE_TITLE`` to automatically generate one.
+        :param log_dir: A path to a directory to save logs for this session. Defaults to ``.kanpai/{session_id}/``.
+        """
         if root_engine is None:
             root_engine = default_engine()
         if delegate_engine is None:
@@ -82,9 +101,11 @@ class Kanpai:
         self.dispatch_task = None
         # state
         self.session_id = f"{int(time.time())}-{uuid.uuid4()}"
-        self.title = title
-        if not title:
+        if title is AUTOGENERATE_TITLE:
+            self.title = None
             self.add_listener(self.create_title_listener)
+        else:
+            self.title = title
         # logging
         self.logger = EventLogger(self, self.session_id, log_dir=log_dir)
         self.add_listener(self.logger.log_event)
