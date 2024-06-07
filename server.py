@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from redel import Kanpai
 from redel.events import BaseEvent, Error, SendMessage
 from redel.state import KaniState
+from redel.tools.browsing import BrowsingMixin
 
 log = logging.getLogger("viz-app")
 
@@ -29,7 +30,11 @@ async def lifespan(_: FastAPI):
 # ws utils
 class KanpaiManager:
     def __init__(self):
-        self.kanpai_app = Kanpai()
+        self.kanpai_app = Kanpai(
+            tool_configs={
+                BrowsingMixin: {"always_include": True},
+            }
+        )
         self.kanpai_app.add_listener(self.on_event)
         self.msg_queue = asyncio.Queue()
         self.active_connections: list[WebSocket] = []

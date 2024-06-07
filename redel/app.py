@@ -5,7 +5,7 @@ import time
 import uuid
 from collections.abc import AsyncIterable
 from pathlib import Path
-from typing import Any, Awaitable, Callable, Iterable
+from typing import Any, Awaitable, Callable
 from weakref import WeakValueDictionary
 
 from kani import ChatRole, chat_in_terminal_async
@@ -16,8 +16,8 @@ from . import config, events
 from .base_kani import BaseKani
 from .delegation.delegate_and_wait import DelegateWaitMixin
 from .eventlogger import EventLogger
-from .functions.browsing import BrowsingMixin
 from .kanis import DELEGATE_KANPAI, ROOT_KANPAI, create_root_kani
+from .tool_config import ToolConfigType, validate_tool_configs
 from .utils import generate_conversation_title
 
 log = logging.getLogger(__name__)
@@ -38,8 +38,13 @@ def default_long_engine():
 
 
 class Kanpai:
-    """Kanpai is the core app.
-    It's responsible for keeping track of all the spawned kani, and reporting their relations.
+    """This class is the monolithic core app. It represents a single session with recursive delegation.
+
+    It's responsible for:
+    - all delegation configuration options
+    - all the spawned kani and their relations within the session
+    - dispatching all events from the session
+    - logging events
     """
 
     def __init__(
@@ -57,8 +62,8 @@ class Kanpai:
         # delegation/function calling
         delegation_scheme: type = DelegateWaitMixin,
         max_delegation_depth: int = 8,
-        always_included_mixins: Iterable[type] = (BrowsingMixin,),
-        root_has_functions: bool = False,
+        tool_configs: ToolConfigType = None,
+        root_has_tools: bool = False,
         # logging
         title: str = None,
         log_dir: Path = None,
@@ -77,9 +82,8 @@ class Kanpai:
             Can be ``None`` to disable delegation (this makes ReDel a nice kani visualization tool).
         :param max_delegation_depth: The maximum delegation depth. Kanis created at this depth will not inherit from the
             ``delegation_scheme`` class.
-        :param always_included_mixins: A list of mixins (i.e., classes containing one or more ``@ai_function`` methods)
-            that each delegate kani will *always* inherit from.
-        :param root_has_functions: Whether the root kani should have access to the ``always_included_mixins`` (default
+        :param tool_configs: A mapping of tool mixin classes to their configurations (see :class:`.ToolConfig`).
+        :param root_has_tools: Whether the root kani should have access to the configured tools (default
             False).
         :param title: The title of this session. Set to ``AUTOGENERATE_TITLE`` to automatically generate one.
         :param log_dir: A path to a directory to save logs for this session. Defaults to ``.kanpai/{session_id}/``.
@@ -94,11 +98,26 @@ class Kanpai:
             root_kani_kwargs = {}
         if delegate_kani_kwargs is None:
             delegate_kani_kwargs = {}
+        if tool_configs is None:
+            tool_configs = {}
+
+        validate_tool_configs(tool_configs)
 
         # engines
         self.root_engine = root_engine
         self.delegate_engine = delegate_engine
         self.long_engine = long_engine
+        # prompt/kani
+        self.root_system_prompt = root_system_prompt
+        self.root_kani_kwargs = root_kani_kwargs
+        self.delegate_system_prompt = delegate_system_prompt
+        self.delegate_kani_kwargs = delegate_kani_kwargs
+        # delegation/function calling
+        self.delegation_scheme = delegation_scheme
+        self.max_delegation_depth = max_delegation_depth
+        self.tool_configs = tool_configs
+        self.root_has_tools = root_has_tools
+
         # events
         self.listeners = []
         self.event_queue = asyncio.Queue()
@@ -117,14 +136,10 @@ class Kanpai:
         self.kanis = WeakValueDictionary()
         self.root_kani = create_root_kani(
             self.root_engine,
-            # ReDelBase args
-            delegate_engine=delegate_engine,
-            delegate_system_prompt=delegate_system_prompt,
+            # create_root_kani args
             delegation_scheme=delegation_scheme,
-            always_included_mixins=always_included_mixins,
-            max_delegation_depth=max_delegation_depth,
-            delegate_kani_kwargs=delegate_kani_kwargs,
-            root_has_functions=root_has_functions,
+            tool_configs=tool_configs,
+            root_has_tools=root_has_tools,
             # BaseKani args
             app=self,
             name="kanpai",
