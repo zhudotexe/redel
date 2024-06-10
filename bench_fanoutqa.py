@@ -6,6 +6,7 @@ from pathlib import Path
 import fanoutqa
 import tqdm
 from fanoutqa.models import DevQuestion
+from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
 from redel import Kanpai, events
@@ -36,9 +37,7 @@ async def query(q: DevQuestion, log_dir: Path):
             FanOutQAMixin: {
                 "always_include": True,
                 "kwargs": {
-                    "foqa_config": FanOutQAConfig(
-                        do_long_engine_upgrade=do_long_engine_upgrade, retrieval_type="bm25"
-                    )
+                    "foqa_config": FanOutQAConfig(do_long_engine_upgrade=do_long_engine_upgrade, retrieval_type="bm25")
                 },
             },
         },
@@ -50,7 +49,7 @@ async def query(q: DevQuestion, log_dir: Path):
 
     out = []
     async for event in ai.query(q.question):
-        if isinstance(event, events.RootMessage) and event.msg.text:
+        if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT and event.msg.text:
             out.append(event.msg.text)
 
     await ai.close()
@@ -62,7 +61,9 @@ async def run_dev():
     qs = fanoutqa.load_dev()
     for q in tqdm.tqdm(qs):
         result, result_log_dir = await query(q, log_dir=log_dir)
-        results_file.write(json.dumps({"id": q.id, "answer": result, "question": q.question}))
+        results_file.write(
+            json.dumps({"id": q.id, "answer": result, "question": q.question, "log_dir": str(result_log_dir.resolve())})
+        )
         results_file.write("\n")
     results_file.close()
 
