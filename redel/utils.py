@@ -1,11 +1,13 @@
+import itertools
 import uuid
-from typing import TYPE_CHECKING
+from typing import Iterable, TYPE_CHECKING, TypeVar
 
 from kani import ChatMessage, Kani
 
 if TYPE_CHECKING:
     from .base_kani import BaseKani
 
+T = TypeVar("T")
 
 def create_kani_id() -> str:
     """Create a unique identifier for a kani."""
@@ -19,3 +21,12 @@ async def generate_conversation_title(ai: "BaseKani"):
         "Come up with a punchy title for this conversation.\n\nReply with your answer only and be specific."
     )
     return title.strip(' "')
+
+
+def batched(iterable: Iterable[T], n: int) -> Iterable[tuple[T, ...]]:
+    # batched('ABCDEFG', 3) --> ABC DEF G
+    if n < 1:
+        raise ValueError("n must be at least one")
+    it = iter(iterable)
+    while batch := tuple(itertools.islice(it, n)):
+        yield batch
