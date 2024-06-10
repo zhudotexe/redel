@@ -67,6 +67,7 @@ class Kanpai:
         # logging
         title: str = None,
         log_dir: Path = None,
+        clear_existing_log: bool = False,
     ):
         """
         :param root_engine: The engine to use for the root kani. Requires function calling. (default: gpt-4)
@@ -87,6 +88,8 @@ class Kanpai:
             False).
         :param title: The title of this session. Set to ``AUTOGENERATE_TITLE`` to automatically generate one.
         :param log_dir: A path to a directory to save logs for this session. Defaults to ``.kanpai/{session_id}/``.
+        :param clear_existing_log: If the log directory has existing events, clear them before writing new events.
+            Otherwise, append to existing events.
         """
         if root_engine is None:
             root_engine = default_engine()
@@ -130,7 +133,7 @@ class Kanpai:
         else:
             self.title = title
         # logging
-        self.logger = EventLogger(self, self.session_id, log_dir=log_dir)
+        self.logger = EventLogger(self, self.session_id, log_dir=log_dir, clear_existing_log=clear_existing_log)
         self.add_listener(self.logger.log_event)
         # kanis
         self.kanis = WeakValueDictionary()

@@ -17,20 +17,21 @@ log = logging.getLogger(__name__)
 
 
 class EventLogger:
-    def __init__(self, app: "Kanpai", session_id: str, log_dir: pathlib.Path = None):
+    def __init__(self, app: "Kanpai", session_id: str, log_dir: pathlib.Path = None, clear_existing_log: bool = False):
         self.app = app
         self.session_id = session_id
         self.log_dir = log_dir or (LOG_BASE / session_id)
         self.log_dir.mkdir(exist_ok=True)
-        self.events = open(self.log_dir / f"events.jsonl", "a")
 
+        log_mode = "w" if clear_existing_log else "a"
+        self.event_file = open(self.log_dir / f"events.jsonl", log_mode)
         self.event_count = Counter()
 
     async def log_event(self, event: events.BaseEvent):
         if not event.__log_event__:
             return
-        self.events.write(event.model_dump_json())
-        self.events.write("\n")
+        self.event_file.write(event.model_dump_json())
+        self.event_file.write("\n")
         self.event_count[event.type] += 1
 
     def write_state(self):
@@ -48,4 +49,4 @@ class EventLogger:
 
     async def close(self):
         self.write_state()
-        self.events.close()
+        self.event_file.close()
