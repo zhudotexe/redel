@@ -24,12 +24,10 @@ class Delegate1Mixin(BaseKani):
     async def delegate(
         self,
         instructions: Annotated[str, AIParam("Detailed instructions on what your helper should do to help you.")],
-        new: Annotated[
-            bool, AIParam("Continue the conversation with the same helper (false) or ask a new helper (true).")
-        ] = False,
     ):
         """
         Ask a capable helper for help looking up a piece of information or performing an action.
+        Do not delegate your entire task to a helper.
         You can call this multiple times to take multiple actions; for example, you might break up a complex user query
         into multiple steps.
         """
@@ -41,11 +39,10 @@ class Delegate1Mixin(BaseKani):
                 " try breaking it up into smaller steps and call this again."
             )
         # set up the helper
-        if new and self.helper is not None:
+        if self.helper is not None:
             # close an existing helper's browser context
             await self.helper.cleanup()
-        if self.helper is None or new:
-            self.helper = await self.create_delegate_kani()
+        self.helper = await self.create_delegate_kani()
 
         # wait for child
         with self.run_state(RunState.WAITING):
