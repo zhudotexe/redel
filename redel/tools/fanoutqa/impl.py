@@ -1,11 +1,11 @@
 from typing import Literal, TypedDict
 
 import fanoutqa
-from fanoutqa.retrieval import Corpus
 from kani import ChatMessage, ai_function
 
 from redel.base_kani import BaseKani
 from redel.events import BaseEvent
+from .retrieval import BM25Corpus, OpenAICorpus
 
 
 # custom events
@@ -24,9 +24,16 @@ class FOQAEngineUpgrade(BaseEvent):
     new_ctx_len: int
 
 
+class FOQARetrievalType(BaseEvent):
+    type: Literal["foqa_retrieval_type"] = "foqa_retrieval_type"
+    id: str
+    retrieval_type: str  # full_doc_short, full_doc_long, bm25, embedding
+
+
 # config
 class FanOutQAConfig(TypedDict, total=False):
     do_long_engine_upgrade: bool
+    retrieval_type: Literal["bm25", "openai"]
 
 
 # ai function
@@ -36,6 +43,7 @@ class FanOutQAMixin(BaseKani):
         if foqa_config is None:
             foqa_config = {}
         self.do_long_engine_upgrade = foqa_config.get("do_long_engine_upgrade", True)
+        self.retrieval_type = foqa_config.get("retrieval_type", "bm25")
 
     @property
     def max_search_tokens(self):
@@ -72,6 +80,7 @@ class FanOutQAMixin(BaseKani):
         wiki_content = fanoutqa.wiki_content(found_article)
         full_content = prompt.format(f"<content>\n{wiki_content}\n</content>\n")
         if self.message_token_len(ChatMessage.user(full_content)) <= self.max_search_tokens:
+            self.app.dispatch(FOQARetrievalType(id=self.id, retrieval_type="full_doc_short"))
             return full_content
 
         # else, upgrade the engine to long_engine and try again
@@ -85,10 +94,14 @@ class FanOutQAMixin(BaseKani):
             )
             self.engine = self.app.long_engine
             if self.message_token_len(ChatMessage.user(full_content)) <= self.max_search_tokens:
+                self.app.dispatch(FOQARetrievalType(id=self.id, retrieval_type="full_doc_long"))
                 return full_content
 
         # else, retrieve as many fragments as fit in the context window
-        corpus = Corpus([found_article], doc_len=1024)
+        if self.retrieval_type == "bm25":
+            corpus = BM25Corpus([found_article], doc_len=1024)
+        else:
+            corpus = OpenAICorpus([found_article], doc_len=1024, embedding_model="text-embedding-3-small")
         user_query = self.last_user_message.text
         retrieved_docs = []
         for doc in corpus.best(user_query):
@@ -98,4 +111,5 @@ class FanOutQAMixin(BaseKani):
             if doc_len > self.max_search_tokens:
                 break
             retrieved_docs.append(formatted)
+        self.app.dispatch(FOQARetrievalType(id=self.id, retrieval_type=self.retrieval_type))
         return prompt.format("".join(retrieved_docs))
