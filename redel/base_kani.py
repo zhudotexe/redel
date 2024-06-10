@@ -81,8 +81,10 @@ class BaseKani(Kani):
             )
         )
         # HACK: sometimes openai's function calls are borked; we fix them here
-        if (function_call := message.function_call) and function_call.name.startswith("functions."):
-            function_call.name = function_call.name.removeprefix("functions.")
+        if message.tool_calls:
+            for tc in message.tool_calls:
+                if (function_call := tc.function) and function_call.name.startswith("functions."):
+                    function_call.name = function_call.name.removeprefix("functions.")
         return message
 
     # ==== utils ====

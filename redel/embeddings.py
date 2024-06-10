@@ -34,8 +34,10 @@ def get_embeddings(qs: list[str], model: str) -> list[EmbeddingResult]:
 
     # find cached vecs
     for idx, text in enumerate(qs):
-        text_hash = hashlib.sha256(text.encode() + model.encode()).hexdigest()
-        fp = VECTOR_CACHE_DIR / f"{text_hash}.npy"
+        text_hash = hashlib.sha256(text.encode()).hexdigest()
+        cache_dir = VECTOR_CACHE_DIR / model
+        cache_dir.mkdir(exist_ok=True)
+        fp = cache_dir / f"{text_hash}.npy"
         if fp.exists():
             vec = np.load(fp)
             result.append(EmbeddingResult(idx=idx, embedding=vec))

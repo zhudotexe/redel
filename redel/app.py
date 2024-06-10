@@ -210,7 +210,7 @@ class Kanpai:
             event = await q.get()
             if event.__log_event__:
                 yield event
-            if event.type == events.RoundComplete.type:
+            if event.type == "round_complete":
                 break
 
         # ensure task is completed and cleanup
