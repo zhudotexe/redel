@@ -60,7 +60,7 @@ class Kanpai:
         delegate_system_prompt: str | None = DELEGATE_KANPAI,
         delegate_kani_kwargs: dict = None,
         # delegation/function calling
-        delegation_scheme: type = DelegateWaitMixin,
+        delegation_scheme: type | None = DelegateWaitMixin,
         max_delegation_depth: int = 8,
         tool_configs: ToolConfigType = None,
         root_has_tools: bool = False,

@@ -1,4 +1,5 @@
 import itertools
+import json
 import uuid
 from typing import Iterable, TYPE_CHECKING, TypeVar
 
@@ -8,6 +9,7 @@ if TYPE_CHECKING:
     from .base_kani import BaseKani
 
 T = TypeVar("T")
+
 
 def create_kani_id() -> str:
     """Create a unique identifier for a kani."""
@@ -30,3 +32,10 @@ def batched(iterable: Iterable[T], n: int) -> Iterable[tuple[T, ...]]:
     it = iter(iterable)
     while batch := tuple(itertools.islice(it, n)):
         yield batch
+
+
+def read_jsonl(fp) -> Iterable[dict]:
+    """Yield JSON objects from the given JSONL file."""
+    with open(fp) as f:
+        for line in f:
+            yield json.loads(line)

@@ -12,10 +12,6 @@ log = logging.getLogger(__name__)
 
 
 class Delegate1Mixin(BaseKani):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = None
-
     @abstractmethod
     async def create_delegate_kani(self) -> BaseKani:
         raise NotImplementedError
@@ -27,9 +23,10 @@ class Delegate1Mixin(BaseKani):
     ):
         """
         Ask a capable helper for help looking up a piece of information or performing an action.
-        Do not delegate your entire task to a helper.
+        Do not simply repeat what the user said as instructions.
         You can call this multiple times to take multiple actions; for example, you might break up a complex user query
         into multiple steps.
+        NOTE: Helpers cannot see previous parts of your conversation.
         """
         log.info(f"Delegated with instructions: {instructions}")
         # if the instructions are >80% the same as the current goal, bonk
@@ -38,18 +35,15 @@ class Delegate1Mixin(BaseKani):
                 "You shouldn't delegate the entire task to a helper. Handle it yourself, or if it's still too complex,"
                 " try breaking it up into smaller steps and call this again."
             )
-        # set up the helper
-        if self.helper is not None:
-            # close an existing helper's browser context
-            await self.helper.cleanup()
-        self.helper = await self.create_delegate_kani()
 
         # wait for child
+        helper = await self.create_delegate_kani()
         with self.run_state(RunState.WAITING):
             result = []
-            async for stream in self.helper.full_round_stream(instructions):
+            async for stream in helper.full_round_stream(instructions):
                 msg = await stream.message()
                 log.info(msg)
                 if msg.role == ChatRole.ASSISTANT and msg.content:
                     result.append(msg.content)
+            await helper.cleanup()
             return "\n".join(result)

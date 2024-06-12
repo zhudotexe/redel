@@ -94,6 +94,9 @@ class BaseKani(Kani):
 
     def set_run_state(self, state: RunState):
         """Set the run state and dispatch the event."""
+        # noop if we're already in that state
+        if self.state == state:
+            return
         self.state = state
         self.app.dispatch(events.KaniStateChange(id=self.id, state=self.state))
 
