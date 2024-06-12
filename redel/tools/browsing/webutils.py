@@ -64,16 +64,12 @@ async def get_google_links(elem: Page | Locator) -> Links:
 
 # summarization
 async def web_summarize(content: str, parent: BaseKani, task="Please summarize the main content of the webpage above."):
-    """Summarize the contents of a webpage."""
+    """Summarize the contents of a webpage using the app's ``long_engine``."""
     app = parent.app
     summarizer = BaseKani(app.long_engine, app=app, parent=parent, id=f"{parent.id}-summarizer")
     msg = ChatMessage.user(content)
     token_len = summarizer.message_token_len(msg) + summarizer.message_token_len(ChatMessage.user(task))
     log.info(f"Summarizing web content with length {len(content)} ({token_len} tokens)\n{content[:32]}...")
-
-    # if we can use base gpt-4 to summarize, do that; otherwise use long engine with rate limit controls
-    if token_len + summarizer.always_len <= app.engine.max_context_size:
-        summarizer.engine = app.engine
 
     with parent.run_state(RunState.WAITING):
         # recursively summarize chunks if the content is *still* too long

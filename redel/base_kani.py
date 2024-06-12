@@ -19,6 +19,7 @@ class BaseKani(Kani):
     def __init__(self, *args, app: "Kanpai", parent: "BaseKani" = None, id: str = None, name: str = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.state = RunState.STOPPED
+        self._old_state_stack = []
         # tree management
         if parent is not None:
             self.depth = parent.depth + 1
@@ -92,6 +93,11 @@ class BaseKani(Kani):
     def last_user_message(self) -> ChatMessage | None:
         return next((m for m in self.chat_history if m.role == ChatRole.USER), None)
 
+    def get_save_state(self) -> KaniState:
+        """Get a Pydantic state suitable for saving/loading."""
+        return KaniState.from_kani(self)
+
+    # --- state utils ---
     def set_run_state(self, state: RunState):
         """Set the run state and dispatch the event."""
         # noop if we're already in that state
@@ -103,16 +109,12 @@ class BaseKani(Kani):
     @contextmanager
     def run_state(self, state: RunState):
         """Run the body of this statement with a different run state then set it back after."""
-        old_state = self.state
+        self._old_state_stack.append(self.state)
         self.set_run_state(state)
         try:
             yield
         finally:
-            self.set_run_state(old_state)
-
-    def get_save_state(self) -> KaniState:
-        """Get a Pydantic state suitable for saving/loading."""
-        return KaniState.from_kani(self)
+            self.set_run_state(self._old_state_stack.pop())
 
     async def cleanup(self):
         """This kani may run again but is done for now; clean up any ephemeral resources but save its state."""
