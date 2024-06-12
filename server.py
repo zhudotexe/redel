@@ -34,8 +34,8 @@ foqa_test = Kanpai(
     root_engine=root_engine,
     delegate_engine=delegate_engine,
     long_engine=root_engine,
-    root_system_prompt=None,
-    delegate_system_prompt=None,
+    root_system_prompt=SYSTEM_TEST,
+    delegate_system_prompt=SYSTEM_TEST,
     delegation_scheme=Delegate1Mixin,
     tool_configs={
         FanOutQAMixin: {
