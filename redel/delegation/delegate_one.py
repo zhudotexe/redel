@@ -24,8 +24,7 @@ class Delegate1Mixin(BaseKani):
         """
         Ask a capable helper for help looking up a piece of information or performing an action.
         Do not simply repeat what the user said as instructions.
-        You can call this multiple times to take multiple actions; for example, you might break up a complex user query
-        into multiple steps.
+        You should use this to break up complex user queries into multiple simpler steps.
         NOTE: Helpers cannot see previous parts of your conversation.
         """
         log.info(f"Delegated with instructions: {instructions}")
