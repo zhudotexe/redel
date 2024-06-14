@@ -7,6 +7,7 @@
 #SBATCH --error=/nlpgpu/data/andrz/logs/%j.%x.log
 #SBATCH --time=7-0
 #SBATCH -c 1
+#SBATCH --gpus=1
 #SBATCH --mem=32G
 
 source slurm/fanout-eval-env.sh
