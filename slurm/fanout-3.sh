@@ -8,7 +8,7 @@
 #SBATCH --time=7-0
 #SBATCH -c 1
 #SBATCH --mem=32G
-#SBATCH --mail-user=$USER@seas.upenn.edu
+#SBATCH --mail-user=andrz@seas.upenn.edu
 #SBATCH --mail-type=END
 
 source slurm/env.sh
