@@ -39,8 +39,13 @@ def get_embeddings(qs: list[str], model: str) -> list[EmbeddingResult]:
         cache_dir.mkdir(exist_ok=True)
         fp = cache_dir / f"{text_hash}.npy"
         if fp.exists():
-            vec = np.load(fp)
-            result.append(EmbeddingResult(idx=idx, embedding=vec))
+            try:
+                vec = np.load(fp)
+                result.append(EmbeddingResult(idx=idx, embedding=vec))
+            except Exception:
+                fp_cache[text] = fp
+                uncached_to_normal_idx[len(uncached)] = idx
+                uncached.append(text)
         else:
             fp_cache[text] = fp
             uncached_to_normal_idx[len(uncached)] = idx
