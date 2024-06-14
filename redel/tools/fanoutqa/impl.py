@@ -27,6 +27,8 @@ class FOQAEngineUpgrade(BaseEvent):
 class FOQARetrievalType(BaseEvent):
     type: Literal["foqa_retrieval_type"] = "foqa_retrieval_type"
     id: str
+    retrieved_tokens: int
+    max_search_tokens: int
     retrieval_type: str  # full_doc_short, full_doc_long, bm25, embedding
 
 
@@ -47,7 +49,10 @@ class FanOutQAMixin(BaseKani):
 
     @property
     def max_search_tokens(self):
-        return self.engine.max_context_size // 2
+        # trial2: engine's max ctx size / (# of parallel fcs + 1)
+        return self.engine.max_context_size // (len(self.last_assistant_message.tool_calls) + 1)
+        # trial1: half engine's max ctx size
+        # return self.engine.max_context_size // 2
 
     @ai_function()
     def search(self, query: str):
@@ -79,8 +84,15 @@ class FanOutQAMixin(BaseKani):
         # if the content fits in the context, return that
         wiki_content = fanoutqa.wiki_content(found_article)
         full_content = prompt.format(f"<content>\n{wiki_content}\n</content>\n")
-        if self.message_token_len(ChatMessage.user(full_content)) <= self.max_search_tokens:
-            self.app.dispatch(FOQARetrievalType(id=self.id, retrieval_type="full_doc_short"))
+        if (retrieved_tokens := self.message_token_len(ChatMessage.user(full_content))) <= self.max_search_tokens:
+            self.app.dispatch(
+                FOQARetrievalType(
+                    id=self.id,
+                    retrieval_type="full_doc_short",
+                    retrieved_tokens=retrieved_tokens,
+                    max_search_tokens=self.max_search_tokens,
+                )
+            )
             return full_content
 
         # else, upgrade the engine to long_engine and try again
@@ -93,8 +105,15 @@ class FanOutQAMixin(BaseKani):
                 )
             )
             self.engine = self.app.long_engine
-            if self.message_token_len(ChatMessage.user(full_content)) <= self.max_search_tokens:
-                self.app.dispatch(FOQARetrievalType(id=self.id, retrieval_type="full_doc_long"))
+            if (retrieved_tokens := self.message_token_len(ChatMessage.user(full_content))) <= self.max_search_tokens:
+                self.app.dispatch(
+                    FOQARetrievalType(
+                        id=self.id,
+                        retrieval_type="full_doc_long",
+                        retrieved_tokens=retrieved_tokens,
+                        max_search_tokens=self.max_search_tokens,
+                    )
+                )
                 return full_content
 
         # else, retrieve as many fragments as fit in the context window
@@ -111,5 +130,16 @@ class FanOutQAMixin(BaseKani):
             if doc_len > self.max_search_tokens:
                 break
             retrieved_docs.append(formatted)
-        self.app.dispatch(FOQARetrievalType(id=self.id, retrieval_type=self.retrieval_type))
-        return prompt.format("".join(retrieved_docs))
+
+        # return
+        out = prompt.format("".join(retrieved_docs))
+        retrieved_tokens = self.engine.message_len(ChatMessage.user(out))
+        self.app.dispatch(
+            FOQARetrievalType(
+                id=self.id,
+                retrieval_type=self.retrieval_type,
+                retrieved_tokens=retrieved_tokens,
+                max_search_tokens=self.max_search_tokens,
+            )
+        )
+        return out

@@ -91,7 +91,11 @@ class BaseKani(Kani):
     # ==== utils ====
     @property
     def last_user_message(self) -> ChatMessage | None:
-        return next((m for m in self.chat_history if m.role == ChatRole.USER), None)
+        return next((m for m in reversed(self.chat_history) if m.role == ChatRole.USER), None)
+
+    @property
+    def last_assistant_message(self) -> ChatMessage | None:
+        return next((m for m in reversed(self.chat_history) if m.role == ChatRole.ASSISTANT), None)
 
     def get_save_state(self) -> KaniState:
         """Get a Pydantic state suitable for saving/loading."""
