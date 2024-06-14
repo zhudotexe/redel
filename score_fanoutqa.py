@@ -5,6 +5,7 @@ Outputs `score.json` files next to each input `results.jsonl` file.
 """
 
 import asyncio
+import glob
 import json
 import sys
 from dataclasses import asdict
@@ -48,8 +49,11 @@ async def eval_submission(fp: Path):
 
 async def main():
     paths = sys.argv[1:]
+    if len(paths) == 1 and "*" in paths:
+        paths = glob.glob(paths[0], recursive=True)
     if not paths:
         print("no paths specified! Usage: python score_fanoutqa.py [path/to/results.jsonl ...]")
+    print(paths)
     for fp in paths:
         await eval_submission(Path(fp))
 
