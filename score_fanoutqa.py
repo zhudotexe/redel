@@ -36,7 +36,7 @@ async def eval_submission(fp: Path):
 
     print("Evaluating open book answers...")
     openbook_answers = read_jsonl_answers(fp)
-    openbook_scorer = Scorer(questions, openbook_answers)
+    openbook_scorer = Scorer(questions, openbook_answers, llm_cache_key=fp.parent.name)
     openbook_results = asdict(await openbook_scorer.score())
 
     result_fp = fp.parent / "score.json"
