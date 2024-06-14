@@ -49,7 +49,7 @@ async def eval_submission(fp: Path):
 
 async def main():
     paths = sys.argv[1:]
-    if len(paths) == 1 and "*" in paths:
+    if len(paths) == 1 and "*" in paths[0]:
         paths = glob.glob(paths[0], recursive=True)
     if not paths:
         print("no paths specified! Usage: python score_fanoutqa.py [path/to/results.jsonl ...]")
