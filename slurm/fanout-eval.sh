@@ -10,4 +10,6 @@
 #SBATCH --mem=32G
 
 source slurm/fanout-eval-env.sh
-srun python score_fanoutqa.py experiments/fanoutqa/test/**/results.jsonl
+for i in experiments/fanoutqa/test/**/results.jsonl; do
+  srun python score_fanoutqa.py $i
+done
