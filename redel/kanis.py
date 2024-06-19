@@ -5,7 +5,7 @@ from kani import ChatMessage
 
 from .base_kani import BaseKani
 from .namer import Namer
-from .tool_config import ToolConfigType, get_always_included_types, get_tool_cls_kwargs
+from .tool_config import ToolConfigType, get_always_included_root_types, get_always_included_types, get_tool_cls_kwargs
 
 log = logging.getLogger(__name__)
 
@@ -84,8 +84,9 @@ def create_root_kani(
     """Create the root kani for the kani delegation tree."""
     bases = (ReDelBase, delegation_scheme) if delegation_scheme is not None else (ReDelBase,)
     always_included_mixins = get_always_included_types(tool_configs)
+    always_included_root_mixins = get_always_included_root_types(tool_configs)
     if root_has_tools:
-        t = type("RootKani", (*always_included_mixins, *bases), {})
+        t = type("RootKani", (*always_included_mixins, *always_included_root_mixins, *bases), {})
     else:
-        t = type("RootKani", bases, {})
+        t = type("RootKani", (*always_included_root_mixins, *bases), {})
     return t(*args, **kwargs, **get_tool_cls_kwargs(tool_configs, t.__bases__))

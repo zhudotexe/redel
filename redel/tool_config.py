@@ -8,6 +8,9 @@ log = logging.getLogger(__name__)
 class ToolConfig(TypedDict, total=False):
     always_include: bool
     """If true, each delegate kani will *always* inherit from this class. Defaults to False."""
+    always_include_root: bool
+    """If true, the *root* kani will inherit from this class (but not necessarily delegates unless ``always_include`` is
+    also set)."""
     kwargs: dict
     """Keyword arguments to pass to the constructor of this class. Defaults to ``{}``."""
 
@@ -35,6 +38,11 @@ def validate_tool_configs(configs: ToolConfigType):
 def get_always_included_types(configs: ToolConfigType) -> tuple[type, ...]:
     """Return a tuple of all types in the config that are always included."""
     return tuple(t for t, config in configs.items() if config.get("always_include", False))
+
+
+def get_always_included_root_types(configs: ToolConfigType) -> tuple[type, ...]:
+    """Return a tuple of all types in the config that are always included in the root."""
+    return tuple(t for t, config in configs.items() if config.get("always_include_root", False))
 
 
 def get_tool_cls_kwargs(configs: ToolConfigType, bases: Iterable[type]) -> dict:
