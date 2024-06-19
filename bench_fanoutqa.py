@@ -37,7 +37,7 @@ log = logging.getLogger("bench_fanoutqa")
 # ==== config ====
 delegation_scheme = Delegate1Mixin
 do_long_engine_upgrade = False
-log_dir = LOG_BASE / "test/trial2" / experiment_config
+log_dir = LOG_BASE / "dev/trial2" / experiment_config
 # gross but whatever
 # - **full**: no root FC, gpt-4o everything
 if experiment_config == "full":
