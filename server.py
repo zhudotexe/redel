@@ -21,15 +21,20 @@ log = logging.getLogger("viz-app")
 from kani.engines.openai import OpenAIEngine
 from redel.delegation.delegate_one import Delegate1Mixin
 from redel.tools.fanoutqa.impl import FanOutQAMixin
+from redel.tools.travelplanner.search import TravelPlannerMixin
+from redel.tools.travelplanner.planner import TravelPlannerRootMixin
 
 SYSTEM_TEST = (
-    "# Delegation Instructions\n\nUnless you are certain the user's question can be answered in one step, you should"
-    " break it up into smaller pieces and delegate those pieces.\nYou should retry with different phrasing if your"
-    " helper does not return a useful answer. Don't give up!"
+    "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions."
 )
+#     (
+#     "# Delegation Instructions\n\nUnless you are certain the user's question can be answered in one step, you should"
+#     " break it up into smaller pieces and delegate those pieces.\nYou should retry with different phrasing if your"
+#     " helper does not return a useful answer. Don't give up!"
+# )
 
 root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
-delegate_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0)
+delegate_engine = OpenAIEngine(model="gpt-4o", temperature=0)
 foqa_test = Kanpai(
     root_engine=root_engine,
     delegate_engine=delegate_engine,
@@ -38,10 +43,8 @@ foqa_test = Kanpai(
     delegate_system_prompt=SYSTEM_TEST,
     delegation_scheme=Delegate1Mixin,
     tool_configs={
-        FanOutQAMixin: {
-            "always_include": True,
-            "kwargs": {"foqa_config": dict(do_long_engine_upgrade=False, retrieval_type="openai")},
-        },
+        TravelPlannerMixin: {"always_include": True},
+        TravelPlannerRootMixin: {"always_include_root": True},
     },
     root_has_tools=False,
 )
