@@ -9,7 +9,7 @@
 #SBATCH -c 1
 #SBATCH --mem=128G
 #SBATCH --mail-user=andrz@seas.upenn.edu
-#SBATCH --mail-type=END
+#SBATCH --mail-type=END,FAIL
 
 source slurm/env.sh
 srun python bench_travelplanner.py full
