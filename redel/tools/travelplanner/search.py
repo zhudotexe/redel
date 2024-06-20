@@ -74,6 +74,15 @@ class TravelPlannerMixin(BaseKani):
                 city_data[state].append(city)
         return city_data
 
+    async def close(self):
+        await super().close()
+        del self.flight_data
+        del self.gdm_data
+        del self.accommodation_data
+        del self.restaurant_data
+        del self.attraction_data
+        del self.city_data
+
     # methods
     @ai_function()
     def flight_search(
