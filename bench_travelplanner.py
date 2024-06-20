@@ -146,6 +146,9 @@ async def run():
         log.info(q["query"])
         try:
             result, plan, result_log_dir = await asyncio.wait_for(query(q, qid), timeout=600)
+        except Exception as e:
+            log.exception(e)
+        else:
             log.info(result)
             results_file.write(
                 json.dumps({
@@ -157,8 +160,6 @@ async def run():
                 })
             )
             results_file.write("\n")
-        except Exception as e:
-            log.exception(e)
     results_file.close()
 
 

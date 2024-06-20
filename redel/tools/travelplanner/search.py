@@ -76,12 +76,12 @@ class TravelPlannerMixin(BaseKani):
 
     async def close(self):
         await super().close()
-        del self.flight_data
-        del self.gdm_data
-        del self.accommodation_data
-        del self.restaurant_data
-        del self.attraction_data
-        del self.city_data
+        self.flight_data = None
+        self.gdm_data = None
+        self.accommodation_data = None
+        self.restaurant_data = None
+        self.attraction_data = None
+        self.city_data = None
 
     # methods
     @ai_function()
