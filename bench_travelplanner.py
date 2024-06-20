@@ -160,6 +160,7 @@ async def run():
                 })
             )
             results_file.write("\n")
+            results_file.flush()
     results_file.close()
 
 
