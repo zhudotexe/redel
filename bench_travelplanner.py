@@ -136,7 +136,7 @@ async def run():
     # run on dev set questions
     results_file = open(results_fp, "a")
     data = load_dataset("osunlp/TravelPlanner", "validation")["validation"]
-    for q in tqdm.tqdm(data):
+    for idx, q in tqdm.tqdm(enumerate(data)):
         # skip if already set
         qid = hashlib.sha256(q["query"].encode()).hexdigest()[:16]
         if qid in existing_results:
@@ -153,6 +153,7 @@ async def run():
             results_file.write(
                 json.dumps({
                     "id": qid,
+                    "idx": idx,
                     "plan": plan,
                     "answer": result,
                     "question": q["query"],
