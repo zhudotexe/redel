@@ -1,7 +1,7 @@
 """
 Run the travelplanner experiments.
 
-Usage: python bench_travelplanner.py <full|root-fc|baseline|small-leaf|small-all|small-baseline|short-context|short-baseline>
+Usage: python bench_travelplanner.py <full|root-fc|baseline|small-leaf|small-all|small-baseline>
 
 - **full**: no root FC, gpt-4o everything
 - **root-fc**: root FC, gpt-4o everything
