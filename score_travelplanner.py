@@ -12,10 +12,14 @@ from pathlib import Path
 
 from redel.utils import read_jsonl
 
+EXPECTED_RESULTS = {
+    "validation": 180,
+}
 
 async def transform_submission(fp: Path):
     """Read in the answers and generations and transform them all into the correct TP eval format."""
     results = read_jsonl(fp)
+    split = fp.parents[1].name
     transformed = []
     try:
         with open(fp.parents[1] / "id_to_idx.json") as f:
@@ -38,6 +42,14 @@ async def transform_submission(fp: Path):
 
         transformed.append({"idx": idx, "query": query, "plan": plan})
 
+    # ensure there are the right number of results, and they're sorted by idx
+    missing_idxs = set(range(EXPECTED_RESULTS[split])).difference({t["idx"] for t in transformed})
+    if missing_idxs:
+        print(f"WARN: Submission is missing indices {missing_idxs}")
+        for idx in missing_idxs:
+            transformed.append({"idx": idx, "query": None, "plan": None})
+        transformed.sort(key=lambda t: t["idx"])
+
     result_fp = fp.parent / "results_for_tp_eval.jsonl"
     with open(result_fp, "w") as f:
         for transformed_result in transformed:
@@ -45,7 +57,7 @@ async def transform_submission(fp: Path):
             f.write("\n")
     print(f"Written to {result_fp.resolve()}.")
     print("Use this command in TravelPlanning:")
-    print(f"python eval.py --set_type {fp.parents[1].name} --evaluation_file_path {result_fp.resolve()}")
+    print(f"python eval.py --set_type {split} --evaluation_file_path {result_fp.resolve()}")
     return result_fp
 
 
