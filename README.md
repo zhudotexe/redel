@@ -91,6 +91,9 @@ This will run the given system on the FanOutQA dev set in the Open Book setting.
 
 **Evaluate**
 
+Set the `FANOUTQA_OPENAI_API_KEY` environment variable to a valid OpenAI API key. You can
+use `export FANOUTQA_OPENAI_API_KEY=$OPENAI_API_KEY` to copy an existing API key from environment variables.
+
 ```shell
 python score_fanoutqa.py experiments/fanoutqa/**/results.jsonl
 ```
@@ -130,3 +133,41 @@ print the command to run to score the results.
 
 You should now switch to the TravelPlanner repository you cloned in the setup step and run the commands output by this
 script.
+
+#### WebArena
+
+*output path: `experiments/webarena/test/SYSTEM_ID`*
+
+**Setup**
+
+We reproduce some of the scripts and data contained in the WebArena repository in this repo under the terms of the
+Apache-2.0 license, contained in `experiments/webarena/LICENSE`.
+
+First, you'll need to set up your own WebArena environment.
+See https://github.com/web-arena-x/webarena/blob/main/environment_docker/README.md for instructions.
+
+Next, run the following to setup the webarena configuration:
+
+```shell
+# setup env vars (see https://github.com/web-arena-x/webarena/blob/main/environment_docker/README.md for env setup)
+export SHOPPING="<your_shopping_site_domain>:7770"
+export SHOPPING_ADMIN="<your_e_commerce_cms_domain>:7780/admin"
+export REDDIT="<your_reddit_domain>:9999"
+export GITLAB="<your_gitlab_domain>:8023"
+export MAP="<your_map_domain>:3000"
+export WIKIPEDIA="<your_wikipedia_domain>:8888/wikipedia_en_all_maxi_2022-05/A/User:The_other_Kiwix_guy/Landing"
+export HOMEPAGE="<your_homepage_domain>:4399"
+# generate config files
+python experiments/webarena/generate_test_data.py
+```
+
+**Run**
+
+First, make sure you have reset your WebArena environment
+(see https://github.com/web-arena-x/webarena/blob/main/environment_docker/README.md#environment-reset).
+
+After launching your WebArena environment, run:
+
+```shell
+python bench_webarena.py <full|root-fc|baseline|small-leaf|small-all|small-baseline|short-context|short-baseline>
+```

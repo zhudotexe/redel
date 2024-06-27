@@ -1,5 +1,6 @@
 import enum
 
+from browser_env import Action, create_goto_url_action
 from kani import ai_function
 
 from redel.base_kani import BaseKani
@@ -15,6 +16,14 @@ class WebArenaMixin(BaseKani):
     def __init__(self, *args, webarena_harness: WebArenaHarness, **kwargs):
         super().__init__(*args, **kwargs)
         self.webarena = webarena_harness
+
+    def take_action(self, action: Action):
+        """Send the action to the WA harness and return the updated state."""
+        obs, success, info = self.webarena.action(action)
+        if not success:
+            error = info["fail_error"]
+            return self.webarena.get_prompt(task=self.last_user_message.text, error=error)
+        return self.webarena.get_prompt(task=self.last_user_message.text)
 
     # actions taken from
     # https://github.com/web-arena-x/webarena/blob/4c741b4b20a3e183836e58f383f9be1785248160/agent/prompts/raw/p_cot_id_actree_2s.py#L14
@@ -62,7 +71,9 @@ class WebArenaMixin(BaseKani):
     @ai_function()
     def goto(self, url: str):
         """Navigate to a specific URL."""
-        pass
+        url = self.webarena.map_url_to_local(url)
+        action = create_goto_url_action(url=url)
+        return self.take_action(action)
 
     @ai_function()
     def go_back(self):
