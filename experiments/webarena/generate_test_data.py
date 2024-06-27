@@ -27,7 +27,7 @@ def main() -> None:
     # split to multiple files
     data = json.loads(raw)
     for idx, item in enumerate(data):
-        with open(f"config_files/{idx}.json", "w") as f:
+        with open(EXPERIMENTS_DIR / f"webarena/config/{idx}.json", "w") as f:
             json.dump(item, f, indent=2)
 
 

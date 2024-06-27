@@ -161,6 +161,12 @@ export HOMEPAGE="<your_homepage_domain>:4399"
 python experiments/webarena/generate_test_data.py
 ```
 
+You'll also need to ensure Playwright is installed:
+
+```shell
+playwright install
+```
+
 **Run**
 
 First, make sure you have reset your WebArena environment

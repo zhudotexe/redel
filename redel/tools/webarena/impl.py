@@ -1,6 +1,19 @@
 import enum
 
-from browser_env import Action, create_goto_url_action
+from browser_env import (
+    Action,
+    create_click_action,
+    create_go_back_action,
+    create_go_forward_action,
+    create_goto_url_action,
+    create_hover_action,
+    create_key_press_action,
+    create_new_tab_action,
+    create_page_close_action,
+    create_page_focus_action,
+    create_scroll_action,
+    create_type_action,
+)
 from kani import ai_function
 
 from redel.base_kani import BaseKani
@@ -25,48 +38,59 @@ class WebArenaMixin(BaseKani):
             return self.webarena.get_prompt(task=self.last_user_message.text, error=error)
         return self.webarena.get_prompt(task=self.last_user_message.text)
 
-    # actions taken from
+    # action definitions taken from
     # https://github.com/web-arena-x/webarena/blob/4c741b4b20a3e183836e58f383f9be1785248160/agent/prompts/raw/p_cot_id_actree_2s.py#L14
+    # and implementations adapted from
+    # https://github.com/web-arena-x/webarena/blob/4c741b4b20a3e183836e58f383f9be1785248160/browser_env/actions.py#L1502
 
     @ai_function()
     def click(self, id: int):
         """Click on an element with a specific id on the current webpage."""
-        pass
+        action = create_click_action(element_id=str(id))
+        return self.take_action(action)
 
     @ai_function()
     def type(self, id: int, content: str, press_enter_after: bool = True):
         """Type the content into the field with the given id. By default, the "Enter" key is pressed after typing unless press_enter_after is set to false."""
-        pass
+        text = content if not press_enter_after else f"{content}\n"
+        action = create_type_action(text=text, element_id=str(id))
+        return self.take_action(action)
 
     @ai_function()
     def hover(self, id: int):
         """Hover over an element with the given id."""
-        pass
+        action = create_hover_action(element_id=str(id))
+        return self.take_action(action)
 
     @ai_function()
     def press(self, key_comb: str):
         """Simulates the pressing of a key combination on the keyboard (e.g., Ctrl+v)."""
-        pass
+        action = create_key_press_action(key_comb=key_comb)
+        return self.take_action(action)
 
     @ai_function()
     def scroll(self, direction: ScrollDirection):
         """Scroll the page up or down."""
-        pass
+        action = create_scroll_action(direction=direction.value)
+        return self.take_action(action)
 
     @ai_function()
     def new_tab(self):
         """Open a new, empty browser tab."""
-        pass
+        action = create_new_tab_action()
+        return self.take_action(action)
 
     @ai_function()
     def tab_focus(self, tab_index: int):
         """Switch the browser's focus to a specific tab using its index."""
-        pass
+        action = create_page_focus_action(tab_index)
+        return self.take_action(action)
 
     @ai_function()
     def close_tab(self):
         """Close the currently active tab."""
-        pass
+        action = create_page_close_action()
+        return self.take_action(action)
 
     @ai_function()
     def goto(self, url: str):
@@ -78,9 +102,11 @@ class WebArenaMixin(BaseKani):
     @ai_function()
     def go_back(self):
         """Navigate to the previously viewed page."""
-        pass
+        action = create_go_back_action()
+        return self.take_action(action)
 
     @ai_function()
     def go_forward(self):
         """Navigate to the next page (if a previous 'go_back' action was performed)."""
-        pass
+        action = create_go_forward_action()
+        return self.take_action(action)

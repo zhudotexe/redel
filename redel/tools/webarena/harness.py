@@ -16,17 +16,26 @@ class WebArenaHarness:
     experiment-scoped state in WebArena.
     """
 
-    def __init__(self, config_file: str, env: ScriptBrowserEnv):
-        self.config_file = config_file
-        with open(config_file) as f:
-            self.config = json.load(f)
-        self.intent = self.config["intent"]
+    def __init__(self, config, env: ScriptBrowserEnv):
+        self.config = config
+        self.intent = config["intent"]
         self.env = env
         self.trajectory: Trajectory = []
+        self.obs = None
+        self.info = None
+        self.last_action_success = None
+
+    @classmethod
+    def setup_from_config(cls, config_file: str, env: ScriptBrowserEnv):
+        """Create a new harness from the given config file and reset the environment."""
+        with open(config_file) as f:
+            config = json.load(f)
+        inst = cls(config, env)
         # initialize the state
-        self.last_action_success = True
-        self.obs, self.info = env.reset(options={"config_file": config_file})
-        self.save_state_to_trajectory()
+        inst.last_action_success = True
+        inst.obs, inst.info = env.reset(options={"config_file": config_file})
+        inst.save_state_to_trajectory()
+        return inst
 
     def save_state_to_trajectory(self):
         """Save the browser state to the trajectory. Called after setup and each action."""
@@ -56,9 +65,9 @@ class WebArenaHarness:
             return raw
         return f"{raw}\nERROR: {error}"
 
-    def end(self):
+    def end(self, answer: str):
         """Called once when the system finishes its task."""
-        self.trajectory.append(create_stop_action(""))
+        self.trajectory.append(create_stop_action(answer))
 
     # ==== adapted from webarena ====
     @staticmethod

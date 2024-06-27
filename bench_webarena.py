@@ -23,9 +23,6 @@ import tempfile
 from pathlib import Path
 
 import tqdm
-from browser_env import ScriptBrowserEnv
-from browser_env.auto_login import get_site_comb_from_filepath
-from evaluation_harness import evaluator_router
 from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
@@ -33,71 +30,96 @@ from redel import Kanpai, events
 from redel.delegation.delegate_one import Delegate1Mixin
 from redel.tools.webarena.harness import WebArenaHarness
 from redel.tools.webarena.impl import WebArenaMixin
+from redel.tools.webarena.patches import ignore_webarena_warnings, patch_to_support_webarena
 from redel.utils import read_jsonl
+
+patch_to_support_webarena()
+
+from browser_env import ScriptBrowserEnv
+from browser_env.auto_login import get_site_comb_from_filepath
+from evaluation_harness import evaluator_router
 
 LOG_BASE = Path(__file__).parent / "experiments/webarena"
 experiment_config = sys.argv[-1]
 log = logging.getLogger("bench_webarena")
 
-# ==== config ====
+# ==== webarena config ====
 START_IDX = 0
-END_IDX = 812
+END_IDX = 1  # 812
+WA_HEADLESS = False
+WA_TRACE = True
+
+# ==== redel config ====
 delegation_scheme = Delegate1Mixin
 log_dir = LOG_BASE / "test" / experiment_config
 # gross but whatever
 # - **full**: no root FC, gpt-4o everything
 if experiment_config == "full":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
+    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, parallel_tool_calls=False)
     delegate_engine = root_engine
     long_engine = root_engine
     root_has_tools = False
 # - **root-fc**: root FC, gpt-4o everything
 elif experiment_config == "root-fc":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
+    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, parallel_tool_calls=False)
     delegate_engine = root_engine
     long_engine = root_engine
     root_has_tools = True
 # - **baseline**: root FC, no delegation, gpt-4o
 elif experiment_config == "baseline":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
+    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, parallel_tool_calls=False)
     delegate_engine = root_engine
     long_engine = root_engine
     root_has_tools = True
     delegation_scheme = None
 # - **small-leaf**: no root FC, gpt-4o root, gpt-3.5-turbo leaves
 elif experiment_config == "small-leaf":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
-    delegate_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0)
+    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, parallel_tool_calls=False)
+    delegate_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0, parallel_tool_calls=False)
     long_engine = root_engine
     root_has_tools = False
 #     - **small-all**: no root FC, gpt-3.5-turbo everything
 elif experiment_config == "small-all":
-    root_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0)
+    root_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0, parallel_tool_calls=False)
     delegate_engine = root_engine
     long_engine = root_engine
     root_has_tools = False
 #     - **small-baseline**: root FC, no delegation, gpt-3.5-turbo
 elif experiment_config == "small-baseline":
-    root_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0)
+    root_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0, parallel_tool_calls=False)
     delegate_engine = root_engine
     long_engine = root_engine
     root_has_tools = True
     delegation_scheme = None
 # - **short-context**: no root FC, gpt-4o everything, limit to 8192 ctx
 elif experiment_config == "short-context":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, max_context_size=8192)
+    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, max_context_size=8192, parallel_tool_calls=False)
     delegate_engine = root_engine
     long_engine = root_engine
     root_has_tools = False
 #     - **short-baseline**: root FC, no delegation, gpt-4o, 8192 ctx
 elif experiment_config == "short-baseline":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, max_context_size=8192)
+    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, max_context_size=8192, parallel_tool_calls=False)
     delegate_engine = root_engine
     long_engine = root_engine
     root_has_tools = True
     delegation_scheme = None
 else:
     raise ValueError("invalid experiment config")
+
+SYSTEM_PROMPT = """\
+You are an autonomous intelligent agent tasked with navigating a web browser. You will be given web-based tasks. These tasks will be accomplished through the use of specific actions you can issue.
+
+Here's the information you'll have:
+The user's objective: This is the task you're trying to complete.
+The current web page's accessibility tree: This is a simplified representation of the webpage, providing key information.
+The current web page's URL: This is the page you're currently navigating.
+The open tabs: These are the tabs you have open.
+
+Homepage:
+If you want to visit other websites, check out the homepage at http://homepage.com. It has a list of websites you can visit.
+http://homepage.com/password.html lists all the account name and password for the websites. You can use them to log in to the websites.
+"""
 
 print("========== CONFIG ==========")
 print("root engine:", root_engine.model)
@@ -112,15 +134,15 @@ print("============================")
 
 # ==== webarena setup ====
 wa_env = ScriptBrowserEnv(
-    headless=True,
+    headless=WA_HEADLESS,
     observation_type="accessibility_tree",
     current_viewport_only=False,
     viewport_size={
         "width": 1280,
         "height": 720,
     },
-    save_trace_enabled=False,
-    sleep_after_execution=0,
+    save_trace_enabled=WA_TRACE,
+    sleep_after_execution=0.0,
 )
 
 
@@ -153,7 +175,7 @@ async def run_one_trial(config_file: Path):
                 json.dump(_c, f)
 
     # setup webarena env for the given trial
-    harness = WebArenaHarness(config_file=config_file, env=wa_env)
+    harness = WebArenaHarness.setup_from_config(config_file=config_file, env=wa_env)
 
     # setup redel
     ai = Kanpai(
@@ -184,7 +206,7 @@ async def run_one_trial(config_file: Path):
             log.info(event.msg)
             if event.msg.text:
                 out.append(event.msg.text)
-    harness.end()
+    harness.end("\n\n".join(out))
 
     # score
     evaluator = evaluator_router(config_file)
@@ -194,6 +216,10 @@ async def run_one_trial(config_file: Path):
         page=wa_env.page,
         client=wa_env.get_page_client(wa_env.page),
     )
+
+    # save trace
+    if WA_TRACE:
+        wa_env.save_trace(log_dir / str(task_id) / "webarena_trace.zip")
 
     await ai.close()
     return "\n\n".join(out), score, ai.logger.log_dir, _c
@@ -240,8 +266,10 @@ async def main():
     logging.basicConfig(level=logging.WARNING)
     log.setLevel(logging.INFO)
     log_dir.mkdir(parents=True, exist_ok=True)
-    await run()
+    with ignore_webarena_warnings():
+        await run()
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+    wa_env.close()
