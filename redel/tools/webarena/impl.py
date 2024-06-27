@@ -14,7 +14,7 @@ from browser_env import (
     create_scroll_action,
     create_type_action,
 )
-from kani import ai_function
+from kani import ChatMessage, ChatRole, ai_function
 
 from redel.base_kani import BaseKani
 from .harness import WebArenaHarness
@@ -37,6 +37,14 @@ class WebArenaMixin(BaseKani):
             error = info["fail_error"]
             return self.webarena.get_prompt(task=self.last_user_message.text, error=error)
         return self.webarena.get_prompt(task=self.last_user_message.text)
+
+    def add_to_history(self, message: ChatMessage):
+        # HACK: if the message is a USER message and does not contain the webarena state prompt,
+        # prepend it here
+        # this is used to ensure that messages sent to the delegates allow them to see the state
+        if message.role == ChatRole.USER and not message.text.startswith("BROWSER STATE:"):
+            message.content = self.webarena.get_prompt(task=message.text)
+        return super().add_to_history(message)
 
     # action definitions taken from
     # https://github.com/web-arena-x/webarena/blob/4c741b4b20a3e183836e58f383f9be1785248160/agent/prompts/raw/p_cot_id_actree_2s.py#L14
