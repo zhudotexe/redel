@@ -23,21 +23,16 @@ import tempfile
 from pathlib import Path
 
 import tqdm
+from browser_env import env_config
+from browser_env.auto_login import get_site_comb_from_filepath
 from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
 from redel import Kanpai, events
 from redel.delegation.delegate_one import Delegate1Mixin
-from redel.tools.webarena.harness import WebArenaHarness
+from redel.tools.webarena.client import WebArenaClient
 from redel.tools.webarena.impl import WebArenaMixin
-from redel.tools.webarena.patches import ignore_webarena_warnings, patch_to_support_webarena
 from redel.utils import read_jsonl
-
-patch_to_support_webarena()
-
-from browser_env import ScriptBrowserEnv
-from browser_env.auto_login import get_site_comb_from_filepath
-from evaluation_harness import evaluator_router
 
 LOG_BASE = Path(__file__).parent / "experiments/webarena"
 experiment_config = sys.argv[-1]
@@ -46,8 +41,6 @@ log = logging.getLogger("bench_webarena")
 # ==== webarena config ====
 START_IDX = 0
 END_IDX = 1  # 812
-WA_HEADLESS = False
-WA_TRACE = True
 
 # ==== redel config ====
 delegation_scheme = Delegate1Mixin
@@ -119,7 +112,7 @@ The open tabs: These are the tabs you have open.
 Homepage:
 If you want to visit other websites, check out the homepage at http://homepage.com. It has a list of websites you can visit.
 http://homepage.com/password.html lists all the account name and password for the websites. You can use them to log in to the websites.
-"""
+""".replace("http://homepage.com", env_config.HOMEPAGE)
 
 print("========== CONFIG ==========")
 print("root engine:", root_engine.model)
@@ -131,19 +124,6 @@ if delegation_scheme:
     print("delegate ctx:", delegate_engine.max_context_size)
 print("saving to:", log_dir.resolve())
 print("============================")
-
-# ==== webarena setup ====
-wa_env = ScriptBrowserEnv(
-    headless=WA_HEADLESS,
-    observation_type="accessibility_tree",
-    current_viewport_only=False,
-    viewport_size={
-        "width": 1280,
-        "height": 720,
-    },
-    save_trace_enabled=WA_TRACE,
-    sleep_after_execution=0.0,
-)
 
 
 # ==== main ====
@@ -161,7 +141,7 @@ async def run_one_trial(config_file: Path):
             # subprocess to renew the cookie
             subprocess.run([
                 "python",
-                "experiments/webarena/auto_login.py",
+                "experiments/webarena/vendor/auto_login.py",
                 "--auth_folder",
                 temp_dir,
                 "--site_list",
@@ -175,20 +155,20 @@ async def run_one_trial(config_file: Path):
                 json.dump(_c, f)
 
     # setup webarena env for the given trial
-    harness = WebArenaHarness.setup_from_config(config_file=config_file, env=wa_env)
+    wa_client = await WebArenaClient.setup_from_config(config_file=config_file)
 
     # setup redel
     ai = Kanpai(
         root_engine=root_engine,
         delegate_engine=delegate_engine,
         long_engine=long_engine,
-        root_system_prompt=None,
-        delegate_system_prompt=None,
+        root_system_prompt=SYSTEM_PROMPT,
+        delegate_system_prompt=SYSTEM_PROMPT,
         delegation_scheme=delegation_scheme,
         tool_configs={
             WebArenaMixin: {
                 "always_include": True,
-                "kwargs": {"webarena_harness": harness},
+                "kwargs": {"webarena_client": wa_client},
             },
         },
         root_has_tools=root_has_tools,
@@ -201,25 +181,16 @@ async def run_one_trial(config_file: Path):
     log.info(f"Config file: {config_file}")
     log.info(f"Intent: {intent}")
     out = []
-    async for event in ai.query(harness.get_prompt(task=intent)):
+    async for event in ai.query(await wa_client.get_prompt(task=intent)):
         if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
             log.info(event.msg)
             if event.msg.text:
                 out.append(event.msg.text)
-    harness.end("\n\n".join(out))
+    await wa_client.end("\n\n".join(out))
 
-    # score
-    evaluator = evaluator_router(config_file)
-    score = evaluator(
-        trajectory=harness.trajectory,
-        config_file=config_file,
-        page=wa_env.page,
-        client=wa_env.get_page_client(wa_env.page),
-    )
-
-    # save trace
-    if WA_TRACE:
-        wa_env.save_trace(log_dir / str(task_id) / "webarena_trace.zip")
+    # score, save trace
+    score = await wa_client.score()
+    await wa_client.maybe_save_trace((log_dir / str(task_id) / "webarena_trace.zip").resolve())
 
     await ai.close()
     return "\n\n".join(out), score, ai.logger.log_dir, _c
@@ -266,10 +237,8 @@ async def main():
     logging.basicConfig(level=logging.WARNING)
     log.setLevel(logging.INFO)
     log_dir.mkdir(parents=True, exist_ok=True)
-    with ignore_webarena_warnings():
-        await run()
+    await run()
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-    wa_env.close()

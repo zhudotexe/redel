@@ -9,7 +9,7 @@ from pathlib import Path
 
 from browser_env import env_config
 
-EXPERIMENTS_DIR = Path(__file__).parents[1]
+EXPERIMENTS_DIR = Path(__file__).parents[2]
 (EXPERIMENTS_DIR / "webarena/config").mkdir(exist_ok=True)
 
 

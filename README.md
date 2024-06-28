@@ -141,7 +141,7 @@ script.
 **Setup**
 
 We reproduce some of the scripts and data contained in the WebArena repository in this repo under the terms of the
-Apache-2.0 license, contained in `experiments/webarena/LICENSE`.
+Apache-2.0 license, contained in `experiments/webarena/vendor/LICENSE`.
 
 First, you'll need to set up your own WebArena environment.
 See https://github.com/web-arena-x/webarena/blob/main/environment_docker/README.md for instructions.
@@ -158,7 +158,7 @@ export MAP="<your_map_domain>:3000"
 export WIKIPEDIA="<your_wikipedia_domain>:8888/wikipedia_en_all_maxi_2022-05/A/User:The_other_Kiwix_guy/Landing"
 export HOMEPAGE="<your_homepage_domain>:4399"
 # generate config files
-python experiments/webarena/generate_test_data.py
+python experiments/webarena/vendor/generate_test_data.py
 ```
 
 You'll also need to ensure Playwright is installed:
@@ -172,7 +172,18 @@ playwright install
 First, make sure you have reset your WebArena environment
 (see https://github.com/web-arena-x/webarena/blob/main/environment_docker/README.md#environment-reset).
 
-After launching your WebArena environment, run:
+Then, launch the WebArena environment.
+
+As the default WebArena script is incompatible with asyncio, ReDel requires running a WebArena server (i.e., process
+that can interface with the environment) as a separate process, which it communicates with using HTTP.
+This server can be found in `experiments/webarena/webarena_iface_server.py` and must be launched next:
+
+```shell
+# launch in the background - remember to kill the process later!
+python experiments/webarena/webarena_iface_server.py &
+```
+
+Finally, run the bench script:
 
 ```shell
 python bench_webarena.py <full|root-fc|baseline|small-leaf|small-all|small-baseline|short-context|short-baseline>
