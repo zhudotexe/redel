@@ -16,6 +16,7 @@ Usage: python bench_webarena.py <full|root-fc|baseline|small-leaf|small-all|smal
 import asyncio
 import json
 import logging
+import multiprocessing
 import os
 import subprocess
 import sys
@@ -23,7 +24,6 @@ import tempfile
 from pathlib import Path
 
 import tqdm
-from browser_env import env_config
 from browser_env.auto_login import get_site_comb_from_filepath
 from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
@@ -32,6 +32,8 @@ from redel import Kanpai, events
 from redel.delegation.delegate_one import Delegate1Mixin
 from redel.tools.webarena.client import WebArenaClient
 from redel.tools.webarena.impl import WebArenaMixin
+from redel.tools.webarena.subprocess import wa_entrypoint
+from redel.tools.webarena.utils import map_url_to_real
 from redel.utils import read_jsonl
 
 LOG_BASE = Path(__file__).parent / "experiments/webarena"
@@ -112,7 +114,8 @@ The open tabs: These are the tabs you have open.
 Homepage:
 If you want to visit other websites, check out the homepage at http://homepage.com. It has a list of websites you can visit.
 http://homepage.com/password.html lists all the account name and password for the websites. You can use them to log in to the websites.
-""".replace("http://homepage.com", env_config.HOMEPAGE)
+"""
+SYSTEM_PROMPT = map_url_to_real(SYSTEM_PROMPT)
 
 print("========== CONFIG ==========")
 print("root engine:", root_engine.model)
@@ -126,13 +129,11 @@ print("saving to:", log_dir.resolve())
 print("============================")
 
 
-# ==== main ====
-async def run_one_trial(config_file: Path):
+def wa_ensure_auth(config_file: Path) -> Path:
+    """If the given config file requires auth, do the login and save a temp copy with updated cookies."""
     # load config, update login cookies, save temp copy
     with open(config_file) as f:
         _c = json.load(f)
-        intent = _c["intent"]
-        task_id = _c["task_id"]
         # automatically login
         if _c["storage_state"]:
             cookie_file_name = os.path.basename(_c["storage_state"])
@@ -141,7 +142,7 @@ async def run_one_trial(config_file: Path):
             # subprocess to renew the cookie
             subprocess.run([
                 "python",
-                "experiments/webarena/vendor/auto_login.py",
+                "experiments/webarena/auto_login.py",
                 "--auth_folder",
                 temp_dir,
                 "--site_list",
@@ -150,12 +151,19 @@ async def run_one_trial(config_file: Path):
             _c["storage_state"] = f"{temp_dir}/{cookie_file_name}"
             assert os.path.exists(_c["storage_state"])
             # write a temp copy of the config file
-            config_file = f"{temp_dir}/{os.path.basename(config_file)}"
+            config_file = Path(f"{temp_dir}/{os.path.basename(config_file)}")
             with open(config_file, "w") as f:
                 json.dump(_c, f)
+    return config_file
 
-    # setup webarena env for the given trial
-    wa_client = await WebArenaClient.setup_from_config(config_file=config_file)
+
+# ==== main ====
+async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
+    # read the config
+    with open(config_file) as f:
+        config = json.load(f)
+        intent = config["intent"]
+        task_id = config["task_id"]
 
     # setup redel
     ai = Kanpai(
@@ -181,22 +189,32 @@ async def run_one_trial(config_file: Path):
     log.info(f"Config file: {config_file}")
     log.info(f"Intent: {intent}")
     out = []
-    async for event in ai.query(await wa_client.get_prompt(task=intent)):
+    async for event in ai.query(wa_client.get_prompt(task=intent)):
         if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
             log.info(event.msg)
             if event.msg.text:
                 out.append(event.msg.text)
-    await wa_client.end("\n\n".join(out))
+    wa_client.end("\n\n".join(out))
 
     # score, save trace
-    score = await wa_client.score()
-    await wa_client.maybe_save_trace((log_dir / str(task_id) / "webarena_trace.zip").resolve())
+    score = wa_client.score()
+    wa_client.maybe_save_trace(str((log_dir / str(task_id) / "webarena_trace.zip").resolve()))
 
     await ai.close()
-    return "\n\n".join(out), score, ai.logger.log_dir, _c
+    return "\n\n".join(out), score, ai.logger.log_dir, config
 
 
 async def run():
+    # ==== webarena setup ====
+    # As the default WebArena script is incompatible with asyncio, ReDel runs WebArena as a separate process,
+    # which it communicates with synchronously using a pipe.
+    # This isn't optimal but it works. [1]
+    # [1]: I don't know if it works yet.
+    (wa_send, wa_recv) = multiprocessing.Pipe()
+    wa_process = multiprocessing.Process(target=wa_entrypoint, args=(wa_recv,))
+    wa_process.start()
+
+    # ==== experiment setup ====
     # check for existing results
     results_fp = log_dir / "results.jsonl"
     existing_results = set()
@@ -214,8 +232,12 @@ async def run():
         # run trial
         trial_config_path = LOG_BASE / f"config/{task_id}.json"
         try:
+            # setup webarena env for the given trial
+            trial_config_path = wa_ensure_auth(trial_config_path)
+            wa_client = WebArenaClient.setup_from_config(config_file=str(trial_config_path.resolve()), pipe=wa_send)
+            # run
             result, score, result_log_dir, wa_config = await asyncio.wait_for(
-                run_one_trial(trial_config_path), timeout=600
+                run_one_trial(trial_config_path, wa_client), timeout=600
             )
             log.info(result)
             results_file.write(
@@ -230,15 +252,15 @@ async def run():
             results_file.write("\n")
         except Exception as e:
             log.exception(e)
+
+    # clean up
     results_file.close()
-
-
-async def main():
-    logging.basicConfig(level=logging.WARNING)
-    log.setLevel(logging.INFO)
-    log_dir.mkdir(parents=True, exist_ok=True)
-    await run()
+    wa_send.send({"cmd": "stop"})
+    wa_process.join()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    logging.basicConfig(level=logging.WARNING)
+    log.setLevel(logging.INFO)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    asyncio.run(run())

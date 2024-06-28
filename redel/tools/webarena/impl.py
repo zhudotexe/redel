@@ -18,6 +18,7 @@ from kani import ChatMessage, ChatRole, ai_function
 
 from redel.base_kani import BaseKani
 from .client import WebArenaClient
+from .utils import map_url_to_local
 
 
 class ScrollDirection(enum.Enum):
@@ -30,17 +31,17 @@ class WebArenaMixin(BaseKani):
         super().__init__(*args, **kwargs)
         self.webarena = webarena_client
 
-    async def take_action(self, action: Action):
-        """Send the action to the WA harness and return the updated state."""
-        await self.webarena.action(action)
-        return await self.webarena.get_prompt(task=self.last_user_message.text)
+    def take_action(self, action: Action):
+        """Send the action to the WA harness and return the updated prompt."""
+        self.webarena.action(action)
+        return self.webarena.get_prompt(task=self.last_user_message.text)
 
     async def add_to_history(self, message: ChatMessage):
         # HACK: if the message is a USER message and does not contain the webarena state prompt,
         # prepend it here
         # this is used to ensure that messages sent to the delegates allow them to see the state
         if message.role == ChatRole.USER and not message.text.startswith("BROWSER STATE:"):
-            message.content = await self.webarena.get_prompt(task=message.text)
+            message.content = self.webarena.get_prompt(task=message.text)
         return await super().add_to_history(message)
 
     # action definitions taken from
@@ -49,69 +50,69 @@ class WebArenaMixin(BaseKani):
     # https://github.com/web-arena-x/webarena/blob/4c741b4b20a3e183836e58f383f9be1785248160/browser_env/actions.py#L1502
 
     @ai_function()
-    async def click(self, id: int):
+    def click(self, id: int):
         """Click on an element with a specific id on the current webpage."""
         action = create_click_action(element_id=str(id))
-        return await self.take_action(action)
+        return self.take_action(action)
 
     @ai_function()
-    async def type(self, id: int, content: str, press_enter_after: bool = True):
+    def type(self, id: int, content: str, press_enter_after: bool = True):
         """Type the content into the field with the given id. By default, the "Enter" key is pressed after typing unless press_enter_after is set to false."""
         text = content if not press_enter_after else f"{content}\n"
         action = create_type_action(text=text, element_id=str(id))
-        return await self.take_action(action)
+        return self.take_action(action)
 
     @ai_function()
-    async def hover(self, id: int):
+    def hover(self, id: int):
         """Hover over an element with the given id."""
         action = create_hover_action(element_id=str(id))
-        return await self.take_action(action)
+        return self.take_action(action)
 
     @ai_function()
-    async def press(self, key_comb: str):
+    def press(self, key_comb: str):
         """Simulates the pressing of a key combination on the keyboard (e.g., Ctrl+v)."""
         action = create_key_press_action(key_comb=key_comb)
-        return await self.take_action(action)
+        return self.take_action(action)
 
     @ai_function()
-    async def scroll(self, direction: ScrollDirection):
+    def scroll(self, direction: ScrollDirection):
         """Scroll the page up or down."""
         action = create_scroll_action(direction=direction.value)
-        return await self.take_action(action)
+        return self.take_action(action)
 
     @ai_function()
-    async def new_tab(self):
+    def new_tab(self):
         """Open a new, empty browser tab."""
         action = create_new_tab_action()
-        return await self.take_action(action)
+        return self.take_action(action)
 
     @ai_function()
-    async def tab_focus(self, tab_index: int):
+    def tab_focus(self, tab_index: int):
         """Switch the browser's focus to a specific tab using its index."""
         action = create_page_focus_action(tab_index)
-        return await self.take_action(action)
+        return self.take_action(action)
 
     @ai_function()
-    async def close_tab(self):
+    def close_tab(self):
         """Close the currently active tab."""
         action = create_page_close_action()
-        return await self.take_action(action)
+        return self.take_action(action)
 
     @ai_function()
-    async def goto(self, url: str):
+    def goto(self, url: str):
         """Navigate to a specific URL."""
-        url = self.webarena.map_url_to_local(url)
+        url = map_url_to_local(url)
         action = create_goto_url_action(url=url)
-        return await self.take_action(action)
+        return self.take_action(action)
 
     @ai_function()
-    async def go_back(self):
+    def go_back(self):
         """Navigate to the previously viewed page."""
         action = create_go_back_action()
-        return await self.take_action(action)
+        return self.take_action(action)
 
     @ai_function()
-    async def go_forward(self):
+    def go_forward(self):
         """Navigate to the next page (if a previous 'go_back' action was performed)."""
         action = create_go_forward_action()
-        return await self.take_action(action)
+        return self.take_action(action)

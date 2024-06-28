@@ -1,65 +1,62 @@
-import httpx
-from browser_env import (
-    Action,
-)  # this is from webarena - their pkg is namespaced weirdly
+from multiprocessing.connection import Connection
+
+from browser_env import Action
 
 
 class WebArenaClient:
     """This class provides a client for a given single run of WebArena.
 
-    It connects to the WebArena interface server included in /experiments/webarena/webarena_iface_server.py.
-    By default, this server is hosted on port 20685.
+    It interfaces with the WebArena process using a provided pipe.
 
     This is used to share a browser state & trajectory list with a full ReDel tree, as well as any other
     experiment-scoped state in WebArena.
     """
 
-    def __init__(self, config_file: str, http: httpx.AsyncClient):
-        self.http = http
+    def __init__(self, config_file: str, pipe: Connection):
+        self.pipe = pipe
         self.config_file = config_file
 
     @classmethod
-    async def setup_from_config(cls, config_file: str):
+    def setup_from_config(cls, config_file: str, pipe: Connection):
         """Create a new harness from the given config file and reset the environment."""
-        inst = cls(config_file, httpx.AsyncClient(timeout=120, base_url="http://127.0.0.1:20685"))
-        await inst.reset()
+        inst = cls(config_file, pipe)
+        inst.reset()
         return inst
 
+    def send_command(self, cmd: str, **data):
+        """Send a command and retrieve its response."""
+        msg = {"cmd": cmd, "data": data}
+        self.pipe.send(msg)
+        retval = self.pipe.recv()
+        if isinstance(retval, Exception):
+            raise retval
+        return retval
+
     # ==== api ====
-    async def reset(self):
-        resp = await self.http.post("/reset", json={"config_file": self.config_file})
-        resp.raise_for_status()
+    def reset(self):
+        return self.send_command("reset", config_file=self.config_file)
 
-    async def action(self, action: Action):
+    def action(self, action: Action):
         """Save the action to the trajectory, take it, save the resulting state, and return the result."""
-        resp = await self.http.post("/action", json={"action": action})
-        resp.raise_for_status()
+        return self.send_command("action", action=action)
 
-    async def get_prompt(self, task: str) -> str:
+    def get_prompt(self, task: str) -> str:
         """Get the prompt at the current state:
         {observation}
         URL: {url}
         OBJECTIVE: {objective}
         [ERROR: {extra}] (if set)
         """
-        resp = await self.http.post("/prompt", json={"task": task})
-        resp.raise_for_status()
-        data = resp.json()
-        return data["prompt"]
+        return self.send_command("get_prompt", task=task)
 
-    async def end(self, answer: str):
+    def end(self, answer: str):
         """Called once when the system finishes its task."""
-        resp = await self.http.post("/end", json={"answer": answer})
-        resp.raise_for_status()
+        return self.send_command("end", answer=answer)
 
-    async def score(self) -> int:
+    def score(self) -> int:
         """Get the score."""
-        resp = await self.http.post("/score")
-        resp.raise_for_status()
-        data = resp.json()
-        return data["score"]
+        return self.send_command("score")
 
-    async def maybe_save_trace(self, path: str):
+    def maybe_save_trace(self, path: str):
         """If the server has tracing enabled, save it to the given path."""
-        resp = await self.http.post("/save_trace", json={"path": path})
-        resp.raise_for_status()
+        return self.send_command("save_trace", path=path)

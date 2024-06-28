@@ -174,14 +174,8 @@ First, make sure you have reset your WebArena environment
 
 Then, launch the WebArena environment.
 
-As the default WebArena script is incompatible with asyncio, ReDel requires running a WebArena server (i.e., process
-that can interface with the environment) as a separate process, which it communicates with using HTTP.
-This server can be found in `experiments/webarena/webarena_iface_server.py` and must be launched next:
-
-```shell
-# launch in the background - remember to kill the process later!
-python experiments/webarena/webarena_iface_server.py &
-```
+As the default WebArena script is incompatible with asyncio, ReDel launches a separate process to handle the
+WebArena environment, which it communicates with over a pipe. This is done automatically.
 
 Finally, run the bench script:
 
