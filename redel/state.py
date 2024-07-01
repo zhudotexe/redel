@@ -45,6 +45,7 @@ class KaniState(BaseModel):
     state: RunState
     name: str
     engine_type: str
+    engine_repr: str
     functions: list[AIFunctionState]
 
     @classmethod
@@ -59,6 +60,7 @@ class KaniState(BaseModel):
             state=ai.state,
             name=ai.name,
             engine_type=type(ai.engine).__name__,
+            engine_repr=repr(ai.engine),
             functions=[AIFunctionState.from_aifunction(f) for f in ai.functions.values()],
             **kwargs,
         )
