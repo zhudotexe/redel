@@ -3,6 +3,8 @@ from typing import AsyncIterable, TYPE_CHECKING
 from weakref import WeakValueDictionary
 
 from kani import ChatMessage, ChatRole, Kani
+from kani.engines.base import BaseCompletion
+from kani.engines.openai import OpenAIEngine
 from kani.streaming import StreamManager
 
 from . import events
@@ -34,6 +36,24 @@ class BaseKani(Kani):
         app.on_kani_creation(self)
 
     # ==== overrides ====
+    async def get_model_completion(self, include_functions: bool = True, **kwargs) -> BaseCompletion:
+        # if include_functions is False but we have functions and are using an OpenAIEngine, we should set
+        # tool_choice="none" instead -- this prevents the API from exploding if we set parallel_tool_calls
+        if self.functions and (not include_functions) and isinstance(self.engine, OpenAIEngine):
+            include_functions = True
+            kwargs["tool_choice"] = "none"
+
+        return await super().get_model_completion(include_functions=include_functions, **kwargs)
+
+    async def get_model_stream(self, include_functions: bool = True, **kwargs) -> AsyncIterable[str | BaseCompletion]:
+        # same as above for streaming
+        if self.functions and (not include_functions) and isinstance(self.engine, OpenAIEngine):
+            include_functions = True
+            kwargs["tool_choice"] = "none"
+
+        async for elem in super().get_model_stream(include_functions=include_functions, **kwargs):
+            yield elem
+
     async def chat_round(self, *args, **kwargs):
         with self.run_state(RunState.RUNNING):
             return await super().chat_round(*args, **kwargs)

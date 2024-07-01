@@ -39,7 +39,7 @@ class Delegate1Mixin(BaseKani):
         helper = await self.create_delegate_kani()
         with self.run_state(RunState.WAITING):
             result = []
-            async for stream in helper.full_round_stream(instructions):
+            async for stream in helper.full_round_stream(instructions, max_function_rounds=20):  # TODO temp
                 msg = await stream.message()
                 log.info(msg)
                 if msg.role == ChatRole.ASSISTANT and msg.content:
