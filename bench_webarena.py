@@ -46,7 +46,8 @@ log = logging.getLogger("bench_webarena")
 
 # ==== webarena config ====
 START_IDX = 0
-END_IDX = 1  # 812
+END_IDX = 812
+SKIP = 3  # 0, 812, 3 = 270 trials for small
 
 # ==== redel config ====
 delegation_scheme = Delegate1Mixin
@@ -219,7 +220,7 @@ async def run():
 
     # run on test set trials
     results_file = open(results_fp, "a")
-    for task_id in tqdm.tqdm(range(START_IDX, END_IDX)):
+    for task_id in tqdm.tqdm(range(START_IDX, END_IDX, SKIP)):
         # skip if already set
         if task_id in existing_results:
             continue
