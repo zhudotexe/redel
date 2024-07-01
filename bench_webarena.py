@@ -24,17 +24,21 @@ import tempfile
 from pathlib import Path
 
 import tqdm
-from browser_env.auto_login import get_site_comb_from_filepath
 from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
 from redel import Kanpai, events
 from redel.delegation.delegate_one import Delegate1Mixin
 from redel.tools.webarena.client import WebArenaClient
+from redel.tools.webarena.patches import patch_to_support_webarena
+from redel.utils import read_jsonl
+
+patch_to_support_webarena()
+
+from browser_env.auto_login import get_site_comb_from_filepath
 from redel.tools.webarena.impl import WebArenaMixin
 from redel.tools.webarena.subprocess import wa_entrypoint
 from redel.tools.webarena.utils import map_url_to_real
-from redel.utils import read_jsonl
 
 LOG_BASE = Path(__file__).parent / "experiments/webarena"
 experiment_config = sys.argv[-1]

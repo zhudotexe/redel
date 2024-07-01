@@ -1,6 +1,8 @@
 from multiprocessing.connection import Connection
+from typing import TYPE_CHECKING
 
-from browser_env import Action
+if TYPE_CHECKING:
+    from browser_env import Action
 
 
 class WebArenaClient:
@@ -36,7 +38,7 @@ class WebArenaClient:
     def reset(self):
         return self.send_command("reset", config_file=self.config_file)
 
-    def action(self, action: Action):
+    def action(self, action: "Action"):
         """Save the action to the trajectory, take it, save the resulting state, and return the result."""
         return self.send_command("action", action=action)
 
