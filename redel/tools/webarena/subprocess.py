@@ -21,7 +21,7 @@ from evaluation_harness import evaluator_router
 
 
 # ===== wa config ====
-WA_HEADLESS = False
+WA_HEADLESS = True
 WA_TRACE = True
 
 

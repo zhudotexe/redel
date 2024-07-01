@@ -158,7 +158,7 @@ export MAP="<your_map_domain>:3000"
 export WIKIPEDIA="<your_wikipedia_domain>:8888/wikipedia_en_all_maxi_2022-05/A/User:The_other_Kiwix_guy/Landing"
 export HOMEPAGE="<your_homepage_domain>:4399"
 # generate config files
-python experiments/webarena/vendor/generate_test_data.py
+python experiments/webarena/generate_test_data.py
 ```
 
 You'll also need to ensure Playwright is installed:
