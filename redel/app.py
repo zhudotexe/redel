@@ -12,7 +12,7 @@ from kani import ChatRole, chat_in_terminal_async
 from kani.engines import BaseEngine
 from kani.engines.openai import OpenAIEngine
 
-from . import config, events
+from . import events
 from .base_kani import BaseKani
 from .delegation.delegate_and_wait import DelegateWaitMixin
 from .eventlogger import EventLogger
@@ -26,15 +26,7 @@ AUTOGENERATE_TITLE = object()
 
 @functools.cache
 def default_engine():
-    return OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95, organization=config.OPENAI_ORG_ID_GPT4)
-
-
-@functools.cache
-def default_long_engine():
-    # engine = RatelimitedEngine(
-    #     AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
-    # )
-    return OpenAIEngine(model="gpt-4o", temperature=0.1)
+    return OpenAIEngine(model="gpt-4o", temperature=0.8, top_p=0.95)
 
 
 class Kanpai:
@@ -53,7 +45,6 @@ class Kanpai:
         # engines
         root_engine: BaseEngine = None,
         delegate_engine: BaseEngine = None,
-        long_engine: BaseEngine = None,
         # prompt/kani
         root_system_prompt: str | None = ROOT_KANPAI,
         root_kani_kwargs: dict = None,
@@ -72,8 +63,6 @@ class Kanpai:
         """
         :param root_engine: The engine to use for the root kani. Requires function calling. (default: gpt-4)
         :param delegate_engine: The engine to use for each delegate kani. Requires function calling. (default: gpt-4)
-        :param long_engine: The engine to use for long-context tasks (e.g. summarization of long web pages). Does not
-            require function calling. (default: gpt-4o)
         :param root_system_prompt: The system prompt for the root kani. See ``redel.kanis`` for default.
         :param root_kani_kwargs: Additional keyword args to pass to :class:``kani.Kani``.
         :param delegate_system_prompt: The system prompt for the each delegate kani. See ``redel.kanis`` for default.
@@ -95,8 +84,6 @@ class Kanpai:
             root_engine = default_engine()
         if delegate_engine is None:
             delegate_engine = default_engine()
-        if long_engine is None:
-            long_engine = default_long_engine()
         if root_kani_kwargs is None:
             root_kani_kwargs = {}
         if delegate_kani_kwargs is None:
@@ -109,7 +96,6 @@ class Kanpai:
         # engines
         self.root_engine = root_engine
         self.delegate_engine = delegate_engine
-        self.long_engine = long_engine
         # prompt/kani
         self.root_system_prompt = root_system_prompt
         self.root_kani_kwargs = root_kani_kwargs

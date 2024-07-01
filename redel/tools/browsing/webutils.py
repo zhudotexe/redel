@@ -3,6 +3,7 @@ from urllib.parse import parse_qs, urldefrag, urlencode, urljoin, urlparse, urlu
 
 import trafilatura
 from kani import ChatMessage
+from kani.engines import BaseEngine
 from playwright.async_api import Locator, Page
 from pydantic import BaseModel, RootModel
 
@@ -63,10 +64,15 @@ async def get_google_links(elem: Page | Locator) -> Links:
 
 
 # summarization
-async def web_summarize(content: str, parent: BaseKani, task="Please summarize the main content of the webpage above."):
+async def web_summarize(
+    content: str,
+    parent: BaseKani,
+    long_engine: BaseEngine,
+    task="Please summarize the main content of the webpage above.",
+):
     """Summarize the contents of a webpage using the app's ``long_engine``."""
     app = parent.app
-    summarizer = BaseKani(app.long_engine, app=app, parent=parent, id=f"{parent.id}-summarizer")
+    summarizer = BaseKani(long_engine, app=app, parent=parent, id=f"{parent.id}-summarizer")
     msg = ChatMessage.user(content)
     token_len = summarizer.message_token_len(msg) + summarizer.message_token_len(ChatMessage.user(task))
     log.info(f"Summarizing web content with length {len(content)} ({token_len} tokens)\n{content[:32]}...")
@@ -75,8 +81,12 @@ async def web_summarize(content: str, parent: BaseKani, task="Please summarize t
         # recursively summarize chunks if the content is *still* too long
         if token_len + summarizer.always_len > summarizer.engine.max_context_size:
             half_len = len(content) // 2
-            first_half = await web_summarize(f"{content[:half_len + 10]}\n[...]", task=task, parent=summarizer)
-            second_half = await web_summarize(f"[...]\n{content[half_len - 10:]}", task=task, parent=summarizer)
+            first_half = await web_summarize(
+                f"{content[:half_len + 10]}\n[...]", task=task, parent=summarizer, long_engine=long_engine
+            )
+            second_half = await web_summarize(
+                f"[...]\n{content[half_len - 10:]}", task=task, parent=summarizer, long_engine=long_engine
+            )
             result = f"{first_half}\n---\n{second_half}"
         else:
             prompt = f"<content>\n{content}</content>\n\n{task}"

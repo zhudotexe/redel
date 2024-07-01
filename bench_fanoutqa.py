@@ -36,58 +36,49 @@ log = logging.getLogger("bench_fanoutqa")
 
 # ==== config ====
 delegation_scheme = Delegate1Mixin
-do_long_engine_upgrade = False
 log_dir = LOG_BASE / "dev/trial2" / experiment_config
 # gross but whatever
 # - **full**: no root FC, gpt-4o everything
 if experiment_config == "full":
     root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = False
 # - **root-fc**: root FC, gpt-4o everything
 elif experiment_config == "root-fc":
     root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = True
 # - **baseline**: root FC, no delegation, gpt-4o
 elif experiment_config == "baseline":
     root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = True
     delegation_scheme = None
 # - **small-leaf**: no root FC, gpt-4o root, gpt-3.5-turbo leaves
 elif experiment_config == "small-leaf":
     root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
     delegate_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0)
-    long_engine = root_engine
     root_has_tools = False
 #     - **small-all**: no root FC, gpt-3.5-turbo everything
 elif experiment_config == "small-all":
     root_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = False
 #     - **small-baseline**: root FC, no delegation, gpt-3.5-turbo
 elif experiment_config == "small-baseline":
     root_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = True
     delegation_scheme = None
 # - **short-context**: no root FC, gpt-4o everything, limit to 8192 ctx
 elif experiment_config == "short-context":
     root_engine = OpenAIEngine(model="gpt-4o", temperature=0, max_context_size=8192)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = False
 #     - **short-baseline**: root FC, no delegation, gpt-4o, 8192 ctx
 elif experiment_config == "short-baseline":
     root_engine = OpenAIEngine(model="gpt-4o", temperature=0, max_context_size=8192)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = True
     delegation_scheme = None
 else:
@@ -110,18 +101,13 @@ async def query(q: DevQuestion | TestQuestion):
     ai = Kanpai(
         root_engine=root_engine,
         delegate_engine=delegate_engine,
-        long_engine=long_engine,
         root_system_prompt=None,
         delegate_system_prompt=None,
         delegation_scheme=delegation_scheme,
         tool_configs={
             FanOutQAMixin: {
                 "always_include": True,
-                "kwargs": {
-                    "foqa_config": FanOutQAConfig(
-                        do_long_engine_upgrade=do_long_engine_upgrade, retrieval_type="openai"
-                    )
-                },
+                "kwargs": {"foqa_config": FanOutQAConfig(retrieval_type="openai")},
             },
         },
         root_has_tools=root_has_tools,

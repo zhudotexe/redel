@@ -45,38 +45,32 @@ root_system_prompt = (
 if experiment_config == "full":
     root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = False
 # - **root-fc**: root FC, gpt-4o everything
 elif experiment_config == "root-fc":
     root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = True
 # - **baseline**: root FC, no delegation, gpt-4o
 elif experiment_config == "baseline":
     root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = True
     delegation_scheme = None
 # - **small-leaf**: no root FC, gpt-4o root, gpt-3.5-turbo leaves
 elif experiment_config == "small-leaf":
     root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
     delegate_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0)
-    long_engine = root_engine
     root_has_tools = False
 #     - **small-all**: no root FC, gpt-3.5-turbo everything
 elif experiment_config == "small-all":
     root_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = False
 #     - **small-baseline**: root FC, no delegation, gpt-3.5-turbo
 elif experiment_config == "small-baseline":
     root_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0)
     delegate_engine = root_engine
-    long_engine = root_engine
     root_has_tools = True
     delegation_scheme = None
 else:
@@ -99,7 +93,6 @@ async def query(q: dict, qid: str):
     ai = Kanpai(
         root_engine=root_engine,
         delegate_engine=delegate_engine,
-        long_engine=long_engine,
         root_system_prompt=root_system_prompt,
         delegate_system_prompt=None,
         delegation_scheme=delegation_scheme,

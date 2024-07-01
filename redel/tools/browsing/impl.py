@@ -8,6 +8,7 @@ import httpx
 import pymupdf
 import pymupdf4llm
 from kani import ChatMessage, ChatRole, ai_function
+from kani.engines import BaseEngine
 from playwright.async_api import BrowserContext, TimeoutError as PlaywrightTimeoutError, async_playwright
 
 from redel.base_kani import BaseKani
@@ -25,11 +26,12 @@ class BrowsingMixin(BaseKani):
     browser = None
     browser_context = None
 
-    def __init__(self, *args, max_webpage_len: int = None, **kwargs):
+    def __init__(self, *args, browsing_long_engine: BaseEngine, max_webpage_len: int = None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.http = httpx.AsyncClient(follow_redirects=True)
         self.page: Optional["Page"] = None
+        self.browsing_long_engine = browsing_long_engine
 
         # the max number of tokens before asking for a summary - default 1/3rd ctx len
         if max_webpage_len is None:
@@ -174,6 +176,7 @@ class BrowsingMixin(BaseKani):
             content = await web_summarize(
                 content,
                 parent=self,
+                long_engine=self.browsing_long_engine,
                 task=(
                     "Keep the current context in mind:\n"
                     f"<context>\n{msg_ctx}\n</context>\n\n"

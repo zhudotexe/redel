@@ -34,7 +34,6 @@ class FOQARetrievalType(BaseEvent):
 
 # config
 class FanOutQAConfig(TypedDict, total=False):
-    do_long_engine_upgrade: bool
     retrieval_type: Literal["bm25", "openai"]
 
 
@@ -44,7 +43,6 @@ class FanOutQAMixin(BaseKani):
         super().__init__(*args, **kwargs)
         if foqa_config is None:
             foqa_config = {}
-        self.do_long_engine_upgrade = foqa_config.get("do_long_engine_upgrade", True)
         self.retrieval_type = foqa_config.get("retrieval_type", "bm25")
 
     @property
@@ -94,27 +92,6 @@ class FanOutQAMixin(BaseKani):
                 )
             )
             return full_content
-
-        # else, upgrade the engine to long_engine and try again
-        if self.do_long_engine_upgrade:
-            self.app.dispatch(
-                FOQAEngineUpgrade(
-                    id=self.id,
-                    old_ctx_len=self.engine.max_context_size,
-                    new_ctx_len=self.app.long_engine.max_context_size,
-                )
-            )
-            self.engine = self.app.long_engine
-            if (retrieved_tokens := self.message_token_len(ChatMessage.user(full_content))) <= self.max_search_tokens:
-                self.app.dispatch(
-                    FOQARetrievalType(
-                        id=self.id,
-                        retrieval_type="full_doc_long",
-                        retrieved_tokens=retrieved_tokens,
-                        max_search_tokens=self.max_search_tokens,
-                    )
-                )
-                return full_content
 
         # else, retrieve as many fragments as fit in the context window
         if self.retrieval_type == "bm25":

@@ -9,6 +9,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from kani.engines.anthropic import AnthropicEngine
+from kani.ext.ratelimits import RatelimitedEngine
 from pydantic import BaseModel
 
 from redel import Kanpai
@@ -18,36 +20,10 @@ from redel.tools.browsing import BrowsingMixin
 
 log = logging.getLogger("viz-app")
 
-from kani.engines.openai import OpenAIEngine
-from redel.delegation.delegate_one import Delegate1Mixin
-from redel.tools.fanoutqa.impl import FanOutQAMixin
-from redel.tools.travelplanner.search import TravelPlannerMixin
-from redel.tools.travelplanner.planner import TravelPlannerRootMixin
-
-SYSTEM_TEST = (
-    "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions."
+long_engine = RatelimitedEngine(
+    AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
 )
-#     (
-#     "# Delegation Instructions\n\nUnless you are certain the user's question can be answered in one step, you should"
-#     " break it up into smaller pieces and delegate those pieces.\nYou should retry with different phrasing if your"
-#     " helper does not return a useful answer. Don't give up!"
-# )
-
-root_engine = OpenAIEngine(model="gpt-4o", temperature=0)
-delegate_engine = OpenAIEngine(model="gpt-4o", temperature=0)
-foqa_test = Kanpai(
-    root_engine=root_engine,
-    delegate_engine=delegate_engine,
-    long_engine=root_engine,
-    root_system_prompt=SYSTEM_TEST,
-    delegate_system_prompt=SYSTEM_TEST,
-    delegation_scheme=Delegate1Mixin,
-    tool_configs={
-        TravelPlannerMixin: {"always_include": True},
-        TravelPlannerRootMixin: {"always_include_root": True},
-    },
-    root_has_tools=False,
-)
+# long_engine = OpenAIEngine(model="gpt-4o", temperature=0.1)
 
 
 @asynccontextmanager
@@ -61,12 +37,14 @@ async def lifespan(_: FastAPI):
 # ws utils
 class KanpaiManager:
     def __init__(self):
-        # self.kanpai_app = Kanpai(
-        #     tool_configs={
-        #         BrowsingMixin: {"always_include": True},
-        #     }
-        # )
-        self.kanpai_app = foqa_test
+        self.kanpai_app = Kanpai(
+            tool_configs={
+                BrowsingMixin: {
+                    "always_include": True,
+                    "kwargs": {"browsing_long_engine": long_engine},
+                },
+            }
+        )
         self.kanpai_app.add_listener(self.on_event)
         self.msg_queue = asyncio.Queue()
         self.active_connections: list[WebSocket] = []
