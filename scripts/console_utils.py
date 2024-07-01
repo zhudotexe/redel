@@ -7,11 +7,11 @@ from playwright.async_api import async_playwright
 from redel.tools.browsing.webutils import CHROME_UA, get_google_links, web_markdownify
 
 
-#  from playwright.sync_api import sync_playwright
+# from playwright.sync_api import sync_playwright
 #
-#  playwright = sync_playwright().start()
-#  browser = playwright.chromium.launch(headless=False)
-#  page = browser.new_page()
+# playwright = sync_playwright().start()
+# browser = playwright.chromium.launch(headless=True)
+# page = browser.new_page()
 
 
 async def start_playwright():

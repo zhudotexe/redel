@@ -164,7 +164,7 @@ python experiments/webarena/generate_test_data.py
 You'll also need to ensure Playwright is installed:
 
 ```shell
-playwright install
+playwright install chromium
 ```
 
 **Run**
