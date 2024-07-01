@@ -246,6 +246,7 @@ async def run():
                 })
             )
             results_file.write("\n")
+            results_file.flush()
         except Exception as e:
             log.exception(e)
 
