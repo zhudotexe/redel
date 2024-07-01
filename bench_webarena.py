@@ -107,7 +107,7 @@ else:
     raise ValueError("invalid experiment config")
 
 SYSTEM_PROMPT = """\
-You are an autonomous intelligent agent tasked with navigating a web browser. You will be given web-based tasks. These tasks will be accomplished through the use of specific actions you can issue.
+You are an autonomous intelligent agent tasked with navigating a web browser. You will be given web-based tasks. These tasks will be accomplished through the use of specific functions you can call.
 
 Here's the information you'll have:
 The user's objective: This is the task you're trying to complete.
