@@ -28,8 +28,8 @@ from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
 from redel import Kanpai, events
-from redel.delegation.delegate_one import Delegate1Mixin
 from redel.tools.webarena.client import WebArenaClient
+from redel.tools.webarena.delegate_one import WebArenaDelegate1Mixin
 from redel.tools.webarena.patches import patch_to_support_webarena
 from redel.tools.webarena.root import WebArenaRootMixin
 from redel.utils import read_jsonl
@@ -51,7 +51,7 @@ END_IDX = 812
 SKIP = 3  # 0, 812, 3 = 270 trials for small
 
 # ==== redel config ====
-delegation_scheme = Delegate1Mixin
+delegation_scheme = WebArenaDelegate1Mixin
 log_dir = LOG_BASE / "test" / experiment_config
 # gross but whatever
 # - **full**: no root FC, gpt-4o everything
@@ -111,7 +111,6 @@ The open tabs: These are the tabs you have open.
 
 Homepage:
 If you want to visit other websites, check out the homepage at http://homepage.com. It has a list of websites you can visit.
-http://homepage.com/password.html lists all the account name and password for the websites. You can use them to log in to the websites.
 """
 SYSTEM_PROMPT = map_url_to_real(SYSTEM_PROMPT)
 
@@ -181,6 +180,7 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
             },
             WebArenaRootMixin: {
                 "always_include_root": True,
+                "kwargs": {"webarena_client_root": wa_client},
             },
         },
         root_has_tools=root_has_tools,

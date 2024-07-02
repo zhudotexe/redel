@@ -8,8 +8,7 @@ Statefulness: This server is STATEFUL between calls to `/reset`, and NOT paralle
 launch an instance of this server for each run.
 """
 
-from multiprocessing.connection import Connection
-from typing import Any, TypedDict
+from typing import Any, TYPE_CHECKING, TypedDict
 
 from .patches import patch_to_support_webarena
 
@@ -19,6 +18,8 @@ from .utils import map_url_to_real
 from browser_env import Action, ScriptBrowserEnv, StateInfo, Trajectory, create_stop_action
 from evaluation_harness import evaluator_router
 
+if TYPE_CHECKING:
+    from multiprocessing.connection import Connection
 
 # ===== wa config ====
 WA_HEADLESS = True
@@ -99,7 +100,7 @@ class State:
             self.env.save_trace(path)
 
 
-def wa_entrypoint(pipe: Connection):
+def wa_entrypoint(pipe: "Connection"):
     """Main entrypoint for the subprocess.
 
     Creates the environment and listens for commands from the pipe until a STOP command is received.
@@ -110,10 +111,10 @@ def wa_entrypoint(pipe: Connection):
     wa_env = ScriptBrowserEnv(
         headless=WA_HEADLESS,
         observation_type="accessibility_tree",
-        current_viewport_only=False,
+        current_viewport_only=True,
         viewport_size={
-            "width": 1280,
-            "height": 720,
+            "width": 2560,
+            "height": 1440,
         },
         save_trace_enabled=WA_TRACE,
         sleep_after_execution=0.0,

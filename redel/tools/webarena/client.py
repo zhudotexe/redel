@@ -1,8 +1,8 @@
-from multiprocessing.connection import Connection
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from browser_env import Action
+    from multiprocessing.connection import Connection
 
 
 class WebArenaClient:
@@ -14,12 +14,12 @@ class WebArenaClient:
     experiment-scoped state in WebArena.
     """
 
-    def __init__(self, config_file: str, pipe: Connection):
+    def __init__(self, config_file: str, pipe: "Connection"):
         self.pipe = pipe
         self.config_file = config_file
 
     @classmethod
-    def setup_from_config(cls, config_file: str, pipe: Connection):
+    def setup_from_config(cls, config_file: str, pipe: "Connection"):
         """Create a new harness from the given config file and reset the environment."""
         inst = cls(config_file, pipe)
         inst.reset()

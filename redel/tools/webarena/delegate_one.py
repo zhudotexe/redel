@@ -11,7 +11,11 @@ from redel.state import RunState
 log = logging.getLogger(__name__)
 
 
-class Delegate1Mixin(BaseKani):
+class WebArenaDelegate1Mixin(BaseKani):
+    """This is mostly a clone of normal Delegate1Mixin but with the following changes:
+    - 20 max function rounds (up from 5)
+    - delegate() prompt mentions that child can see browser
+    """
     @abstractmethod
     async def create_delegate_kani(self) -> BaseKani:
         raise NotImplementedError
@@ -25,7 +29,6 @@ class Delegate1Mixin(BaseKani):
         Ask a capable helper for help looking up a piece of information or performing an action.
         Do not simply repeat what the user said as instructions.
         You should use this to break up complex user queries into multiple simpler steps.
-        NOTE: Helpers cannot see previous parts of your conversation.
         """
         log.info(f"Delegated with instructions: {instructions}")
         # if the instructions are >80% the same as the current goal, bonk
@@ -39,7 +42,7 @@ class Delegate1Mixin(BaseKani):
         helper = await self.create_delegate_kani()
         with self.run_state(RunState.WAITING):
             result = []
-            async for stream in helper.full_round_stream(instructions, max_function_rounds=5):  # TODO temp
+            async for stream in helper.full_round_stream(instructions, max_function_rounds=20):  # TODO temp
                 msg = await stream.message()
                 log.info(msg)
                 if msg.role == ChatRole.ASSISTANT and msg.content:
