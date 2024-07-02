@@ -22,6 +22,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from pickle import UnpicklingError
 
 import tqdm
 from kani import ChatRole
@@ -258,8 +259,8 @@ async def run():
             )
             results_file.write("\n")
             results_file.flush()
-        except asyncio.TimeoutError as e:
-            log.exception("TimeoutError caught - restarting WA process forcefully!!!")
+        except (asyncio.TimeoutError, EOFError, UnpicklingError):
+            log.exception("Unrecoverable child process error caught - restarting WA process forcefully!!!")
             # kill and restart the child process - asyncio timeouts/cancellation bork the multiprocessing
             wa_process.kill()
             wa_process.join()
