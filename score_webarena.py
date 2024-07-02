@@ -4,7 +4,6 @@ Usage: python score_webarena.py [path/to/results.jsonl,...]
 
 import asyncio
 import glob
-import json
 import sys
 from pathlib import Path
 

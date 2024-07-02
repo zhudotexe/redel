@@ -260,7 +260,7 @@ async def run():
             )
             results_file.write("\n")
             results_file.flush()
-        except (asyncio.TimeoutError, EOFError, UnpicklingError):
+        except (asyncio.TimeoutError, EOFError, UnpicklingError, BrokenPipeError):
             log.exception("Unrecoverable child process error caught - restarting WA process forcefully!!!")
             # kill and restart the child process - asyncio timeouts/cancellation bork the multiprocessing
             wa_process.kill()
