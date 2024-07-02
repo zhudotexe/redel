@@ -31,6 +31,7 @@ from redel import Kanpai, events
 from redel.delegation.delegate_one import Delegate1Mixin
 from redel.tools.webarena.client import WebArenaClient
 from redel.tools.webarena.patches import patch_to_support_webarena
+from redel.tools.webarena.root import WebArenaRootMixin
 from redel.utils import read_jsonl
 
 patch_to_support_webarena()
@@ -114,6 +115,10 @@ http://homepage.com/password.html lists all the account name and password for th
 """
 SYSTEM_PROMPT = map_url_to_real(SYSTEM_PROMPT)
 
+SYSTEM_PROMPT_ROOT = (
+    SYSTEM_PROMPT + "\nYou should always call `submit_answer` with just your final answer once you are done."
+)
+
 print("========== CONFIG ==========")
 print("root engine:", root_engine.model)
 print("root ctx:", root_engine.max_context_size)
@@ -166,13 +171,16 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
     ai = Kanpai(
         root_engine=root_engine,
         delegate_engine=delegate_engine,
-        root_system_prompt=SYSTEM_PROMPT,
+        root_system_prompt=SYSTEM_PROMPT_ROOT,
         delegate_system_prompt=SYSTEM_PROMPT,
         delegation_scheme=delegation_scheme,
         tool_configs={
             WebArenaMixin: {
                 "always_include": True,
                 "kwargs": {"webarena_client": wa_client},
+            },
+            WebArenaRootMixin: {
+                "always_include_root": True,
             },
         },
         root_has_tools=root_has_tools,
@@ -190,14 +198,16 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
             log.info(event.msg)
             if event.msg.text:
                 out.append(event.msg.text)
-    wa_client.end("\n\n".join(out))
+    log.info(f"Saved answer: {ai.root_kani.answer}")
+    answer = ai.root_kani.answer or "\n\n".join(out)
+    wa_client.end(answer)
 
     # score, save trace
     score = wa_client.score()
     wa_client.maybe_save_trace(str((log_dir / str(task_id) / "webarena_trace.zip").resolve()))
 
     await ai.close()
-    return "\n\n".join(out), score, ai.logger.log_dir, config
+    return answer, "\n\n".join(out), score, ai.logger.log_dir, config
 
 
 async def run():
@@ -232,15 +242,16 @@ async def run():
             trial_config_path = wa_ensure_auth(trial_config_path)
             wa_client = WebArenaClient.setup_from_config(config_file=str(trial_config_path.resolve()), pipe=wa_send)
             # run
-            result, score, result_log_dir, wa_config = await asyncio.wait_for(
+            answer, root_output, score, result_log_dir, wa_config = await asyncio.wait_for(
                 run_one_trial(trial_config_path, wa_client), timeout=600
             )
-            log.info(result)
+            log.info(root_output)
             results_file.write(
                 json.dumps({
                     "id": task_id,
                     "score": score,
-                    "answer": result,
+                    "answer": answer,
+                    "root_output": root_output,
                     "intent": wa_config["intent"],
                     "log_dir": str(result_log_dir.resolve()),
                 })
