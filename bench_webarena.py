@@ -54,6 +54,7 @@ SKIP = 3  # 0, 812, 3 = 270 trials for small
 # ==== redel config ====
 delegation_scheme = WebArenaDelegate1Mixin
 log_dir = LOG_BASE / "test" / experiment_config
+trace_dir = LOG_BASE / "traces/test" / experiment_config
 # gross but whatever
 # - **full**: no root FC, gpt-4o everything
 if experiment_config == "full":
@@ -205,7 +206,7 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
 
     # score, save trace
     score = wa_client.score()
-    wa_client.maybe_save_trace(str((log_dir / str(task_id) / "webarena_trace.zip").resolve()))
+    wa_client.maybe_save_trace(str((trace_dir / f"{str(task_id)}.zip").resolve()))
 
     await ai.close()
     return answer, "\n\n".join(out), score, ai.logger.log_dir, config
@@ -280,4 +281,5 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.WARNING)
     log.setLevel(logging.INFO)
     log_dir.mkdir(parents=True, exist_ok=True)
+    trace_dir.mkdir(parents=True, exist_ok=True)
     asyncio.run(run())
