@@ -258,6 +258,14 @@ async def run():
             )
             results_file.write("\n")
             results_file.flush()
+        except asyncio.TimeoutError as e:
+            log.exception("TimeoutError caught - restarting WA process forcefully!!!")
+            # kill and restart the child process - asyncio timeouts/cancellation bork the multiprocessing
+            wa_process.kill()
+            wa_process.join()
+            (wa_send, wa_recv) = multiprocessing.Pipe()
+            wa_process = multiprocessing.Process(target=wa_entrypoint, args=(wa_recv,))
+            wa_process.start()
         except Exception as e:
             log.exception(e)
 
