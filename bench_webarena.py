@@ -195,11 +195,17 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
     log.info(f"Config file: {config_file}")
     log.info(f"Intent: {intent}")
     out = []
+    idx = 0
     async for event in ai.query(wa_client.get_prompt(task=intent)):
+        idx += 1
         if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
             log.info(event.msg)
             if event.msg.text:
                 out.append(event.msg.text)
+        # ping the subprocess every 20 events to ensure we don't get in a weird state where the asyncio cancel error
+        # is overwritten by a broken pipe from the subprocess shutting down
+        if not idx % 20:
+            assert wa_client.send_command("ping") == "pong"
     log.info(f"Saved answer: {ai.root_kani.answer}")
     answer = ai.root_kani.answer or "\n\n".join(out)
     wa_client.end(answer)
@@ -240,6 +246,9 @@ async def run():
         # run trial
         trial_config_path = LOG_BASE / f"config/{task_id}.json"
         try:
+            # ensure the subprocess is alive
+            wa_send.send({"cmd": "ping"})
+            assert wa_send.recv() == "pong"
             # setup webarena env for the given trial
             trial_config_path = wa_ensure_auth(trial_config_path)
             wa_client = WebArenaClient.setup_from_config(config_file=str(trial_config_path.resolve()), pipe=wa_send)

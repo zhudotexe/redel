@@ -144,6 +144,8 @@ def wa_entrypoint(pipe: "Connection"):
                     retval = state.get_score()
                 case {"cmd": "save_trace", "data": {"path": path}}:
                     retval = state.save_trace(path)
+                case {"cmd": "ping"}:
+                    retval = "pong"
                 case other:
                     print(f"!!! UNKNOWN COMMAND IN WA IPC !!!\n{other}")
                     raise ValueError("Unknown command")
