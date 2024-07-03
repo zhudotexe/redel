@@ -5,6 +5,11 @@ if TYPE_CHECKING:
     from multiprocessing.connection import Connection
 
 
+class FatalSubprocessException(BaseException):
+    # we inherit from BaseException instead of Exception to ensure this propagates up as far as we need it
+    pass
+
+
 class WebArenaClient:
     """This class provides a client for a given single run of WebArena.
 
@@ -27,12 +32,15 @@ class WebArenaClient:
 
     def send_command(self, cmd: str, **data):
         """Send a command and retrieve its response."""
-        msg = {"cmd": cmd, "data": data}
-        self.pipe.send(msg)
-        retval = self.pipe.recv()
-        if isinstance(retval, Exception):
-            raise retval
-        return retval
+        try:
+            msg = {"cmd": cmd, "data": data}
+            self.pipe.send(msg)
+            retval = self.pipe.recv()
+            if isinstance(retval, Exception):
+                raise retval
+            return retval
+        except (BrokenPipeError, EOFError):
+            raise FatalSubprocessException()
 
     # ==== api ====
     def reset(self):

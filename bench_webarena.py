@@ -29,7 +29,7 @@ from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
 from redel import Kanpai, events
-from redel.tools.webarena.client import WebArenaClient
+from redel.tools.webarena.client import FatalSubprocessException, WebArenaClient
 from redel.tools.webarena.delegate_one import WebArenaDelegate1Mixin
 from redel.tools.webarena.patches import patch_to_support_webarena
 from redel.tools.webarena.root import WebArenaRootMixin
@@ -195,17 +195,14 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
     log.info(f"Config file: {config_file}")
     log.info(f"Intent: {intent}")
     out = []
-    idx = 0
     async for event in ai.query(wa_client.get_prompt(task=intent)):
-        idx += 1
-        if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
+        # log all messages
+        if isinstance(event, events.ChatMessage):
             log.info(event.msg)
+
+        if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
             if event.msg.text:
                 out.append(event.msg.text)
-        # ping the subprocess every 20 events to ensure we don't get in a weird state where the asyncio cancel error
-        # is overwritten by a broken pipe from the subprocess shutting down
-        if not idx % 20:
-            assert wa_client.send_command("ping") == "pong"
     log.info(f"Saved answer: {ai.root_kani.answer}")
     answer = ai.root_kani.answer or "\n\n".join(out)
     wa_client.end(answer)
@@ -222,8 +219,7 @@ async def run():
     # ==== webarena setup ====
     # As the default WebArena script is incompatible with asyncio, ReDel runs WebArena as a separate process,
     # which it communicates with synchronously using a pipe.
-    # This isn't optimal but it works. [1]
-    # [1]: I don't know if it works yet.
+    # This isn't optimal but it works. Mostly.
     (wa_send, wa_recv) = multiprocessing.Pipe()
     wa_process = multiprocessing.Process(target=wa_entrypoint, args=(wa_recv,))
     wa_process.start()
@@ -269,7 +265,7 @@ async def run():
             )
             results_file.write("\n")
             results_file.flush()
-        except (asyncio.TimeoutError, EOFError, UnpicklingError, BrokenPipeError):
+        except (asyncio.TimeoutError, EOFError, UnpicklingError, BrokenPipeError, FatalSubprocessException):
             log.exception("Unrecoverable child process error caught - restarting WA process forcefully!!!")
             # kill and restart the child process - asyncio timeouts/cancellation bork the multiprocessing
             wa_process.kill()
@@ -277,6 +273,7 @@ async def run():
             (wa_send, wa_recv) = multiprocessing.Pipe()
             wa_process = multiprocessing.Process(target=wa_entrypoint, args=(wa_recv,))
             wa_process.start()
+            await asyncio.sleep(10)
         except Exception as e:
             log.exception(e)
 
