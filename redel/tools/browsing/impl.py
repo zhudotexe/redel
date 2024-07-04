@@ -11,7 +11,7 @@ from kani import ChatMessage, ChatRole, ai_function
 from kani.engines import BaseEngine
 from playwright.async_api import BrowserContext, TimeoutError as PlaywrightTimeoutError, async_playwright
 
-from redel.base_kani import BaseKani
+from redel.tools import ToolBase
 from .webutils import CHROME_UA, get_google_links, web_markdownify, web_summarize
 
 if TYPE_CHECKING:
@@ -20,22 +20,21 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-class BrowsingMixin(BaseKani):
+class BrowsingMixin(ToolBase):
     # app-global browser instance
     playwright = None
     browser = None
     browser_context = None
 
-    def __init__(self, *args, browsing_long_engine: BaseEngine, max_webpage_len: int = None, **kwargs):
+    def __init__(self, *args, long_engine: BaseEngine, max_webpage_len: int = None, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.http = httpx.AsyncClient(follow_redirects=True)
         self.page: Optional["Page"] = None
-        self.browsing_long_engine = browsing_long_engine
+        self.long_engine = long_engine
 
         # the max number of tokens before asking for a summary - default 1/3rd ctx len
         if max_webpage_len is None:
-            max_webpage_len = self.engine.max_context_size // 3
+            max_webpage_len = self.kani.engine.max_context_size // 3
         self.max_webpage_len = max_webpage_len
 
         # content handlers
@@ -169,14 +168,14 @@ class BrowsingMixin(BaseKani):
     # ==== helpers ====
     async def maybe_summarize(self, content, max_len=None):
         max_len = max_len or self.max_webpage_len
-        if self.message_token_len(ChatMessage.function("visit_page", content)) > max_len:
+        if self.kani.message_token_len(ChatMessage.function("visit_page", content)) > max_len:
             msg_ctx = "\n\n".join(
-                m.text for m in self.chat_history if m.role != ChatRole.FUNCTION and m.text is not None
+                m.text for m in self.kani.chat_history if m.role != ChatRole.FUNCTION and m.text is not None
             )
             content = await web_summarize(
                 content,
-                parent=self,
-                long_engine=self.browsing_long_engine,
+                parent=self.kani,
+                long_engine=self.long_engine,
                 task=(
                     "Keep the current context in mind:\n"
                     f"<context>\n{msg_ctx}\n</context>\n\n"

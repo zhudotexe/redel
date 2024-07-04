@@ -1,11 +1,14 @@
 import datetime
+import inspect
 import logging
 
-from kani import ChatMessage
+from kani import AIFunction, ChatMessage
 
 from .base_kani import BaseKani
+from .delegation import DelegationBase
 from .namer import Namer
-from .tool_config import ToolConfigType, get_always_included_root_types, get_always_included_types, get_tool_cls_kwargs
+from .tool_config import ToolConfigType
+from .tools import ToolBase
 
 log = logging.getLogger(__name__)
 
@@ -37,7 +40,7 @@ def get_system_prompt(kani: "BaseKani") -> str:
 
 
 # ==== implementation ====
-class ReDelBase(BaseKani):
+class ReDelKani(BaseKani):
     """Base class for recursive delegation kanis.
 
     This class should not be constructed manually - it is tightly coupled to and managed by the application.
@@ -47,46 +50,102 @@ class ReDelBase(BaseKani):
         kwargs.setdefault("retry_attempts", 10)
         super().__init__(*args, **kwargs)
         self.namer = Namer()
+        self.delegator = None
+        self.tools = []
 
+    def _register_tools(self, delegator: DelegationBase | None, tools: list[ToolBase]):
+        """Overwrite this kani's functions with the functions provided by the given delegation scheme and tools.
+
+        Should be called only once, immediately after __init__.
+        """
+        new_functions = {}
+        # find all registered ai_functions in the delegation scheme and tools and save them
+        self.delegator = delegator
+        if delegator:
+            new_functions.update(get_tool_functions(delegator))
+        self.tools = tools
+        for inst in tools:
+            new_functions.update(get_tool_functions(inst))
+        self.functions = new_functions
+
+    def get_tool(self, cls: type[ToolBase]) -> ToolBase | None:
+        """Get the tool from this kani's list of tools, or None if this kani does not have the given tool class."""
+        return next((t for t in self.tools if type(t) is cls), None)
+
+    # overrides
     async def get_prompt(self) -> list[ChatMessage]:
+        # if we have a system prompt, update it with any time/name templates
         if self.system_prompt is not None:
             self.always_included_messages[0] = ChatMessage.system(get_system_prompt(self))
         return await super().get_prompt()
 
-    # noinspection PyPep8Naming
-    async def create_delegate_kani(self):
-        # construct the type for the new delegate, TODO with the retrieved functions to use
-        always_included_mixins = get_always_included_types(self.app.tool_configs)
-        if self.depth == self.app.max_delegation_depth:
-            DelegateKani = type("DelegateKani", (*always_included_mixins, ReDelBase), {})
-        else:
-            DelegateKani = type("DelegateKani", (*always_included_mixins, ReDelBase, self.app.delegation_scheme), {})
-
-        # then create an instance of that type
+    async def create_delegate_kani(self, instructions: str):
+        # create the new instance
         name = self.namer.get_name()
-        return DelegateKani(
+        kani_inst = ReDelKani(
             self.app.delegate_engine,
             # app args
             app=self.app,
             parent=self,
             name=name,
+            dispatch_creation=False,
             # kani args
             system_prompt=self.app.delegate_system_prompt,
             **self.app.delegate_kani_kwargs,
-            # tool args
-            **get_tool_cls_kwargs(self.app.tool_configs, DelegateKani.__bases__),
         )
+
+        # set up tools
+        # delegation
+        if self.app.delegation_scheme is None or self.depth == self.app.max_delegation_depth:
+            delegation_scheme_inst = None
+        else:
+            delegation_scheme_inst = self.app.delegation_scheme(app=self.app, kani=kani_inst)
+        # tools, TODO with the retrieved functions to use
+        tool_insts = []
+        for t, config in self.app.tool_configs.items():
+            if config.get("always_include", False):
+                tool_insts.append(t(app=self.app, kani=kani_inst, **config.get("kwargs", {})))
+
+        # noinspection PyProtectedMember
+        kani_inst._register_tools(delegator=delegation_scheme_inst, tools=tool_insts)
+        self.app.on_kani_creation(kani_inst)
+        return kani_inst
 
 
 def create_root_kani(
-    *args, delegation_scheme: type | None, tool_configs: ToolConfigType, root_has_tools: bool, **kwargs
-) -> ReDelBase:
+    *args,
+    app,
+    delegation_scheme: type[DelegationBase] | None,
+    tool_configs: ToolConfigType,
+    root_has_tools: bool,
+    **kwargs,
+) -> ReDelKani:
     """Create the root kani for the kani delegation tree."""
-    bases = (ReDelBase, delegation_scheme) if delegation_scheme is not None else (ReDelBase,)
-    always_included_mixins = get_always_included_types(tool_configs)
-    always_included_root_mixins = get_always_included_root_types(tool_configs)
-    if root_has_tools:
-        t = type("RootKani", (*always_included_mixins, *always_included_root_mixins, *bases), {})
+    kani_inst = ReDelKani(*args, app=app, dispatch_creation=False, **kwargs)
+    # delegation
+    if delegation_scheme:
+        delegation_scheme_inst = delegation_scheme(app=app, kani=kani_inst)
     else:
-        t = type("RootKani", (*always_included_root_mixins, *bases), {})
-    return t(*args, **kwargs, **get_tool_cls_kwargs(tool_configs, t.__bases__))
+        delegation_scheme_inst = None
+    # tools
+    tool_insts = []
+    for t, config in tool_configs.items():
+        if config.get("always_include_root", False) or (config.get("always_include", False) and root_has_tools):
+            tool_insts.append(t(app=app, kani=kani_inst, **config.get("kwargs", {})))
+
+    # noinspection PyProtectedMember
+    kani_inst._register_tools(delegator=delegation_scheme_inst, tools=tool_insts)
+    app.on_kani_creation(kani_inst)
+    return kani_inst
+
+
+def get_tool_functions(inst: ToolBase) -> dict[str, AIFunction]:
+    functions = {}
+    for name, member in inspect.getmembers(inst, predicate=inspect.ismethod):
+        if not hasattr(member, "__ai_function__"):
+            continue
+        f = AIFunction(member, **member.__ai_function__)
+        if f.name in functions:
+            raise ValueError(f"AIFunction {f.name!r} is already registered!")
+        functions[f.name] = f
+    return functions

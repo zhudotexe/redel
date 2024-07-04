@@ -5,9 +5,10 @@ from email.message import EmailMessage
 from kani import ai_function
 
 from redel.config import EMAIL_FROM, EMAIL_HOST, EMAIL_PASS
+from ._base import ToolBase
 
 
-class EmailMixin:
+class EmailMixin(ToolBase):
     @ai_function()
     def send_email(self, to: str, subject: str, body: str):
         """Send an email to the given address."""
