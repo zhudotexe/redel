@@ -9,13 +9,17 @@ from pathlib import Path
 
 from redel.utils import read_jsonl
 
+EXPECTED = 271
+
 
 def score_submission(fp: Path):
     """Read in the results file and return the proportion of successful runs."""
     results = list(read_jsonl(fp))
     split = fp.parent.name
-    score = sum(r["score"] for r in results) / len(results)
-    print(f"{split}: {score}")
+    total = sum(r["score"] for r in results)
+    n_success = len(results)
+    score = total / EXPECTED
+    print(f"{split}: {score} -- {int(total)} / {EXPECTED} ({n_success} / {EXPECTED} result rows)")
 
 
 async def main():
