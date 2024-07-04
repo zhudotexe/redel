@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 from kani import AIParam, ai_function
 
-from redel.base_kani import BaseKani
+from redel.tools import ToolBase
 
 TRAVELPLANNER_DB_PATH = Path(__file__).parent / "db"
 
@@ -26,7 +26,7 @@ class GDMTransportationMethod(enum.Enum):
     taxi = "taxi"
 
 
-class TravelPlannerMixin(BaseKani):
+class TravelPlannerMixin(ToolBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.flight_data = pd.read_csv(TRAVELPLANNER_DB_PATH / "flights/clean_Flights_2022.csv").dropna()[[

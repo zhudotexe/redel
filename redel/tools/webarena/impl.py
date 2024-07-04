@@ -16,7 +16,7 @@ from browser_env import (
 )
 from kani import ChatMessage, ChatRole, ai_function
 
-from redel.base_kani import BaseKani
+from redel.tools import ToolBase
 from .client import WebArenaClient
 from .utils import map_url_to_local
 
@@ -26,23 +26,29 @@ class ScrollDirection(enum.Enum):
     down = "down"
 
 
-class WebArenaMixin(BaseKani):
+class WebArenaMixin(ToolBase):
     def __init__(self, *args, webarena_client: WebArenaClient, **kwargs):
         super().__init__(*args, **kwargs)
         self.webarena = webarena_client
+        self.monkey_patch()
 
     def take_action(self, action: Action):
         """Send the action to the WA harness and return the updated prompt."""
         self.webarena.action(action)
-        return self.webarena.get_prompt(task=self.last_user_message.text)
+        return self.webarena.get_prompt(task=self.kani.last_user_message.text)
 
-    async def add_to_history(self, message: ChatMessage):
-        # HACK: if the message is a USER message and does not contain the webarena state prompt,
-        # prepend it here
-        # this is used to ensure that messages sent to the delegates allow them to see the state
-        if message.role == ChatRole.USER and not message.text.startswith("BROWSER STATE:"):
-            message.content = self.webarena.get_prompt(task=message.text)
-        return await super().add_to_history(message)
+    def monkey_patch(self):
+        _original_add_to_history = self.kani.add_to_history
+
+        async def add_to_history(_kani_inst, message: ChatMessage):
+            # HACK: if the message is a USER message and does not contain the webarena state prompt,
+            # prepend it here
+            # this is used to ensure that messages sent to the delegates allow them to see the state
+            if message.role == ChatRole.USER and not message.text.startswith("BROWSER STATE:"):
+                message.content = self.webarena.get_prompt(task=message.text)
+            return await _original_add_to_history(message)
+
+        self.kani.add_to_history = add_to_history
 
     # action definitions taken from
     # https://github.com/web-arena-x/webarena/blob/4c741b4b20a3e183836e58f383f9be1785248160/agent/prompts/raw/p_cot_id_actree_2s.py#L14

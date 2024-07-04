@@ -1,24 +1,20 @@
 import logging
-from abc import abstractmethod
 from typing import Annotated
 
 from kani import AIParam, ChatRole, ai_function
 from rapidfuzz import fuzz
 
-from redel.base_kani import BaseKani
+from redel.delegation import DelegationBase
 from redel.state import RunState
 
 log = logging.getLogger(__name__)
 
 
-class WebArenaDelegate1Mixin(BaseKani):
+class WebArenaDelegate1Mixin(DelegationBase):
     """This is mostly a clone of normal Delegate1Mixin but with the following changes:
     - 20 max function rounds (up from 5)
     - delegate() prompt mentions that child can see browser
     """
-    @abstractmethod
-    async def create_delegate_kani(self) -> BaseKani:
-        raise NotImplementedError
 
     @ai_function()
     async def delegate(
@@ -32,17 +28,17 @@ class WebArenaDelegate1Mixin(BaseKani):
         """
         log.info(f"Delegated with instructions: {instructions}")
         # if the instructions are >80% the same as the current goal, bonk
-        if self.last_user_message and fuzz.ratio(instructions, self.last_user_message.content) > 80:
+        if self.kani.last_user_message and fuzz.ratio(instructions, self.kani.last_user_message.content) > 80:
             return (
                 "You shouldn't delegate the entire task to a helper. Handle it yourself, or if it's still too complex,"
                 " try breaking it up into smaller steps and call this again."
             )
 
         # wait for child
-        helper = await self.create_delegate_kani()
-        with self.run_state(RunState.WAITING):
+        helper = await self.create_delegate_kani(instructions)
+        with self.kani.run_state(RunState.WAITING):
             result = []
-            async for stream in helper.full_round_stream(instructions, max_function_rounds=20):  # TODO temp
+            async for stream in helper.full_round_stream(instructions, max_function_rounds=20):
                 msg = await stream.message()
                 log.info(msg)
                 if msg.role == ChatRole.ASSISTANT and msg.content:
