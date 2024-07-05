@@ -47,7 +47,7 @@ experiment_config = sys.argv[-1]
 log = logging.getLogger("bench_webarena")
 
 # ==== webarena config ====
-START_IDX = 0
+START_IDX = 600
 END_IDX = 812
 SKIP = 3  # 0, 812, 3 = 270 trials for small
 
