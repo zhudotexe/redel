@@ -182,3 +182,8 @@ Finally, run the bench script:
 ```shell
 python bench_webarena.py <full|root-fc|baseline|small-leaf|small-all|small-baseline|short-context|short-baseline>
 ```
+
+## License
+
+We release ReDel under the terms of the MIT license, included in `LICENSE`. ReDel is intended for academic and personal
+use only. To use ReDel for commercial purposes, please contact us.
