@@ -59,6 +59,7 @@ class Kanpai:
         title: str = None,
         log_dir: Path = None,
         clear_existing_log: bool = False,
+        session_id: str = None,
     ):
         """
         :param root_engine: The engine to use for the root kani. Requires function calling. (default: gpt-4o)
@@ -79,6 +80,8 @@ class Kanpai:
         :param log_dir: A path to a directory to save logs for this session. Defaults to ``.kanpai/{session_id}/``.
         :param clear_existing_log: If the log directory has existing events, clear them before writing new events.
             Otherwise, append to existing events.
+        :param session_id: The ID of this session. Generally this should not be set manually; it is used for loading
+            previous states.
         """
         if root_engine is None:
             root_engine = default_engine()
@@ -112,7 +115,7 @@ class Kanpai:
         self.event_queue = asyncio.Queue()
         self.dispatch_task = None
         # state
-        self.session_id = f"{int(time.time())}-{uuid.uuid4()}"
+        self.session_id = session_id or f"{int(time.time())}-{uuid.uuid4()}"
         if title is AUTOGENERATE_TITLE:
             self.title = None
             self.add_listener(self.create_title_listener)
@@ -158,6 +161,7 @@ class Kanpai:
                 log.exception("Error in chat_from_queue:")
             finally:
                 self.dispatch(events.RoundComplete(session_id=self.session_id))
+                await self.logger.write_state()  # autosave
 
     async def chat_in_terminal(self):
         await self.ensure_init()
@@ -168,6 +172,7 @@ class Kanpai:
                 await self.close()
             finally:
                 self.dispatch(events.RoundComplete(session_id=self.session_id))
+                await self.logger.write_state()  # autosave
 
     async def query(self, query: str) -> AsyncIterable[events.BaseEvent]:
         """Run one round with the given query.
@@ -188,6 +193,7 @@ class Kanpai:
                     pass
             finally:
                 self.dispatch(events.RoundComplete(session_id=self.session_id))
+                await self.logger.write_state()  # autosave
 
         task = asyncio.create_task(_task())
 
