@@ -10,6 +10,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from kani.engines.anthropic import AnthropicEngine
+from kani.engines.openai import OpenAIEngine
 from kani.ext.ratelimits import RatelimitedEngine
 from pydantic import BaseModel
 
@@ -20,6 +21,7 @@ from redel.tools.browsing import BrowsingMixin
 
 log = logging.getLogger("viz-app")
 
+engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
 long_engine = RatelimitedEngine(
     AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
 )
@@ -38,10 +40,12 @@ async def lifespan(_: FastAPI):
 class KanpaiManager:
     def __init__(self):
         self.kanpai_app = Kanpai(
+            root_engine=engine,
+            delegate_engine=engine,
             tool_configs={
                 BrowsingMixin: {
                     "always_include": True,
-                    "kwargs": {"browsing_long_engine": long_engine},
+                    "kwargs": {"long_engine": long_engine},
                 },
             }
         )

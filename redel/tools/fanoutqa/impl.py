@@ -1,10 +1,10 @@
-from typing import Literal, TypedDict
+from typing import Literal
 
 import fanoutqa
 from kani import ChatMessage, ai_function
 
-from redel.base_kani import BaseKani
 from redel.events import BaseEvent
+from redel.tools import ToolBase
 from .retrieval import BM25Corpus, OpenAICorpus
 
 
@@ -32,23 +32,16 @@ class FOQARetrievalType(BaseEvent):
     retrieval_type: str  # full_doc_short, full_doc_long, bm25, embedding
 
 
-# config
-class FanOutQAConfig(TypedDict, total=False):
-    retrieval_type: Literal["bm25", "openai"]
-
-
-# ai function
-class FanOutQAMixin(BaseKani):
-    def __init__(self, *args, foqa_config: FanOutQAConfig = None, **kwargs):
+# ai functions
+class FanOutQAMixin(ToolBase):
+    def __init__(self, *args, retrieval_type: Literal["bm25", "openai"] = "bm25", **kwargs):
         super().__init__(*args, **kwargs)
-        if foqa_config is None:
-            foqa_config = {}
-        self.retrieval_type = foqa_config.get("retrieval_type", "bm25")
+        self.retrieval_type = retrieval_type
 
     @property
     def max_search_tokens(self):
         # trial2: engine's max ctx size / (# of parallel fcs + 1)
-        return self.engine.max_context_size // (len(self.last_assistant_message.tool_calls) + 1)
+        return self.kani.engine.max_context_size // (len(self.kani.last_assistant_message.tool_calls) + 1)
         # trial1: half engine's max ctx size
         # return self.engine.max_context_size // 2
 
@@ -72,7 +65,7 @@ class FanOutQAMixin(BaseKani):
         prompt = f"<document>\n<title>{found_article.title}</title>\n{{}}</document>"
         self.app.dispatch(
             FOQAArticleRetrieved(
-                id=self.id,
+                id=self.kani.id,
                 article_title=found_article.title,
                 article_pageid=found_article.pageid,
                 article_revid=found_article.revid,
@@ -82,10 +75,10 @@ class FanOutQAMixin(BaseKani):
         # if the content fits in the context, return that
         wiki_content = fanoutqa.wiki_content(found_article)
         full_content = prompt.format(f"<content>\n{wiki_content}\n</content>\n")
-        if (retrieved_tokens := self.message_token_len(ChatMessage.user(full_content))) <= self.max_search_tokens:
+        if (retrieved_tokens := self.kani.message_token_len(ChatMessage.user(full_content))) <= self.max_search_tokens:
             self.app.dispatch(
                 FOQARetrievalType(
-                    id=self.id,
+                    id=self.kani.id,
                     retrieval_type="full_doc_short",
                     retrieved_tokens=retrieved_tokens,
                     max_search_tokens=self.max_search_tokens,
@@ -98,22 +91,22 @@ class FanOutQAMixin(BaseKani):
             corpus = BM25Corpus([found_article], doc_len=1024)
         else:
             corpus = OpenAICorpus([found_article], doc_len=1024, embedding_model="text-embedding-3-small")
-        user_query = self.last_user_message.text
+        user_query = self.kani.last_user_message.text
         retrieved_docs = []
         for doc in corpus.best(user_query):
             formatted = f"<fragment>\n{doc.content}\n</fragment>\n"
             content = prompt.format("".join(retrieved_docs) + formatted)
-            doc_len = self.engine.message_len(ChatMessage.user(content))
+            doc_len = self.kani.engine.message_len(ChatMessage.user(content))
             if doc_len > self.max_search_tokens:
                 break
             retrieved_docs.append(formatted)
 
         # return
         out = prompt.format("".join(retrieved_docs))
-        retrieved_tokens = self.engine.message_len(ChatMessage.user(out))
+        retrieved_tokens = self.kani.engine.message_len(ChatMessage.user(out))
         self.app.dispatch(
             FOQARetrievalType(
-                id=self.id,
+                id=self.kani.id,
                 retrieval_type=self.retrieval_type,
                 retrieved_tokens=retrieved_tokens,
                 max_search_tokens=self.max_search_tokens,

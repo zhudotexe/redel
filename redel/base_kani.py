@@ -18,7 +18,16 @@ if TYPE_CHECKING:
 class BaseKani(Kani):
     """Base class for all kani in the application, regardless of recursive delegation."""
 
-    def __init__(self, *args, app: "Kanpai", parent: "BaseKani" = None, id: str = None, name: str = None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        app: "Kanpai",
+        parent: "BaseKani" = None,
+        id: str = None,
+        name: str = None,
+        dispatch_creation: bool = True,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self.state = RunState.STOPPED
         self._old_state_stack = []
@@ -33,7 +42,8 @@ class BaseKani(Kani):
         self.id = create_kani_id() if id is None else id
         self.name = self.id if name is None else name
         self.app = app
-        app.on_kani_creation(self)
+        if dispatch_creation:
+            app.on_kani_creation(self)
 
     # ==== overrides ====
     async def get_model_completion(self, include_functions: bool = True, **kwargs) -> BaseCompletion:
@@ -111,10 +121,12 @@ class BaseKani(Kani):
     # ==== utils ====
     @property
     def last_user_message(self) -> ChatMessage | None:
+        """The most recent USER message in this kani's chat history, if one exists."""
         return next((m for m in reversed(self.chat_history) if m.role == ChatRole.USER), None)
 
     @property
     def last_assistant_message(self) -> ChatMessage | None:
+        """The most recent ASSISTANT message in this kani's chat history, if one exists."""
         return next((m for m in reversed(self.chat_history) if m.role == ChatRole.ASSISTANT), None)
 
     def get_save_state(self) -> KaniState:

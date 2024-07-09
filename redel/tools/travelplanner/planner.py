@@ -2,10 +2,10 @@ from typing import Annotated
 
 from kani import AIParam, ai_function
 
-from redel.base_kani import BaseKani
+from redel.tools import ToolBase
 
 
-class TravelPlannerRootMixin(BaseKani):
+class TravelPlannerRootMixin(ToolBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.current_plan = []

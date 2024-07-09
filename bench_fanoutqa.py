@@ -27,7 +27,7 @@ from kani.engines.openai import OpenAIEngine
 
 from redel import Kanpai, events
 from redel.delegation.delegate_one import Delegate1Mixin
-from redel.tools.fanoutqa.impl import FanOutQAConfig, FanOutQAMixin
+from redel.tools.fanoutqa.impl import FanOutQAMixin
 from redel.utils import read_jsonl
 
 LOG_BASE = Path(__file__).parent / "experiments/fanoutqa"
@@ -107,7 +107,7 @@ async def query(q: DevQuestion | TestQuestion):
         tool_configs={
             FanOutQAMixin: {
                 "always_include": True,
-                "kwargs": {"foqa_config": FanOutQAConfig(retrieval_type="openai")},
+                "kwargs": {"retrieval_type": "openai"},
             },
         },
         root_has_tools=root_has_tools,

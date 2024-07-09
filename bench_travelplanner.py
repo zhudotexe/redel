@@ -106,7 +106,6 @@ async def query(q: dict, qid: str):
         clear_existing_log=True,
     )
 
-    # todo
     out = []
     async for event in ai.query(q["query"]):
         if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
@@ -114,8 +113,10 @@ async def query(q: dict, qid: str):
             if event.msg.text:
                 out.append(event.msg.text)
 
+    plan = ai.root_kani.get_tool(TravelPlannerRootMixin).current_plan
+
     await ai.close()
-    return "\n\n".join(out), ai.root_kani.current_plan, ai.logger.log_dir
+    return "\n\n".join(out), plan, ai.logger.log_dir
 
 
 async def run():

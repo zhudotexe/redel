@@ -61,8 +61,8 @@ class Kanpai:
         clear_existing_log: bool = False,
     ):
         """
-        :param root_engine: The engine to use for the root kani. Requires function calling. (default: gpt-4)
-        :param delegate_engine: The engine to use for each delegate kani. Requires function calling. (default: gpt-4)
+        :param root_engine: The engine to use for the root kani. Requires function calling. (default: gpt-4o)
+        :param delegate_engine: The engine to use for each delegate kani. Requires function calling. (default: gpt-4o)
         :param root_system_prompt: The system prompt for the root kani. See ``redel.kanis`` for default.
         :param root_kani_kwargs: Additional keyword args to pass to :class:``kani.Kani``.
         :param delegate_system_prompt: The system prompt for the each delegate kani. See ``redel.kanis`` for default.
@@ -126,11 +126,11 @@ class Kanpai:
         self.root_kani = create_root_kani(
             self.root_engine,
             # create_root_kani args
+            app=self,
             delegation_scheme=delegation_scheme,
             tool_configs=tool_configs,
             root_has_tools=root_has_tools,
             # BaseKani args
-            app=self,
             name="kanpai",
             # Kani args
             system_prompt=root_system_prompt,
