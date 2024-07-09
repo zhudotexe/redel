@@ -110,6 +110,9 @@ class Kanpai:
         self.tool_configs = tool_configs
         self.root_has_tools = root_has_tools
 
+        # internals
+        self._init_lock = asyncio.Lock()
+
         # events
         self.listeners = []
         self.event_queue = asyncio.Queue()
@@ -126,23 +129,27 @@ class Kanpai:
         self.add_listener(self.logger.log_event)
         # kanis
         self.kanis = WeakValueDictionary()
-        self.root_kani = create_root_kani(
-            self.root_engine,
-            # create_root_kani args
-            app=self,
-            delegation_scheme=delegation_scheme,
-            tool_configs=tool_configs,
-            root_has_tools=root_has_tools,
-            # BaseKani args
-            name="kanpai",
-            # Kani args
-            system_prompt=root_system_prompt,
-            **root_kani_kwargs,
-        )
+        self.root_kani = None
 
     async def ensure_init(self):
-        if self.dispatch_task is None:
-            self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="kanpai-dispatch")
+        """Called at least once before any messaging happens. Used to do async init. Must be idempotent."""
+        async with self._init_lock:  # lock in case of parallel calls - no double creation
+            if self.root_kani is None:
+                self.root_kani = await create_root_kani(
+                    self.root_engine,
+                    # create_root_kani args
+                    app=self,
+                    delegation_scheme=self.delegation_scheme,
+                    tool_configs=self.tool_configs,
+                    root_has_tools=self.root_has_tools,
+                    # BaseKani args
+                    name="kanpai",
+                    # Kani args
+                    system_prompt=self.root_system_prompt,
+                    **self.root_kani_kwargs,
+                )
+            if self.dispatch_task is None:
+                self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="kanpai-dispatch")
 
     # === entrypoints ===
     async def chat_from_queue(self, q: asyncio.Queue):

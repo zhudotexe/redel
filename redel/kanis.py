@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import inspect
 import logging
@@ -72,13 +73,6 @@ class ReDelKani(BaseKani):
         """Get the tool from this kani's list of tools, or None if this kani does not have the given tool class."""
         return next((t for t in self.tools if type(t) is cls), None)
 
-    # overrides
-    async def get_prompt(self) -> list[ChatMessage]:
-        # if we have a system prompt, update it with any time/name templates
-        if self.system_prompt is not None:
-            self.always_included_messages[0] = ChatMessage.system(get_system_prompt(self))
-        return await super().get_prompt()
-
     async def create_delegate_kani(self, instructions: str):
         # create the new instance
         name = self.namer.get_name()
@@ -108,11 +102,33 @@ class ReDelKani(BaseKani):
 
         # noinspection PyProtectedMember
         kani_inst._register_tools(delegator=delegation_scheme_inst, tools=tool_insts)
+        if delegation_scheme_inst:
+            await delegation_scheme_inst.setup()
+        await asyncio.gather(*(t.setup() for t in tool_insts))
         self.app.on_kani_creation(kani_inst)
         return kani_inst
 
+    # overrides
+    async def get_prompt(self) -> list[ChatMessage]:
+        # if we have a system prompt, update it with any time/name templates
+        if self.system_prompt is not None:
+            self.always_included_messages[0] = ChatMessage.system(get_system_prompt(self))
+        return await super().get_prompt()
 
-def create_root_kani(
+    async def cleanup(self):
+        if self.delegator:
+            await self.delegator.cleanup()
+        await asyncio.gather(*(t.cleanup() for t in self.tools))
+        await super().cleanup()
+
+    async def close(self):
+        if self.delegator:
+            await self.delegator.close()
+        await asyncio.gather(*(t.close() for t in self.tools))
+        await super().close()
+
+
+async def create_root_kani(
     *args,
     app,
     delegation_scheme: type[DelegationBase] | None,
@@ -135,6 +151,9 @@ def create_root_kani(
 
     # noinspection PyProtectedMember
     kani_inst._register_tools(delegator=delegation_scheme_inst, tools=tool_insts)
+    if delegation_scheme_inst:
+        await delegation_scheme_inst.setup()
+    await asyncio.gather(*(t.setup() for t in tool_insts))
     app.on_kani_creation(kani_inst)
     return kani_inst
 
