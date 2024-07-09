@@ -182,7 +182,7 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
             },
             WebArenaRootMixin: {
                 "always_include_root": True,
-                "kwargs": {"webarena_client_root": wa_client},
+                "kwargs": {"webarena_client": wa_client},
             },
         },
         root_has_tools=root_has_tools,

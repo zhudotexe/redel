@@ -48,7 +48,7 @@ class WebArenaMixin(ToolBase):
                 message.content = self.webarena.get_prompt(task=message.text)
             return await _original_add_to_history(message)
 
-        self.kani.add_to_history = add_to_history
+        self.kani.add_to_history = add_to_history.__get__(self.kani)
 
     # action definitions taken from
     # https://github.com/web-arena-x/webarena/blob/4c741b4b20a3e183836e58f383f9be1785248160/agent/prompts/raw/p_cot_id_actree_2s.py#L14

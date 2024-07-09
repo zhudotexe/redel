@@ -30,7 +30,7 @@ class WebArenaRootMixin(ToolBase):
                 message.content = f"{browser_content}\nRESULT: {message.text}"
             return await _original_add_to_history(message)
 
-        self.kani.add_to_history = add_to_history
+        self.kani.add_to_history = add_to_history.__get__(self.kani)
 
     @ai_function()
     def submit_answer(self, answer: str = None):
