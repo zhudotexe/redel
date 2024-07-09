@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import pathlib
@@ -24,10 +23,9 @@ class EventLogger:
         self.session_id = session_id
         self.log_dir = log_dir or (DEFAULT_LOG_DIR / session_id)
         self.log_dir.mkdir(exist_ok=True)
-        self._save_lock = asyncio.Lock()
 
         if clear_existing_log:
-            self.event_file = open(self.log_dir / f"events.jsonl", "w")
+            self.event_file = open(self.log_dir / f"events.jsonl", "w", buffering=1)
             self.event_count = Counter()
         else:
             aof_path = self.log_dir / f"events.jsonl"
@@ -36,11 +34,12 @@ class EventLogger:
                 self.event_count = Counter(event["type"] for event in existing_events)
             else:
                 self.event_count = Counter()
-            self.event_file = open(aof_path, "a")
+            self.event_file = open(aof_path, "a", buffering=1)
 
     async def log_event(self, event: events.BaseEvent):
         if not event.__log_event__:
             return
+        # since this is a synch operation we don't need a lock here (though it is thread-unsafe)
         self.event_file.write(event.model_dump_json())
         self.event_file.write("\n")
         self.event_count[event.type] += 1
@@ -55,9 +54,8 @@ class EventLogger:
             "n_events": self.event_count.total(),
             "state": state,
         }
-        async with self._save_lock:
-            with open(self.log_dir / "state.json", "w") as f:
-                json.dump(data, f, indent=2)
+        with open(self.log_dir / "state.json", "w") as f:
+            json.dump(data, f, indent=2)
 
     async def close(self):
         await self.write_state()
