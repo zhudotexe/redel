@@ -24,17 +24,19 @@ class EventLogger:
         self.log_dir = log_dir or (DEFAULT_LOG_DIR / session_id)
         self.log_dir.mkdir(exist_ok=True)
 
+        self.aof_path = self.log_dir / "events.jsonl"
+        self.state_path = self.log_dir / "state.json"
+
         if clear_existing_log:
-            self.event_file = open(self.log_dir / f"events.jsonl", "w", buffering=1)
+            self.event_file = open(self.aof_path, "w", buffering=1)
             self.event_count = Counter()
         else:
-            aof_path = self.log_dir / f"events.jsonl"
-            if aof_path.exists():
-                existing_events = read_jsonl(self.log_dir / f"events.jsonl")
+            if self.aof_path.exists():
+                existing_events = read_jsonl(self.aof_path)
                 self.event_count = Counter(event["type"] for event in existing_events)
             else:
                 self.event_count = Counter()
-            self.event_file = open(aof_path, "a", buffering=1)
+            self.event_file = open(self.aof_path, "a", buffering=1)
 
     async def log_event(self, event: events.BaseEvent):
         if not event.__log_event__:
@@ -54,7 +56,7 @@ class EventLogger:
             "n_events": self.event_count.total(),
             "state": state,
         }
-        with open(self.log_dir / "state.json", "w") as f:
+        with open(self.state_path, "w") as f:
             json.dump(data, f, indent=2)
 
     async def close(self):
