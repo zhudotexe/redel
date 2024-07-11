@@ -4,7 +4,7 @@ Visualized UI for interacting with kanpai.
 
 import logging
 
-from server.app import VizServer
+from server import VizServer
 
 server = VizServer()
 
