@@ -5,16 +5,15 @@ import AssistantThinking from "@/components/messages/AssistantThinking.vue";
 import FunctionMessage from "@/components/messages/FunctionMessage.vue";
 import SystemMessage from "@/components/messages/SystemMessage.vue";
 import UserMessage from "@/components/messages/UserMessage.vue";
-import type { KanpaiClient } from "@/kanpai/client";
-import { ChatRole, RunState } from "@/kanpai/models";
-import type { KaniState } from "@/kanpai/state";
+import { ChatRole, type KaniState, RunState } from "@/kanpai/models";
+import type { ReDelState } from "@/kanpai/state";
 import { computed, inject, ref } from "vue";
 
 const props = defineProps<{
   kani: KaniState;
 }>();
 
-const client = inject<KanpaiClient>("client")!;
+const state = inject<ReDelState>("state")!;
 const chatHistory = ref<HTMLElement | null>(null);
 
 function scrollChatToBottom() {
@@ -23,7 +22,7 @@ function scrollChatToBottom() {
 }
 
 const streamBuffer = computed(() => {
-  return client.streamMap.get(props.kani.id);
+  return state.streamMap.get(props.kani.id);
 });
 
 defineExpose({ scrollChatToBottom });

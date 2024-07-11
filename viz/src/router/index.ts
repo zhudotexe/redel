@@ -1,4 +1,5 @@
 import Home from "@/views/Home.vue";
+import Interactive from "@/views/Interactive.vue";
 import NotFound from "@/views/NotFound.vue";
 import { nextTick } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
@@ -7,6 +8,7 @@ const DEFAULT_TITLE = "viz";
 
 const routes = [
   { path: "/", name: "Home", component: Home },
+  { path: "/interactive/test", name: "Interactive", component: Interactive },
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",

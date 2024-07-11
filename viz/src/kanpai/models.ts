@@ -1,5 +1,3 @@
-import type { KaniState } from "@/kanpai/state";
-
 // ===== kani models =====
 export enum ChatRole {
   system = "system",
@@ -34,40 +32,81 @@ export interface ChatMessage {
   tool_calls: ToolCall[] | null;
 }
 
-// ===== kanpai ws =====
-export interface WSMessage {
+// from redel.state
+export interface KaniState {
+  id: string;
+  depth: number;
+  parent: string | null;
+  children: string[];
+  always_included_messages: ChatMessage[];
+  chat_history: ChatMessage[];
+  state: RunState;
+  name: string;
+  engine_type: string;
+  engine_repr: string;
+  functions: AIFunctionState[];
+}
+
+export interface AIFunctionState {
+  name: string;
+  desc: string;
+  auto_retry: boolean;
+  auto_truncate: number | null;
+  after: ChatRole;
+  json_schema: object;
+}
+
+// from server.models
+export interface SessionMeta {
+  id: string;
+  title: string | null;
+  last_modified: number;
+  n_events: number;
+}
+
+export interface SaveMeta extends SessionMeta {
+  state_fp: string;
+  event_fp: string;
+}
+
+export interface SessionState extends SessionMeta {
+  state: KaniState[];
+}
+
+// ===== kanpai events =====
+export interface BaseEvent {
   type: string;
 }
 
 // ---- server events ----
-export interface WSError extends WSMessage {
+export interface WSError extends BaseEvent {
   msg: string;
 }
 
-export interface KaniSpawn extends WSMessage, KaniState {}
+export interface KaniSpawn extends BaseEvent, KaniState {}
 
-export interface KaniStateChange extends WSMessage {
+export interface KaniStateChange extends BaseEvent {
   id: string;
   state: RunState;
 }
 
-export interface KaniMessage extends WSMessage {
+export interface KaniMessage extends BaseEvent {
   id: string;
   msg: ChatMessage;
 }
 
-export interface RootMessage extends WSMessage {
+export interface RootMessage extends BaseEvent {
   msg: ChatMessage;
 }
 
-export interface StreamDelta extends WSMessage {
+export interface StreamDelta extends BaseEvent {
   id: string;
   delta: string;
   role: ChatRole;
 }
 
 // ---- client events ----
-export interface SendMessage extends WSMessage {
+export interface SendMessage extends BaseEvent {
   type: "send_message";
   content: string;
 }

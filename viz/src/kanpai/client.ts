@@ -1,40 +1,40 @@
-import type {
-  ChatMessage,
-  KaniMessage,
-  KaniSpawn,
-  KaniStateChange,
-  RootMessage,
-  SendMessage,
-  StreamDelta,
-  WSMessage,
-} from "@/kanpai/models";
+import type { BaseEvent, ChatMessage, RootMessage, SendMessage, SessionState } from "@/kanpai/models";
 import { ChatRole } from "@/kanpai/models";
-import type { AppState, KaniState } from "@/kanpai/state";
+import { ReDelState } from "@/kanpai/state";
 import axios from "axios";
 
 const API_BASE = "http://127.0.0.1:8000/api";
-const WS_URL = "ws://127.0.0.1:8000/api/ws";
+const WS_BASE = "ws://127.0.0.1:8000/api/ws";
 
-export class KanpaiClient {
-  // ws state
+/**
+ * API client to handle interactive session with the backend.
+ */
+export class InteractiveClient {
+  state: ReDelState;
+  sessionId: string;
+
+  // ws
   ws: WebSocket | null = null;
   isWSConnecting = false;
   isWSDisconnected = false;
-
-  // kanis
-  rootMessages: ChatMessage[] = [];
-  rootKani?: KaniState;
-  kaniMap: Map<string, KaniState> = new Map<string, KaniState>();
-  streamMap: Map<string, string> = new Map<string, string>();
 
   // events
   events = new EventTarget();
   isReady: boolean = false;
 
+  public constructor(sessionId: string, startState?: ReDelState) {
+    this.sessionId = sessionId;
+    if (startState) {
+      this.state = startState;
+    } else {
+      this.state = new ReDelState();
+    }
+  }
+
   // ==== lifecycle ====
-  public init() {
+  public connect() {
     this.ws?.close(1000);
-    this.ws = new WebSocket(WS_URL);
+    this.ws = new WebSocket(`${WS_BASE}/${this.sessionId}`);
     this.isWSConnecting = true;
     this.ws.addEventListener("open", () => this.onWSOpen());
     this.ws.addEventListener("close", (event) => this.onWSClose(event));
@@ -49,79 +49,22 @@ export class KanpaiClient {
   // ==== API ====
   public async getState() {
     try {
-      this.kaniMap.clear();
-      const response = await axios.get<AppState>(`${API_BASE}/state`);
-      // const response = { data: testAppState2 }; // todo comment to use real data
-      // hydrate the app state
-      for (const kani of response.data.kanis) {
-        this.kaniMap.set(kani.id, kani);
-        // also set up the root chat state
-        if (kani.parent === null) {
-          this.rootKani = kani;
-          // ensure it is a copy
-          this.rootMessages = [...kani.chat_history];
-        }
-      }
+      const response = await axios.get<SessionState>(`${API_BASE}/states/${this.sessionId}`);
+      this.state.loadSessionState(response.data);
       // notify ready
       this.isReady = true;
       this.events.dispatchEvent(new Event("_ready"));
-      console.debug(`Loaded ${this.kaniMap.size} kani states.`);
+      console.debug(`Loaded ${this.state.kaniMap.size} kani states.`);
+      return { success: true };
     } catch (error) {
-      console.error("Failed to get app state:", error);
+      console.error("Failed to get session state:", error);
+      return { success: false, error };
     }
   }
 
   public sendMessage(msg: string) {
     const payload: SendMessage = { type: "send_message", content: msg };
     this.ws?.send(JSON.stringify(payload));
-  }
-
-  // ==== ws event handlers ====
-  onKaniSpawn(data: KaniSpawn) {
-    this.kaniMap.set(data.id, data);
-    if (data.parent === null) return;
-    const parent = this.kaniMap.get(data.parent);
-    if (!parent) {
-      console.warn("Got kani_spawn event but parent kani does not exist!");
-      return;
-    }
-    if (parent.children.includes(data.id)) return;
-    parent.children.push(data.id);
-  }
-
-  onKaniStateChange(data: KaniStateChange) {
-    const kani = this.kaniMap.get(data.id);
-    if (!kani) {
-      console.warn("Got kani_state_change event for nonexistent kani!");
-      return;
-    }
-    kani.state = data.state;
-  }
-
-  onKaniMessage(data: KaniMessage) {
-    const kani = this.kaniMap.get(data.id);
-    if (!kani) {
-      console.warn("Got kani_message event for nonexistent kani!");
-      return;
-    }
-    kani.chat_history.push(data.msg);
-    // also reset the stream buffer for that kani
-    this.streamMap.delete(data.id);
-  }
-
-  onRootMessage(data: RootMessage) {
-    this.rootMessages.push(data.msg);
-  }
-
-  onStreamDelta(data: StreamDelta) {
-    // only for assistant messages
-    if (data.role != ChatRole.assistant) return;
-    const buf = this.streamMap.get(data.id);
-    if (!buf) {
-      this.streamMap.set(data.id, data.delta);
-      return;
-    }
-    this.streamMap.set(data.id, buf + data.delta);
   }
 
   // ==== utils ====
@@ -145,7 +88,7 @@ export class KanpaiClient {
 
   // ==== event handlers ====
   onRawMessage(data: string) {
-    let message: WSMessage;
+    let message: BaseEvent;
     try {
       message = JSON.parse(data);
       console.debug("RECV", message);
@@ -153,26 +96,7 @@ export class KanpaiClient {
       console.warn(e);
       return;
     }
-
-    switch (message.type) {
-      case "kani_spawn":
-        this.onKaniSpawn(message as KaniSpawn);
-        break;
-      case "kani_state_change":
-        this.onKaniStateChange(message as KaniStateChange);
-        break;
-      case "kani_message":
-        this.onKaniMessage(message as KaniMessage);
-        break;
-      case "root_message":
-        this.onRootMessage(message as RootMessage);
-        break;
-      case "stream_delta":
-        this.onStreamDelta(message as StreamDelta);
-        break;
-      default:
-        console.warn("Unknown websocket event:", message);
-    }
+    this.state.handleEvent(message);
     this.events.dispatchEvent(new CustomEvent(message.type, { detail: message }));
   }
 
@@ -201,7 +125,7 @@ export class KanpaiClient {
       return;
     }
     console.log(`Attempting to reconnect (try ${attempt} of ${maxAttempts})...`);
-    this.init();
+    this.connect();
     setTimeout(() => this.attemptReconnect(attempt + 1, maxAttempts), attempt * 1000 + Math.random() * 1000);
   }
 }
