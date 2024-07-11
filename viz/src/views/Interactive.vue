@@ -6,7 +6,11 @@ import { InteractiveClient } from "@/kanpai/client";
 import type { KaniState } from "@/kanpai/models";
 import { onMounted, onUnmounted, provide, reactive, ref } from "vue";
 
-const client = reactive(new InteractiveClient("test")); // todo
+const props = defineProps<{
+  sessionId: string;
+}>();
+
+const client = reactive(new InteractiveClient(props.sessionId));
 const introspectedKani = ref<KaniState | null>(null);
 const tree = ref<InstanceType<typeof Tree> | null>(null);
 

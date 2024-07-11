@@ -4,7 +4,7 @@ import NotFound from "@/views/NotFound.vue";
 import { nextTick } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 
-const DEFAULT_TITLE = "viz";
+const DEFAULT_TITLE = "ReDel Web";
 
 const routes = [
   { path: "/", name: "Home", component: Home },
