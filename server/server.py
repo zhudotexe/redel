@@ -34,12 +34,6 @@ class VizServer:
 
     @asynccontextmanager
     async def _lifespan(self, _: FastAPI):
-        # todo temp
-        manager = SessionManager(self)
-        self.interactive_sessions["temp"] = manager
-        chat_task = asyncio.create_task(manager.kanpai_app.chat_from_queue(manager.msg_queue))
-        self._chat_tasks.add(chat_task)
-        # end temp
         _ = asyncio.create_task(self.reindex_saves())
         yield
         for task in self._chat_tasks:

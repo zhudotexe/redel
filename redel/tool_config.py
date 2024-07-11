@@ -10,10 +10,10 @@ _ToolBase = TypeVar("_ToolBase", bound=ToolBase)
 
 class ToolConfig(TypedDict, total=False):
     always_include: bool
-    """If true, each delegate kani will *always* inherit from this class. Defaults to False."""
+    """If true, each delegate kani will *always* have access to this tool. Defaults to False."""
     always_include_root: bool
-    """If true, the *root* kani will inherit from this class (but not necessarily delegates unless ``always_include`` is
-    also set)."""
+    """If true, the *root* kani will have access to this tool (but not necessarily delegates unless ``always_include`` 
+    is also set)."""
     kwargs: dict
     """Keyword arguments to pass to the constructor of this class. Defaults to ``{}``.
     
