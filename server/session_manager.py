@@ -60,6 +60,7 @@ class SessionManager:
             title=self.kanpai_app.title,
             last_modified=self.kanpai_app.logger.last_modified,
             n_events=self.kanpai_app.logger.event_count.total(),
+            grouping_prefix=self.kanpai_app.logger.log_dir.parent.parts,
             state_fp=self.kanpai_app.logger.state_path,
             event_fp=self.kanpai_app.logger.aof_path,
         )

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LoadSaveModal from "@/components/LoadSaveModal.vue";
 import { API } from "@/kanpai/api";
 import autosize from "autosize";
 import { onMounted, ref } from "vue";
@@ -8,6 +9,7 @@ const router = useRouter();
 
 const chatInput = ref<HTMLInputElement | null>(null);
 const chatMsg = ref("");
+const loadSaveModal = ref<InstanceType<typeof LoadSaveModal> | null>(null);
 
 async function sendChatMsg() {
   const msg = chatMsg.value.trim();
@@ -46,7 +48,7 @@ onMounted(() => {
     <!-- action boxes -->
     <div class="columns is-mobile is-multiline is-centered">
       <div class="column is-narrow">
-        <div class="box hover-darken">
+        <div class="box hover-darken is-clickable" @click="loadSaveModal!.open()">
           <div class="has-text-primary">
             <span class="icon">
               <font-awesome-icon :icon="['fas', 'folder-open']" />
@@ -112,6 +114,8 @@ onMounted(() => {
 
     <div class="is-flex-grow-2"></div>
   </div>
+
+  <LoadSaveModal ref="loadSaveModal" />
 </template>
 
 <style scoped>

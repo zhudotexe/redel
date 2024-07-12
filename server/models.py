@@ -13,6 +13,7 @@ class SessionMeta(BaseModel):
 
 
 class SaveMeta(SessionMeta):
+    grouping_prefix: list[str]
     state_fp: Path
     event_fp: Path
 

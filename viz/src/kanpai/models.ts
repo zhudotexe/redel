@@ -65,8 +65,7 @@ export interface SessionMeta {
 }
 
 export interface SaveMeta extends SessionMeta {
-  state_fp: string;
-  event_fp: string;
+  grouping_prefix: string[];
 }
 
 export interface SessionState extends SessionMeta {
