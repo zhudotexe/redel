@@ -78,11 +78,13 @@ class BrowsingMixin(ToolBase):
     async def close(self):
         await super().close()
         if BrowsingMixin.browser is not None:
-            await BrowsingMixin.browser.close()
+            browser = BrowsingMixin.browser
             BrowsingMixin.browser = None
+            await browser.close()
         if BrowsingMixin.playwright is not None:
-            await BrowsingMixin.playwright.stop()
+            pw = BrowsingMixin.playwright
             BrowsingMixin.playwright = None
+            await pw.stop()
 
     # ==== functions ====
     @ai_function()
