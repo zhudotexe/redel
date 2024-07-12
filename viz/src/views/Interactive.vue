@@ -2,7 +2,7 @@
 import Chat from "@/components/Chat.vue";
 import ChatMessages from "@/components/ChatMessages.vue";
 import Tree from "@/components/Tree.vue";
-import { InteractiveClient } from "@/kanpai/client";
+import { InteractiveClient } from "@/kanpai/interactive";
 import type { KaniState } from "@/kanpai/models";
 import { onMounted, onUnmounted, provide, reactive, ref } from "vue";
 
@@ -32,31 +32,31 @@ onUnmounted(() => client.close());
 </script>
 
 <template>
-  <div class="columns is-gapless main">
-    <!-- root chat -->
-    <div class="column">
-      <div class="left-container is-flex is-flex-direction-column">
-        <div class="chat-container">
-          <Chat />
+  <div class="main">
+    <div class="columns is-gapless main">
+      <!-- root chat -->
+      <div class="column">
+        <div class="left-container chat-container">
+          <Chat class="mt-auto"/>
         </div>
       </div>
-    </div>
-    <!-- viz -->
-    <div class="column">
-      <div class="right-container is-flex is-flex-direction-column">
-        <div class="is-flex-shrink-0">
-          <Tree
-            @node-clicked="(id) => (introspectedKani = client.state.kaniMap.get(id) ?? null)"
-            :selected-id="introspectedKani?.id"
-            ref="tree"
-          />
-        </div>
-        <p v-if="introspectedKani" class="has-text-centered">
-          Selected: {{ introspectedKani.name }}-{{ introspectedKani.depth }}
-        </p>
-        <div class="introspection-container">
-          <ChatMessages :kani="introspectedKani" v-if="introspectedKani" />
-          <p v-else>Click on a node on the tree above to view its state.</p>
+      <!-- viz -->
+      <div class="column">
+        <div class="right-container is-flex is-flex-direction-column">
+          <div class="is-flex-shrink-0">
+            <Tree
+              @node-clicked="(id) => (introspectedKani = client.state.kaniMap.get(id) ?? null)"
+              :selected-id="introspectedKani?.id"
+              ref="tree"
+            />
+          </div>
+          <p v-if="introspectedKani" class="has-text-centered">
+            Selected: {{ introspectedKani.name }}-{{ introspectedKani.depth }}
+          </p>
+          <div class="introspection-container">
+            <ChatMessages :kani="introspectedKani" v-if="introspectedKani" />
+            <p v-else>Click on a node on the tree above to view its state.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@ onUnmounted(() => client.close());
   height: 100%;
   width: 50vw;
   padding: 4rem 4rem 2rem 4rem;
-  background: bulmaRgba($beige-light, 0.2);
+  background-color: rgba($beige-light, 0.2);
 }
 
 .chat-container {

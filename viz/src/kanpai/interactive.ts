@@ -1,10 +1,8 @@
+import { API_BASE, WS_BASE } from "@/kanpai/api";
 import type { BaseEvent, ChatMessage, RootMessage, SendMessage, SessionState } from "@/kanpai/models";
 import { ChatRole } from "@/kanpai/models";
 import { ReDelState } from "@/kanpai/state";
 import axios from "axios";
-
-const API_BASE = "http://127.0.0.1:8000/api";
-const WS_BASE = "ws://127.0.0.1:8000/api/ws";
 
 /**
  * API client to handle interactive session with the backend.

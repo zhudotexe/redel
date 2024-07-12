@@ -2,8 +2,9 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, WebSocketException
+from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect, WebSocketException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -111,8 +112,8 @@ class VizServer:
             return [manager.get_session_meta() for manager in self.interactive_sessions.values()]
 
         @self.fastapi.post("/api/states")
-        async def create_state_interactive() -> SessionState:
-            """Create a fresh new interactive session.
+        async def create_state_interactive(start_content: Annotated[str, Body(embed=True)] = None) -> SessionState:
+            """Create a fresh new interactive session, optionally with a first user message.
             This will also create a new save.
             """
             manager = SessionManager(self)
@@ -120,6 +121,8 @@ class VizServer:
             self.saves[manager.kanpai_app.session_id] = manager.get_save_meta()
             chat_task = asyncio.create_task(manager.kanpai_app.chat_from_queue(manager.msg_queue))
             self._chat_tasks.add(chat_task)
+            if start_content:
+                await manager.msg_queue.put(SendMessage(content=start_content))
             return manager.get_state()
 
         @self.fastapi.get("/api/states/{session_id}")

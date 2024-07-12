@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { API } from "@/kanpai/api";
 import autosize from "autosize";
 import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const chatInput = ref<HTMLInputElement | null>(null);
 const chatMsg = ref("");
@@ -9,7 +13,14 @@ async function sendChatMsg() {
   const msg = chatMsg.value.trim();
   if (msg.length === 0) return;
   chatMsg.value = "";
-  // todo request new interactive session, link to interactive
+  chatInput.value!.disabled = true;
+  // request new interactive session, link to interactive
+  try {
+    const newState = await API.createStateInteractive(msg);
+    router.push({ name: "interactive", params: { sessionId: newState.id } });
+  } catch (e) {
+    chatInput.value!.disabled = false;
+  }
 }
 
 onMounted(() => {
@@ -38,7 +49,7 @@ onMounted(() => {
         <div class="box hover-darken">
           <div class="has-text-primary">
             <span class="icon">
-              <font-awesome-icon :icon="['fas', 'floppy-disk']" />
+              <font-awesome-icon :icon="['fas', 'folder-open']" />
             </span>
           </div>
           <p>Load a saved session</p>

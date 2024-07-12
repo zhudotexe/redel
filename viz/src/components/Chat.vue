@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ChatMessages from "@/components/ChatMessages.vue";
-import type { InteractiveClient } from "@/kanpai/client";
+import type { InteractiveClient } from "@/kanpai/interactive";
 import { RunState } from "@/kanpai/models";
 import type { ReDelState } from "@/kanpai/state";
 import autosize from "autosize";
@@ -33,9 +33,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="is-flex is-flex-direction-column mh-100">
-    <!-- spacer -->
-    <div class="spacer"></div>
+  <div class="is-flex is-flex-direction-column h-100">
+    <div class="is-flex-grow-1"></div>
     <!-- chat history -->
     <ChatMessages :kani="state.rootKani!" v-if="state.rootKani" ref="chatMessages" />
     <!-- msg bar -->
@@ -54,11 +53,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.spacer {
-  flex: 1 0 auto;
-}
-
-.mh-100 {
-  max-height: 100%;
+.h-100 {
+  height: 100%;
 }
 </style>

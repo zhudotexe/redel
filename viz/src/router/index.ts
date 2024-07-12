@@ -7,11 +7,11 @@ import { createRouter, createWebHistory } from "vue-router";
 const DEFAULT_TITLE = "ReDel Web";
 
 const routes = [
-  { path: "/", name: "Home", component: Home },
-  { path: "/interactive/test", name: "Interactive", component: Interactive },
+  { path: "/", name: "home", component: Home },
+  { path: "/interactive/:sessionId", name: "interactive", component: Interactive, props: true },
   {
     path: "/:pathMatch(.*)*",
-    name: "NotFound",
+    name: "notFound",
     component: NotFound,
     meta: { title: "404" },
   },
