@@ -1,3 +1,5 @@
+import { reactive } from "vue";
+
 export enum NotificationLevel {
   info,
   success,
@@ -11,7 +13,7 @@ export interface Notification {
 }
 
 export class Notifications {
-  public static notifs: Notification[] = [];
+  public static notifs: Notification[] = reactive([]);
 
   public static dismiss(notif: Notification) {
     const idx = this.notifs.indexOf(notif);
