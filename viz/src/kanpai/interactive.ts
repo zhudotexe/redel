@@ -1,8 +1,7 @@
-import { API_BASE, WS_BASE } from "@/kanpai/api";
-import type { BaseEvent, ChatMessage, RootMessage, SendMessage, SessionState } from "@/kanpai/models";
+import { API, WS_BASE } from "@/kanpai/api";
+import type { BaseEvent, ChatMessage, RootMessage, SendMessage } from "@/kanpai/models";
 import { ChatRole } from "@/kanpai/models";
 import { ReDelState } from "@/kanpai/state";
-import axios from "axios";
 
 /**
  * API client to handle interactive session with the backend.
@@ -47,8 +46,8 @@ export class InteractiveClient {
   // ==== API ====
   public async getState() {
     try {
-      const response = await axios.get<SessionState>(`${API_BASE}/states/${this.sessionId}`);
-      this.state.loadSessionState(response.data);
+      const sessionState = await API.getStateInteractive(this.sessionId);
+      this.state.loadSessionState(sessionState);
       // notify ready
       this.isReady = true;
       this.events.dispatchEvent(new Event("_ready"));

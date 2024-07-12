@@ -1,4 +1,4 @@
-import type { SessionState } from "@/kanpai/models";
+import type { BaseEvent, SaveMeta, SessionState } from "@/kanpai/models";
 import { Notifications } from "@/kanpai/notifications";
 import axios from "axios";
 
@@ -29,9 +29,41 @@ axios.interceptors.response.use(
  * A simple static class to expose all the ReDel REST endpoints.
  */
 export class API {
+  ////////// SAVES //////////
+  public static async listSaves() {
+    const response = await axios.get<SaveMeta[]>(`${API_BASE}/saves`);
+    return response.data;
+  }
+
+  public static async getSaveState(saveId: string) {
+    const response = await axios.get<SessionState>(`${API_BASE}/saves/${saveId}`);
+    return response.data;
+  }
+
+  public static async getSaveEvents(saveId: string) {
+    const response = await axios.get<BaseEvent[]>(`${API_BASE}/saves/${saveId}/events`);
+    return response.data;
+  }
+
+  public static async deleteSave(saveId: string) {
+    const response = await axios.delete<SaveMeta>(`${API_BASE}/saves/${saveId}`);
+    return response.data;
+  }
+
+  ////////// INTERACTIVE //////////
+  public static async listStatesInteractive() {
+    const response = await axios.get<SessionState[]>(`${API_BASE}/states`);
+    return response.data;
+  }
+
   public static async createStateInteractive(startContent?: string) {
     const data = startContent ? { start_content: startContent } : undefined;
     const response = await axios.post<SessionState>(`${API_BASE}/states`, data);
+    return response.data;
+  }
+
+  public static async getStateInteractive(sessionId: string) {
+    const response = await axios.get<SessionState>(`${API_BASE}/states/${sessionId}`);
     return response.data;
   }
 }

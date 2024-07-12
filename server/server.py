@@ -86,8 +86,8 @@ class VizServer:
             save = self.saves[save_id]
             return list(read_jsonl(save.event_fp))
 
-        @self.fastapi.delete("/api/saves/{save_id}", status_code=204)
-        async def delete_save(save_id: str):
+        @self.fastapi.delete("/api/saves/{save_id}")
+        async def delete_save(save_id: str) -> SaveMeta:
             """Delete the state and event files of the given save, and the directory they're contained in if empty."""
             if save_id not in self.saves:
                 raise HTTPException(404, "save not found")
@@ -102,6 +102,7 @@ class VizServer:
             except OSError as e:
                 # probably additional files - let's just log it
                 log.warning(f"Could not fully delete save: {e}")
+            return save
 
         # todo: load save
 
