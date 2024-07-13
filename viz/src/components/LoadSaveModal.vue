@@ -188,7 +188,22 @@ function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
               <span class="panel-icon">
                 <font-awesome-icon :icon="['fas', 'diagram-project']" />
               </span>
-              {{ save.title ?? `&lt;No title - ID ${save.id}&gt;` }}
+              <div>
+                <!-- break out of the flex ctx with div -->
+                <p>{{ save.title ?? `&lt;No title - ID ${save.id}&gt;` }}</p>
+                <p class="is-size-7 has-text-grey">
+                  <span class="icon-text">
+                    <span class="icon small-icon-fix">
+                      <font-awesome-icon :icon="['fas', 'calendar-day']" />
+                    </span>
+                    <span>Last modified {{ new Date(save.last_modified * 1000).toLocaleString() }}</span>
+                    <span class="icon ml-1 small-icon-fix">
+                      <font-awesome-icon :icon="['fas', 'hashtag']" />
+                    </span>
+                    <span>{{ save.n_events }} events</span>
+                  </span>
+                </p>
+              </div>
             </a>
           </template>
 
@@ -199,7 +214,28 @@ function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
               <span class="panel-icon">
                 <font-awesome-icon :icon="['fas', 'diagram-project']" />
               </span>
-              {{ save.title ?? "&lt;No title&gt;" }}
+              <div>
+                <!-- similar to tree but with path too -->
+                <p>{{ save.title ?? `&lt;No title - ID ${save.id}&gt;` }}</p>
+                <p class="is-size-7 has-text-grey">
+                  <span class="icon-text">
+                    <span class="icon small-icon-fix">
+                      <font-awesome-icon :icon="['fas', 'file']" />
+                    </span>
+                    <span>Found in {{ save.grouping_prefix.join('/') }}</span>
+
+                    <span class="icon ml-1 small-icon-fix">
+                      <font-awesome-icon :icon="['fas', 'calendar-day']" />
+                    </span>
+                    <span>Last modified {{ new Date(save.last_modified * 1000).toLocaleString() }}</span>
+
+                    <span class="icon ml-1 small-icon-fix">
+                      <font-awesome-icon :icon="['fas', 'hashtag']" />
+                    </span>
+                    <span>{{ save.n_events }} events</span>
+                  </span>
+                </p>
+              </div>
             </a>
           </template>
         </nav>
@@ -216,5 +252,9 @@ function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
 
 .panel {
   background-color: white;
+}
+
+.small-icon-fix {
+  margin-right: -0.5em;
 }
 </style>

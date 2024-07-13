@@ -4,8 +4,11 @@ import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import {
   faArrowUpRightFromSquare,
   faBookOpen,
+  faCalendarDay,
   faDiagramProject,
+  faFile,
   faFolderOpen,
+  faHashtag,
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -18,7 +21,16 @@ import router from "./router";
 // brands
 library.add(faGithub);
 // regular
-library.add(faBookOpen, faArrowUpRightFromSquare, faFolderOpen, faDiagramProject, faSearch);
+library.add(
+  faBookOpen,
+  faArrowUpRightFromSquare,
+  faFolderOpen,
+  faDiagramProject,
+  faSearch,
+  faCalendarDay,
+  faHashtag,
+  faFile,
+);
 
 // ==== init ====
 const app = createApp(App).use(router).component("font-awesome-icon", FontAwesomeIcon);
