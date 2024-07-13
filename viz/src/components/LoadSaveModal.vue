@@ -45,6 +45,8 @@ class Directory {
 const isOpen = ref(false);
 const searchQuery = ref<string>("");
 const dirPrefix = ref<string[]>([]); // prefix relative to root
+const sortCompareFn = ref<(a: SaveMeta, b: SaveMeta) => number>((a, b) => b.id.localeCompare(a.id));
+
 // computed props
 const saves = ref<SaveMeta[]>([]);
 const tree = ref<Directory>(new Directory("root"));
@@ -70,6 +72,11 @@ const currentDir = computed<Directory>(() => {
   return current;
 });
 
+const searchMatchSaves = computed<SaveMeta[]>(() => {
+  const tokens = searchQuery.value.toLocaleLowerCase().split(/\s+/);
+  return saves.value.filter((save) => tokens.every((token) => save.title?.toLocaleLowerCase().includes(token)));
+});
+
 ////////// internal logic //////////
 function computeFileTree() {
   tree.value.clear();
@@ -92,6 +99,11 @@ function computeFileTree() {
     tree.value = tree.value.subdirs.values().next().value;
   }
 }
+
+// like Python sorted()
+function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
+  return [...arr].sort(compareFn);
+}
 </script>
 
 <template>
@@ -104,42 +116,92 @@ function computeFileTree() {
           <p class="panel-heading">Load saved session</p>
           <!-- search, sort -->
           <div class="panel-block">
-            <p class="control has-icons-left">
-              <input class="input" type="text" placeholder="Search" />
-              <span class="icon is-left">
-                <font-awesome-icon :icon="['fas', 'search']" />
+            <div class="field is-grouped is-flex-grow-1">
+              <div class="control has-icons-left is-expanded">
+                <input class="input" type="text" placeholder="Search" v-model="searchQuery" />
+                <span class="icon is-left">
+                  <font-awesome-icon :icon="['fas', 'search']" />
+                </span>
+              </div>
+
+              <div class="control">
+                <div class="select">
+                  <select v-model="sortCompareFn">
+                    <option :value="(a: SaveMeta, b: SaveMeta) => b.id.localeCompare(a.id)">Sort by ID</option>
+                    <option
+                      :value="
+                        (a: SaveMeta, b: SaveMeta) => {
+                          if (a.title && b.title) {
+                            return a.title.localeCompare(b.title);
+                          } else if (a.title) {
+                            return -9999;
+                          } else if (b.title) {
+                            return 9999;
+                          } else {
+                            return b.id.localeCompare(a.id);
+                          }
+                        }
+                      "
+                    >
+                      Sort by name
+                    </option>
+                    <option :value="(a: SaveMeta, b: SaveMeta) => b.last_modified - a.last_modified">
+                      Sort by last edited
+                    </option>
+                    <option :value="(a: SaveMeta, b: SaveMeta) => b.n_events - a.n_events">Sort by event count</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- no search -->
+          <template v-if="!searchQuery">
+            <!-- breadcrumbs -->
+            <div class="panel-block">
+              <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                  <li>
+                    <a @click="dirPrefix = []">{{ tree.name }}</a>
+                  </li>
+                  <li v-for="(part, idx) in dirPrefix">
+                    <a @click="dirPrefix = dirPrefix.slice(0, idx + 1)">{{ part }}</a>
+                  </li>
+                  <li></li>
+                </ul>
+              </nav>
+            </div>
+
+            <!-- tree - dirs -->
+            <a
+              class="panel-block"
+              v-for="dir in sorted(currentDir.subdirs.values(), (a, b) => a.name.localeCompare(b.name))"
+              @click="dirPrefix.push(...dir.thinParts)"
+            >
+              <span class="panel-icon">
+                <font-awesome-icon :icon="['fas', 'folder-open']" />
               </span>
-            </p>
-            <p>Sort dropdown here</p>
-          </div>
-          <!-- breadcrumbs -->
-          <div class="panel-block">
-            <nav class="breadcrumb" aria-label="breadcrumbs">
-              <ul>
-                <li>
-                  <a @click="dirPrefix = []">{{ tree.name }}</a>
-                </li>
-                <li v-for="(part, idx) in dirPrefix">
-                  <a @click="dirPrefix = dirPrefix.slice(0, idx + 1)">{{ part }}</a>
-                </li>
-                <li></li>
-              </ul>
-            </nav>
-          </div>
-          <!-- tree - dirs -->
-          <a class="panel-block" v-for="dir in currentDir.subdirs.values()" @click="dirPrefix.push(...dir.thinParts)">
-            <span class="panel-icon">
-              <font-awesome-icon :icon="['fas', 'folder-open']" />
-            </span>
-            {{ dir.thinName }}
-          </a>
-          <!-- tree - saves -->
-          <a class="panel-block" v-for="save in currentDir.saves">
-            <span class="panel-icon">
-              <font-awesome-icon :icon="['fas', 'diagram-project']" />
-            </span>
-            {{ save.title ?? "&lt;No title&gt;" }}
-          </a>
+              {{ dir.thinName }}
+            </a>
+
+            <!-- tree - saves -->
+            <a class="panel-block" v-for="save in sorted(currentDir.saves, sortCompareFn)">
+              <span class="panel-icon">
+                <font-awesome-icon :icon="['fas', 'diagram-project']" />
+              </span>
+              {{ save.title ?? `&lt;No title - ID ${save.id}&gt;` }}
+            </a>
+          </template>
+
+          <!-- search -->
+          <template v-else>
+            <!-- matching saves -->
+            <a class="panel-block" v-for="save in sorted(searchMatchSaves, sortCompareFn)">
+              <span class="panel-icon">
+                <font-awesome-icon :icon="['fas', 'diagram-project']" />
+              </span>
+              {{ save.title ?? "&lt;No title&gt;" }}
+            </a>
+          </template>
         </nav>
       </div>
       <button class="modal-close is-large" aria-label="close" @click="isOpen = false"></button>
