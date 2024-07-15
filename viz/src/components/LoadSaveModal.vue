@@ -184,7 +184,11 @@ function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
             </a>
 
             <!-- tree - saves -->
-            <a class="panel-block" v-for="save in sorted(currentDir.saves, sortCompareFn)">
+            <RouterLink
+              v-for="save in sorted(currentDir.saves, sortCompareFn)"
+              class="panel-block"
+              :to="{ name: 'save', params: { saveId: save.id } }"
+            >
               <span class="panel-icon">
                 <font-awesome-icon :icon="['fas', 'diagram-project']" />
               </span>
@@ -204,13 +208,17 @@ function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
                   </span>
                 </p>
               </div>
-            </a>
+            </RouterLink>
           </template>
 
           <!-- search -->
           <template v-else>
             <!-- matching saves -->
-            <a class="panel-block" v-for="save in sorted(searchMatchSaves, sortCompareFn)">
+            <RouterLink
+              v-for="save in sorted(searchMatchSaves, sortCompareFn)"
+              class="panel-block"
+              :to="{ name: 'save', params: { saveId: save.id } }"
+            >
               <span class="panel-icon">
                 <font-awesome-icon :icon="['fas', 'diagram-project']" />
               </span>
@@ -222,7 +230,7 @@ function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
                     <span class="icon small-icon-fix">
                       <font-awesome-icon :icon="['fas', 'file']" />
                     </span>
-                    <span>Found in {{ save.grouping_prefix.join('/') }}</span>
+                    <span>Found in {{ save.grouping_prefix.join("/") }}</span>
 
                     <span class="icon ml-1 small-icon-fix">
                       <font-awesome-icon :icon="['fas', 'calendar-day']" />
@@ -236,7 +244,7 @@ function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
                   </span>
                 </p>
               </div>
-            </a>
+            </RouterLink>
           </template>
         </nav>
       </div>

@@ -41,6 +41,7 @@ const displayNameForNode = (kaniState) => {
 // ==== d3 stuff ====
 // setup
 let svg, link, node;
+let setupComplete = false;
 
 const drag = simulation => {
   function dragstarted(event, d) {

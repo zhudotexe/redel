@@ -45,7 +45,7 @@ class KaniState(BaseModel):
     state: RunState
     name: str
     engine_type: str
-    engine_repr: str
+    engine_repr: str = ""
     functions: list[AIFunctionState]
 
     @classmethod
