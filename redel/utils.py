@@ -3,7 +3,7 @@ import json
 import uuid
 from typing import Iterable, TYPE_CHECKING, TypeVar
 
-from kani import ChatMessage, Kani
+from kani import Kani
 
 if TYPE_CHECKING:
     from .base_kani import BaseKani
@@ -16,11 +16,24 @@ def create_kani_id() -> str:
     return str(uuid.uuid4())
 
 
+# ===== title =====
+# thin class for typing
+class AutogenerateTitle:
+    pass
+
+
+AUTOGENERATE_TITLE = AutogenerateTitle()
+
+
 async def generate_conversation_title(ai: "BaseKani"):
     """Given an kani, create a title for its current conversation state."""
-    helper = Kani(ai.engine, chat_history=[ChatMessage.user("Here is the start of a conversation:"), *ai.chat_history])
+    helper = Kani(ai.engine)
+    chat_history = "\n".join(f"{msg.role.value}: {msg.text}" for msg in ai.chat_history if msg.text)
     title = await helper.chat_round_str(
-        "Come up with a punchy title for this conversation.\n\nReply with your answer only and be specific."
+        "Here is the start of a conversation:\n"
+        f"{chat_history}\n\n"
+        "Come up with a short (~5 words), descriptive title for this conversation.\n\nReply with your answer only and"
+        " be specific."
     )
     return title.strip(' "')
 

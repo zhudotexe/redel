@@ -5,7 +5,7 @@ from kani.engines.anthropic import AnthropicEngine
 from kani.engines.openai import OpenAIEngine
 from kani.ext.ratelimits import RatelimitedEngine
 
-from redel import Kanpai
+from redel import AUTOGENERATE_TITLE, Kanpai
 from redel.events import BaseEvent, RoundComplete
 from redel.tools.browsing import BrowsingMixin
 from .models import SaveMeta, SessionMeta, SessionState
@@ -24,6 +24,7 @@ class SessionManager:
         self.kanpai_app = Kanpai(
             root_engine=engine,
             delegate_engine=engine,
+            title=AUTOGENERATE_TITLE,
             tool_configs={
                 BrowsingMixin: {
                     "always_include": True,

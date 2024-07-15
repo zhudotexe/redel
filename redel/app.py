@@ -18,10 +18,9 @@ from .delegation.delegate_and_wait import DelegateWaitMixin
 from .eventlogger import EventLogger
 from .kanis import DELEGATE_KANPAI, ROOT_KANPAI, create_root_kani
 from .tool_config import ToolConfigType, validate_tool_configs
-from .utils import generate_conversation_title
+from .utils import AutogenerateTitle, generate_conversation_title
 
 log = logging.getLogger(__name__)
-AUTOGENERATE_TITLE = object()
 
 
 @functools.cache
@@ -56,7 +55,7 @@ class Kanpai:
         tool_configs: ToolConfigType = None,
         root_has_tools: bool = False,
         # logging
-        title: str = None,
+        title: str | AutogenerateTitle = None,
         log_dir: Path = None,
         clear_existing_log: bool = False,
         session_id: str = None,
@@ -76,7 +75,7 @@ class Kanpai:
         :param tool_configs: A mapping of tool mixin classes to their configurations (see :class:`.ToolConfig`).
         :param root_has_tools: Whether the root kani should have access to the configured tools (default
             False).
-        :param title: The title of this session. Set to ``AUTOGENERATE_TITLE`` to automatically generate one.
+        :param title: The title of this session. Set to ``redel.AUTOGENERATE_TITLE`` to automatically generate one.
         :param log_dir: A path to a directory to save logs for this session. Defaults to ``.kanpai/{session_id}/``.
         :param clear_existing_log: If the log directory has existing events, clear them before writing new events.
             Otherwise, append to existing events.
