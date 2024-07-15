@@ -186,6 +186,7 @@ function computeFileTree() {
               class="panel-block"
               active-class="is-active"
               :to="{ name: 'save', params: { saveId: save.id } }"
+              @click="isOpen = false"
             >
               <span class="panel-icon">
                 <font-awesome-icon :icon="['fas', 'diagram-project']" />
@@ -202,6 +203,7 @@ function computeFileTree() {
               class="panel-block"
               active-class="is-active"
               :to="{ name: 'save', params: { saveId: save.id } }"
+              @click="isOpen = false"
             >
               <span class="panel-icon">
                 <font-awesome-icon :icon="['fas', 'diagram-project']" />

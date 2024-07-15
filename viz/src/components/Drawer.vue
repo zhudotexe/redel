@@ -32,6 +32,7 @@ router.afterEach(async () => {
 
 <template>
   <aside class="menu drawer h-100" :class="{ closed: !isOpen, open: isOpen }">
+    <RouterLink class="title" to="/">ReDel</RouterLink>
     <div class="is-clipped">
       <p class="menu-label">Controls</p>
       <ul class="menu-list">

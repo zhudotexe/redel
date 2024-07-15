@@ -46,7 +46,7 @@ export class Notifications {
   public static httpError(error: any) {
     console.error(error);
     if (error.response) {
-      this.error(`${error.response.status}: ${error.response.data}`);
+      this.error(`${error.response.status}: ${error.response.data.detail ?? error.response.data.toString()}`);
     } else if (error.request) {
       this.error("Request failed - maybe the server is down?");
     } else {
