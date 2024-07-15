@@ -22,7 +22,7 @@ function scrollChatToBottom() {
 }
 
 const streamBuffer = computed(() => {
-  return state.streamMap?.get(props.kani.id);
+  return state.streamMap.get(props.kani.id);
 });
 
 defineExpose({ scrollChatToBottom });

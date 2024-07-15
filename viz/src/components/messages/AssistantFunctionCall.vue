@@ -10,7 +10,7 @@ const isOpen = ref(true);
 </script>
 
 <template>
-  <article class="message is-small">
+  <article class="message is-small is-dark">
     <div class="message-header">
       <p>Called {{ props.functionCall.name }}()...</p>
     </div>
