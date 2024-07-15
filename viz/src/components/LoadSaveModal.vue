@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import SessionMetaRow from "@/components/SessionMetaRow.vue";
 import { API } from "@/kanpai/api";
 import type { SaveMeta } from "@/kanpai/models";
+import { sorted } from "@/kanpai/utils";
 import { computed, ref } from "vue";
 
 /**
@@ -99,11 +101,6 @@ function computeFileTree() {
     tree.value = tree.value.subdirs.values().next().value;
   }
 }
-
-// like Python sorted()
-function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
-  return [...arr].sort(compareFn);
-}
 </script>
 
 <template>
@@ -187,27 +184,13 @@ function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
             <RouterLink
               v-for="save in sorted(currentDir.saves, sortCompareFn)"
               class="panel-block"
+              active-class="is-active"
               :to="{ name: 'save', params: { saveId: save.id } }"
             >
               <span class="panel-icon">
                 <font-awesome-icon :icon="['fas', 'diagram-project']" />
               </span>
-              <div>
-                <!-- break out of the flex ctx with div -->
-                <p>{{ save.title ?? `&lt;No title - ID ${save.id}&gt;` }}</p>
-                <p class="is-size-7 has-text-grey">
-                  <span class="icon-text">
-                    <span class="icon small-icon-fix">
-                      <font-awesome-icon :icon="['fas', 'calendar-day']" />
-                    </span>
-                    <span>Last modified {{ new Date(save.last_modified * 1000).toLocaleString() }}</span>
-                    <span class="icon ml-1 small-icon-fix">
-                      <font-awesome-icon :icon="['fas', 'hashtag']" />
-                    </span>
-                    <span>{{ save.n_events }} events</span>
-                  </span>
-                </p>
-              </div>
+              <SessionMetaRow :data="save" />
             </RouterLink>
           </template>
 
@@ -217,33 +200,13 @@ function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
             <RouterLink
               v-for="save in sorted(searchMatchSaves, sortCompareFn)"
               class="panel-block"
+              active-class="is-active"
               :to="{ name: 'save', params: { saveId: save.id } }"
             >
               <span class="panel-icon">
                 <font-awesome-icon :icon="['fas', 'diagram-project']" />
               </span>
-              <div>
-                <!-- similar to tree but with path too -->
-                <p>{{ save.title ?? `&lt;No title - ID ${save.id}&gt;` }}</p>
-                <p class="is-size-7 has-text-grey">
-                  <span class="icon-text">
-                    <span class="icon small-icon-fix">
-                      <font-awesome-icon :icon="['fas', 'file']" />
-                    </span>
-                    <span>Found in {{ save.grouping_prefix.join("/") }}</span>
-
-                    <span class="icon ml-1 small-icon-fix">
-                      <font-awesome-icon :icon="['fas', 'calendar-day']" />
-                    </span>
-                    <span>Last modified {{ new Date(save.last_modified * 1000).toLocaleString() }}</span>
-
-                    <span class="icon ml-1 small-icon-fix">
-                      <font-awesome-icon :icon="['fas', 'hashtag']" />
-                    </span>
-                    <span>{{ save.n_events }} events</span>
-                  </span>
-                </p>
-              </div>
+              <SessionMetaRow :data="save" :show-path="save.grouping_prefix" />
             </RouterLink>
           </template>
         </nav>
@@ -260,9 +223,5 @@ function sorted<T>(arr: Iterable<T>, compareFn?: (a: T, b: T) => number): T[] {
 
 .panel {
   background-color: white;
-}
-
-.small-icon-fix {
-  margin-right: -0.5em;
 }
 </style>

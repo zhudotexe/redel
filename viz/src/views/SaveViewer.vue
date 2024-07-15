@@ -31,7 +31,7 @@ onMounted(async () => {
 <!-- similar to Interactive, but the Chat component is replaced with the replay controller -->
 <template>
   <div class="main">
-    <div class="columns is-gapless main" v-if="state">
+    <div class="columns is-gapless h-100" v-if="state">
       <!-- root chat -->
       <div class="column">
         <div class="left-container chat-container">
@@ -78,7 +78,6 @@ onMounted(async () => {
 
 .left-container {
   height: 100%;
-  width: 50vw;
   padding: 4rem 4rem 2rem 4rem;
   background-color: rgba($beige-light, 0.2);
 }
@@ -89,7 +88,6 @@ onMounted(async () => {
 
 .right-container {
   max-height: 100%;
-  width: 50vw;
 }
 
 .introspection-container {

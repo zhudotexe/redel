@@ -1,10 +1,12 @@
 import "@/global.scss";
+import { InteractiveSessions } from "@/kanpai/interactiveSessionManager";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import {
   faArrowUpRightFromSquare,
   faBookOpen,
   faCalendarDay,
+  faCirclePlus,
   faDiagramProject,
   faFile,
   faFolderOpen,
@@ -13,7 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-import { createApp } from "vue";
+import { createApp, reactive } from "vue";
 import App from "./App.vue";
 import router from "./router";
 
@@ -30,9 +32,13 @@ library.add(
   faCalendarDay,
   faHashtag,
   faFile,
+  faCirclePlus,
 );
 
 // ==== init ====
-const app = createApp(App).use(router).component("font-awesome-icon", FontAwesomeIcon);
+const app = createApp(App)
+  .use(router)
+  .component("font-awesome-icon", FontAwesomeIcon)
+  .provide<InteractiveSessions>("interactiveSessionManager", reactive(new InteractiveSessions()));
 
 app.mount("#app");

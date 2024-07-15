@@ -33,11 +33,11 @@ onUnmounted(() => client.close());
 
 <template>
   <div class="main">
-    <div class="columns is-gapless main">
+    <div class="columns is-gapless h-100">
       <!-- root chat -->
       <div class="column">
         <div class="left-container chat-container">
-          <Chat class="mt-auto"/>
+          <Chat class="mt-auto" />
         </div>
       </div>
       <!-- viz -->
@@ -72,7 +72,6 @@ onUnmounted(() => client.close());
 
 .left-container {
   height: 100%;
-  width: 50vw;
   padding: 4rem 4rem 2rem 4rem;
   background-color: rgba($beige-light, 0.2);
 }
@@ -83,7 +82,6 @@ onUnmounted(() => client.close());
 
 .right-container {
   max-height: 100%;
-  width: 50vw;
 }
 
 .introspection-container {
