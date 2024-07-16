@@ -18,7 +18,7 @@ $ cd viz
 $ npm i
 $ npm run build
 # run web visualization of a ReDel system with web browsing
-$ OPENAI_API_KEY="..." python -m redel_server
+$ OPENAI_API_KEY="..." python -m redel.server
 ```
 
 ## Screenshots

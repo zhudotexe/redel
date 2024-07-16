@@ -75,6 +75,12 @@ class VizServer:
             return ReDel(**self.redel_kwargs)
         return await self.redel_factory()
 
+    def serve(self, host="127.0.0.1", port=8000, **kwargs):
+        """Serve this server at the given IP and port. Blocks until interrupted."""
+        import uvicorn
+
+        uvicorn.run(self.fastapi, host=host, port=port, **kwargs)
+
     # ==== fastapi ====
     @asynccontextmanager
     async def _lifespan(self, _: FastAPI):

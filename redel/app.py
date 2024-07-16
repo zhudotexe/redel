@@ -55,7 +55,7 @@ class ReDel:
         tool_configs: ToolConfigType = None,
         root_has_tools: bool = False,
         # logging
-        title: str | AutogenerateTitle = None,
+        title: str | AutogenerateTitle | None = AUTOGENERATE_TITLE,
         log_dir: Path = None,
         clear_existing_log: bool = False,
         session_id: str = None,
@@ -75,7 +75,8 @@ class ReDel:
         :param tool_configs: A mapping of tool mixin classes to their configurations (see :class:`.ToolConfig`).
         :param root_has_tools: Whether the root kani should have access to the configured tools (default
             False).
-        :param title: The title of this session. Set to ``redel.AUTOGENERATE_TITLE`` to automatically generate one.
+        :param title: The title of this session. Set to ``redel.AUTOGENERATE_TITLE`` to automatically generate one
+            (default), or ``None`` to disable title generation.
         :param log_dir: A path to a directory to save logs for this session. Defaults to
             ``.redel/instances/{session_id}/``.
         :param clear_existing_log: If the log directory has existing events, clear them before writing new events.

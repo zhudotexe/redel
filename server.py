@@ -19,8 +19,8 @@ from kani.ext.ratelimits import RatelimitedEngine
 
 from redel import AUTOGENERATE_TITLE
 from redel.eventlogger import DEFAULT_LOG_DIR
+from redel.server import VizServer
 from redel.tools.browsing import BrowsingMixin
-from redel_server import VizServer
 
 # Host saves from the experiments
 EXPERIMENTS_DIR = Path(__file__).parent / "experiments"
@@ -51,7 +51,5 @@ redel_config = dict(
 server = VizServer(save_dirs=(DEFAULT_LOG_DIR, EXPERIMENTS_DIR), redel_kwargs=redel_config)
 
 if __name__ == "__main__":
-    import uvicorn
-
     logging.basicConfig(level=logging.INFO)
-    uvicorn.run(server.fastapi)
+    server.serve()

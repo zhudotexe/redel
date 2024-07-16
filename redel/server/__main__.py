@@ -4,8 +4,6 @@ This is the minimal configuration for a ReDel visualization server with web brow
 
 import logging
 
-import uvicorn
-
 from redel import AUTOGENERATE_TITLE
 from redel.tools.browsing import BrowsingMixin
 from .server import VizServer
@@ -26,4 +24,4 @@ log.info("Please open the URL below in your favorite web browser.")
 
 # configure and start the server
 server = VizServer(redel_kwargs=redel_config)
-uvicorn.run(server.fastapi)
+server.serve()
