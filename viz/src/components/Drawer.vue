@@ -2,17 +2,16 @@
 import LoadSaveModal from "@/components/LoadSaveModal.vue";
 import SessionMetaRow from "@/components/SessionMetaRow.vue";
 import { API } from "@/kanpai/api";
-import { InteractiveSessions } from "@/kanpai/interactiveSessionManager";
 import type { SessionMeta } from "@/kanpai/models";
 import { sorted } from "@/kanpai/utils";
-import { inject, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 
 const isOpen = ref<boolean>(true);
 const loadSaveModal = ref<InstanceType<typeof LoadSaveModal> | null>(null);
-const interactiveSessionManager = inject<InteractiveSessions>("interactiveSessionManager");
+const interactiveSessions = ref<SessionMeta[]>([]);
 
 async function startNewInteractive() {
   // request new interactive session, link to interactive
@@ -20,13 +19,17 @@ async function startNewInteractive() {
   router.push({ name: "interactive", params: { sessionId: newState.id } });
 }
 
+async function updateInteractive() {
+  interactiveSessions.value = await API.listStatesInteractive();
+}
+
 // hooks
 onMounted(async () => {
-  await interactiveSessionManager!.update();
+  await updateInteractive();
 });
 router.afterEach(async () => {
   // update the session list on each navigation
-  await interactiveSessionManager!.update();
+  await updateInteractive();
 });
 </script>
 
@@ -62,7 +65,7 @@ router.afterEach(async () => {
       <ul class="menu-list">
         <li
           v-for="session in sorted(
-            interactiveSessionManager!.sessions,
+            interactiveSessions,
             (a: SessionMeta, b: SessionMeta) => b.last_modified - a.last_modified,
           )"
         >
