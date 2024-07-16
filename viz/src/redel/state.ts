@@ -1,15 +1,16 @@
-import type {
-  BaseEvent,
-  ChatMessage,
-  KaniMessage,
-  KaniSpawn,
-  KaniState,
-  KaniStateChange,
-  RootMessage,
-  SessionState,
-  StreamDelta,
+import {
+  type BaseEvent,
+  type ChatMessage,
+  ChatRole,
+  type KaniMessage,
+  type KaniSpawn,
+  type KaniState,
+  type KaniStateChange,
+  type RootMessage,
+  RunState,
+  type SessionState,
+  type StreamDelta,
 } from "@/redel/models";
-import { ChatRole } from "@/redel/models";
 
 export class ReDelState {
   rootMessages: ChatMessage[] = [];
@@ -120,9 +121,9 @@ export class ReDelState {
       case "kani_spawn":
         this.undoKaniSpawn(data as KaniSpawn);
         break;
-      // case "kani_state_change": // this is not possible since we don't actually know the previous state
-      //   this.undoKaniStateChange(data as KaniStateChange);
-      //   break;
+      case "kani_state_change":
+        this.undoKaniStateChange(data as KaniStateChange);
+        break;
       case "kani_message":
         this.undoKaniMessage(data as KaniMessage);
         break;
@@ -150,6 +151,26 @@ export class ReDelState {
       }
     }
     this.kaniMap.delete(data.id);
+  }
+
+  undoKaniStateChange(data: KaniStateChange) {
+    const kani = this.kaniMap.get(data.id);
+    if (!kani) {
+      console.warn("Undoing kani_state_change event for nonexistent kani!");
+      return;
+    }
+    // this is a best-effort guess since we don't actually know the previous state
+    switch (data.state) {
+      case RunState.running:
+        kani.state = RunState.waiting;
+        break;
+      case RunState.waiting:
+      case RunState.stopped:
+        kani.state = RunState.running;
+        break;
+      default:
+        kani.state = RunState.stopped;
+    }
   }
 
   undoKaniMessage(data: KaniMessage) {
