@@ -41,7 +41,6 @@ const displayNameForNode = (kaniState) => {
 // ==== d3 stuff ====
 // setup
 let svg, link, node;
-let setupComplete = false;
 
 const drag = simulation => {
   function dragstarted(event, d) {
@@ -113,6 +112,7 @@ onMounted(() => {
 
 // update data based on current state
 const update = () => {
+  if (!state.rootKani) return;
   let root = d3.hierarchy(
     state.rootKani,
     (kani) => kani?.children.map(id => state.kaniMap.get(id)),

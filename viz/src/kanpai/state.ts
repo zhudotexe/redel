@@ -37,7 +37,7 @@ export class ReDelState {
     }
   }
 
-  // ==== event handlers ====
+  // ==== event handlers - forward ====
   public handleEvent(data: BaseEvent) {
     switch (data.type) {
       case "kani_spawn":
@@ -56,13 +56,20 @@ export class ReDelState {
         this.onStreamDelta(data as StreamDelta);
         break;
       default:
-        console.warn("Unknown event:", data);
+        console.debug("Unknown event:", data);
     }
   }
 
   onKaniSpawn(data: KaniSpawn) {
     this.kaniMap.set(data.id, data);
-    if (data.parent === null) return;
+    // set up the root iff it's null
+    if (data.parent === null) {
+      if (!this.rootKani) {
+        this.rootKani = data;
+        this.rootMessages = [...data.chat_history];
+      }
+      return;
+    }
     const parent = this.kaniMap.get(data.parent);
     if (!parent) {
       console.warn("Got kani_spawn event but parent kani does not exist!");
@@ -105,5 +112,65 @@ export class ReDelState {
       return;
     }
     this.streamMap.set(data.id, buf + data.delta);
+  }
+
+  // ==== event handlers - backward ====
+  public undoEvent(data: BaseEvent) {
+    switch (data.type) {
+      case "kani_spawn":
+        this.undoKaniSpawn(data as KaniSpawn);
+        break;
+      // case "kani_state_change": // this is not possible since we don't actually know the previous state
+      //   this.undoKaniStateChange(data as KaniStateChange);
+      //   break;
+      case "kani_message":
+        this.undoKaniMessage(data as KaniMessage);
+        break;
+      case "root_message":
+        this.undoRootMessage(data as RootMessage);
+        break;
+      default:
+        console.debug("Unhandled event undo:", data);
+    }
+  }
+
+  undoKaniSpawn(data: KaniSpawn) {
+    if (data.parent) {
+      const parent = this.kaniMap.get(data.parent);
+      if (parent && parent.children.includes(data.id)) {
+        parent.children.splice(parent.children.indexOf(data.id), 1);
+      } else {
+        console.warn("Undoing kani_spawn event but parent kani does not exist or is missing child!");
+      }
+    } else {
+      // delete the root iff it's null
+      if (this.rootKani) {
+        this.rootKani = undefined;
+        this.rootMessages = [];
+      }
+    }
+    this.kaniMap.delete(data.id);
+  }
+
+  undoKaniMessage(data: KaniMessage) {
+    const kani = this.kaniMap.get(data.id);
+    if (!kani) {
+      console.warn("Undoing kani_message event for nonexistent kani!");
+      return;
+    }
+    // just delete the last one with a sanity check
+    const removed = kani.chat_history.pop();
+    if (removed?.content !== data.msg.content) {
+      console.warn("undoKaniMessage popped an incorrect message!", removed, data.msg);
+    }
+    // also reset the stream buffer for that kani
+    this.streamMap.delete(data.id);
+  }
+
+  undoRootMessage(data: RootMessage) {
+    const removed = this.rootMessages.pop();
+    if (removed?.content !== data.msg.content) {
+      console.warn("undoRootMessage popped an incorrect message!", removed, data.msg);
+    }
   }
 }

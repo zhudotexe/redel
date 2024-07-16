@@ -78,7 +78,7 @@ class VizServer:
             save = self.saves[save_id]
             return SessionState.model_validate_json(save.state_fp.read_text())
 
-        @self.fastapi.get("/api/saves/{save_id}/events", response_model=list[BaseEvent])
+        @self.fastapi.get("/api/saves/{save_id}/events")
         async def get_save_events(save_id: str):
             """Get all events in a given save (not interactive - this just loads from file)."""
             if save_id not in self.saves:
