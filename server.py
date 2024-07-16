@@ -1,15 +1,16 @@
 """
-Default server for the ReDel web interface.
+Example server for the ReDel web interface.
 
-Default configuration:
+Configuration:
 - root engine: gpt-4
 - delegate engine: gpt-4
 - tools:
     - Browsing (always included in delegates)
-        - long engine: claude-3-opus (for summarizing long webpages)
+        - long engine: claude-3-opus (for summarizing long webpages, if ANTHROPIC_API_KEY is set)
 """
 
 import logging
+import os
 from pathlib import Path
 
 from kani.engines.anthropic import AnthropicEngine
@@ -26,9 +27,12 @@ EXPERIMENTS_DIR = Path(__file__).parent / "experiments"
 
 # Define the engines
 engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
-long_engine = RatelimitedEngine(
-    AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
-)
+if "ANTHROPIC_API_KEY" in os.environ:
+    long_engine = RatelimitedEngine(
+        AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
+    )
+else:
+    long_engine = None
 
 # Define the configuration for each interactive session
 redel_config = dict(

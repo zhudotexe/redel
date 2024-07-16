@@ -1,4 +1,4 @@
-# ReDel (WIP)
+# ReDel
 
 *A framework for recursive delegation of LLMs*
 
@@ -18,7 +18,7 @@ $ cd viz
 $ npm i
 $ npm run build
 # run web visualization of a ReDel system with web browsing
-$ OPENAI_API_KEY="..." python server.py
+$ OPENAI_API_KEY="..." python -m redel_server
 ```
 
 ## Screenshots

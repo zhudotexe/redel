@@ -26,7 +26,7 @@ class BrowsingMixin(ToolBase):
     browser = None
     browser_context = None
 
-    def __init__(self, *args, long_engine: BaseEngine, max_webpage_len: int = None, **kwargs):
+    def __init__(self, *args, long_engine: BaseEngine = None, max_webpage_len: int = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.http = httpx.AsyncClient(follow_redirects=True)
         self.page: Optional["Page"] = None
@@ -174,7 +174,7 @@ class BrowsingMixin(ToolBase):
             content = await web_summarize(
                 content,
                 parent=self.kani,
-                long_engine=self.long_engine,
+                long_engine=self.long_engine or self.kani.engine,
                 task=(
                     "Keep the current context in mind:\n"
                     f"<context>\n{msg_ctx}\n</context>\n\n"
