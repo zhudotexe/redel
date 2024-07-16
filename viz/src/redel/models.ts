@@ -72,7 +72,7 @@ export interface SessionState extends SessionMeta {
   state: KaniState[];
 }
 
-// ===== kanpai events =====
+// ===== redel events =====
 export interface BaseEvent {
   type: string;
 }

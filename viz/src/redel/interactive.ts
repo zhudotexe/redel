@@ -1,7 +1,7 @@
-import { API, WS_BASE } from "@/kanpai/api";
-import type { BaseEvent, ChatMessage, RootMessage, SendMessage } from "@/kanpai/models";
-import { ChatRole } from "@/kanpai/models";
-import { ReDelState } from "@/kanpai/state";
+import { API, WS_BASE } from "@/redel/api";
+import type { BaseEvent, ChatMessage, RootMessage, SendMessage } from "@/redel/models";
+import { ChatRole } from "@/redel/models";
+import { ReDelState } from "@/redel/state";
 
 /**
  * API client to handle interactive session with the backend.

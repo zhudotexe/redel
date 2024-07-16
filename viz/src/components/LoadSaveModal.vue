@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import SessionMetaRow from "@/components/SessionMetaRow.vue";
-import { API } from "@/kanpai/api";
-import type { SaveMeta } from "@/kanpai/models";
-import { sorted } from "@/kanpai/utils";
+import { API } from "@/redel/api";
+import type { SaveMeta } from "@/redel/models";
+import { sorted } from "@/redel/utils";
 import { computed, ref } from "vue";
 
 /**

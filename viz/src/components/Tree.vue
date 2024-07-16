@@ -1,7 +1,7 @@
 <!-- @formatter:off -->
 <!-- this file in JS because d3 is wack -->
 <script setup>
-import {RunState} from "@/kanpai/models";
+import {RunState} from "@/redel/models";
 import {greekLetter} from "@/utils";
 import * as d3 from "d3";
 import {inject, onMounted, onUnmounted, ref, watch} from "vue";

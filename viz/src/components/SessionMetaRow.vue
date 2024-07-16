@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SessionMeta } from "@/kanpai/models";
+import type { SessionMeta } from "@/redel/models";
 
 interface Props {
   data: SessionMeta;

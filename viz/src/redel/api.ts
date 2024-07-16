@@ -1,5 +1,5 @@
-import type { BaseEvent, SaveMeta, SessionState } from "@/kanpai/models";
-import { Notifications } from "@/kanpai/notifications";
+import type { BaseEvent, SaveMeta, SessionState } from "@/redel/models";
+import { Notifications } from "@/redel/notifications";
 import axios from "axios";
 
 export const API_BASE = "http://127.0.0.1:8000/api";

@@ -2,8 +2,8 @@
 import Chat from "@/components/Chat.vue";
 import ChatMessages from "@/components/ChatMessages.vue";
 import Tree from "@/components/Tree.vue";
-import { InteractiveClient } from "@/kanpai/interactive";
-import type { KaniState } from "@/kanpai/models";
+import { InteractiveClient } from "@/redel/interactive";
+import type { KaniState } from "@/redel/models";
 import { onMounted, onUnmounted, provide, reactive, ref } from "vue";
 
 const props = defineProps<{

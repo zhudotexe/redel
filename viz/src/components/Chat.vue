@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import ChatMessages from "@/components/ChatMessages.vue";
-import type { InteractiveClient } from "@/kanpai/interactive";
-import { RunState } from "@/kanpai/models";
-import type { ReDelState } from "@/kanpai/state";
+import type { InteractiveClient } from "@/redel/interactive";
+import { RunState } from "@/redel/models";
+import type { ReDelState } from "@/redel/state";
 import autosize from "autosize";
 import { inject, nextTick, onMounted, ref } from "vue";
 

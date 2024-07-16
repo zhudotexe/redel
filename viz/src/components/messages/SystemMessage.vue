@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Markdown from "@/components/Markdown.vue";
-import type { ChatMessage } from "@/kanpai/models";
+import type { ChatMessage } from "@/redel/models";
 
 const props = defineProps<{
   message: ChatMessage;

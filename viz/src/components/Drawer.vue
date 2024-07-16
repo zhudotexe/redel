@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import LoadSaveModal from "@/components/LoadSaveModal.vue";
 import SessionMetaRow from "@/components/SessionMetaRow.vue";
-import { API } from "@/kanpai/api";
-import type { SessionMeta } from "@/kanpai/models";
-import { sorted } from "@/kanpai/utils";
+import { API } from "@/redel/api";
+import type { SessionMeta } from "@/redel/models";
+import { sorted } from "@/redel/utils";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 

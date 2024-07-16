@@ -5,8 +5,8 @@ import AssistantThinking from "@/components/messages/AssistantThinking.vue";
 import FunctionMessage from "@/components/messages/FunctionMessage.vue";
 import SystemMessage from "@/components/messages/SystemMessage.vue";
 import UserMessage from "@/components/messages/UserMessage.vue";
-import { ChatRole, type KaniState, RunState } from "@/kanpai/models";
-import type { ReDelState } from "@/kanpai/state";
+import { ChatRole, type KaniState, RunState } from "@/redel/models";
+import type { ReDelState } from "@/redel/state";
 import { computed, inject, ref } from "vue";
 
 const props = defineProps<{

@@ -8,8 +8,8 @@ import type {
   RootMessage,
   SessionState,
   StreamDelta,
-} from "@/kanpai/models";
-import { ChatRole } from "@/kanpai/models";
+} from "@/redel/models";
+import { ChatRole } from "@/redel/models";
 
 export class ReDelState {
   rootMessages: ChatMessage[] = [];

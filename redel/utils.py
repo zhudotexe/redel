@@ -1,7 +1,7 @@
 import itertools
 import json
 import uuid
-from typing import TYPE_CHECKING, Iterable, TypeVar
+from typing import Iterable, TYPE_CHECKING, TypeVar
 
 from kani import Kani
 

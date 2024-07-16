@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Markdown from "@/components/Markdown.vue";
 import AssistantFunctionCall from "@/components/messages/AssistantFunctionCall.vue";
-import type { ChatMessage } from "@/kanpai/models";
+import type { ChatMessage } from "@/redel/models";
 
 const props = defineProps<{
   message: ChatMessage;

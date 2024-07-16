@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LoadSaveModal from "@/components/LoadSaveModal.vue";
-import { API } from "@/kanpai/api";
+import { API } from "@/redel/api";
 import autosize from "autosize";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";

@@ -2,7 +2,7 @@ import contextlib
 import logging
 import tempfile
 import urllib.parse
-from typing import TYPE_CHECKING, Optional
+from typing import Optional, TYPE_CHECKING
 
 import httpx
 import pymupdf

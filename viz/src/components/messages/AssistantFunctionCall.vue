@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FunctionCall } from "@/kanpai/models";
+import type { FunctionCall } from "@/redel/models";
 import { ref } from "vue";
 
 const props = defineProps<{

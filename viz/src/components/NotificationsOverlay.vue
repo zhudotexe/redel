@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NotificationLevel, Notifications } from "@/kanpai/notifications";
+import { NotificationLevel, Notifications } from "@/redel/notifications";
 </script>
 
 <template>

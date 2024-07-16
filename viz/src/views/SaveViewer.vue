@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import ChatMessages from "@/components/ChatMessages.vue";
 import Tree from "@/components/Tree.vue";
-import { API } from "@/kanpai/api";
-import { type BaseEvent, type KaniMessage, type KaniState } from "@/kanpai/models";
-import { ReDelState } from "@/kanpai/state";
+import { API } from "@/redel/api";
+import { type BaseEvent, type KaniMessage, type KaniState } from "@/redel/models";
+import { ReDelState } from "@/redel/state";
 import { computed, nextTick, onMounted, provide, reactive, ref } from "vue";
 
 const props = defineProps<{
