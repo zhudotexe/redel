@@ -19,7 +19,7 @@ from kani.ext.ratelimits import RatelimitedEngine
 from redel import AUTOGENERATE_TITLE
 from redel.eventlogger import DEFAULT_LOG_DIR
 from redel.tools.browsing import BrowsingMixin
-from server import VizServer
+from redel_server import VizServer
 
 # Host saves from the experiments
 EXPERIMENTS_DIR = Path(__file__).parent / "experiments"
