@@ -18,7 +18,7 @@ from .delegation.delegate_and_wait import DelegateWaitMixin
 from .eventlogger import EventLogger
 from .kanis import DELEGATE_KANPAI, ROOT_KANPAI, create_root_kani
 from .tool_config import ToolConfigType, validate_tool_configs
-from .utils import AutogenerateTitle, generate_conversation_title
+from .utils import AUTOGENERATE_TITLE, AutogenerateTitle, generate_conversation_title
 
 log = logging.getLogger(__name__)
 

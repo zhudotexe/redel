@@ -89,7 +89,7 @@ router.afterEach(async () => {
 <style scoped lang="scss">
 @import "@/global.scss";
 
-$drawer-width: 20rem;
+$drawer-width: 16rem;
 $drawer-padding: 1rem;
 $handle-width: 0.75rem;
 $handle-height: 3rem;

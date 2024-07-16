@@ -131,7 +131,7 @@ onMounted(async () => {
                     :min="0"
                     :max="events.length"
                     :value="replayIdx"
-                    @input="(e) => setReplayTarget(+e.target?.value)"
+                    @input="(e) => setReplayTarget(+(e.target as HTMLInputElement)?.value)"
                   />
                 </p>
                 <!-- fwd root -->

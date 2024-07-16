@@ -34,6 +34,6 @@ const props = defineProps<{
 }
 
 .content {
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 </style>
