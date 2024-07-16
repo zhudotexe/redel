@@ -2,7 +2,7 @@
 import ChatMessages from "@/components/ChatMessages.vue";
 import Tree from "@/components/Tree.vue";
 import { API } from "@/kanpai/api";
-import { type BaseEvent, type KaniState } from "@/kanpai/models";
+import { type BaseEvent, type KaniMessage, type KaniState } from "@/kanpai/models";
 import { ReDelState } from "@/kanpai/state";
 import { computed, nextTick, onMounted, provide, reactive, ref } from "vue";
 
@@ -47,6 +47,32 @@ function setReplayTarget(idx: number) {
   if (needsTreeUpdate) tree.value?.update();
 }
 
+/**
+ * Return the index immediately after the next kani_message event referencing this kani, or the current index if there
+ * is none.
+ */
+function getNextMessageIdx(kani: KaniState): number {
+  const idx = events.value
+    .slice(replayIdx.value)
+    .findIndex((e) => e.type === "kani_message" && (e as KaniMessage).id === kani.id);
+  if (idx !== -1) return replayIdx.value + idx + 1;
+  return replayIdx.value;
+}
+
+/**
+ * Return the index of the previous kani_message or kani_spawn event referencing this kani, or the current index if
+ * there is none.
+ */
+function getPreviousMessageIdx(kani: KaniState): number {
+  if (!replayIdx.value) return replayIdx.value;
+  const idx = events.value
+    .slice(0, replayIdx.value)
+    .reverse()
+    .findIndex((e) => e.type === "kani_message" && (e as KaniMessage).id === kani.id);
+  if (idx !== -1) return replayIdx.value - (idx + 1);
+  return replayIdx.value;
+}
+
 // hooks
 onMounted(async () => {
   // get state, update tree
@@ -76,18 +102,26 @@ onMounted(async () => {
             <!-- replay controls -->
             <div class="box">
               <p class="is-size-7">You are viewing a saved session replay.</p>
-              <div class="field is-grouped">
+              <div class="field is-grouped replay-controls">
                 <!-- back 1 -->
                 <p class="control" title="Go backward one event">
                   <button class="button is-info" @click="setReplayTarget(replayIdx - 1)">&lt;</button>
                 </p>
                 <!-- back selected -->
                 <p class="control" title="Jump to previous message in selected node">
-                  <button class="button is-info" :disabled="introspectedKani === undefined">&lt;&lt;</button>
+                  <button
+                    class="button is-info"
+                    @click="setReplayTarget(getPreviousMessageIdx(introspectedKani!))"
+                    :disabled="introspectedKani === undefined"
+                  >
+                    &lt;&lt;
+                  </button>
                 </p>
                 <!-- back root -->
                 <p class="control" title="Jump to previous root message">
-                  <button class="button is-info">&lt;&lt;&lt;</button>
+                  <button class="button is-info" @click="setReplayTarget(getPreviousMessageIdx(state.rootKani!))">
+                    &lt;&lt;&lt;
+                  </button>
                 </p>
                 <!-- slider -->
                 <p class="control is-expanded">
@@ -102,11 +136,19 @@ onMounted(async () => {
                 </p>
                 <!-- fwd root -->
                 <p class="control" title="Jump to next root message">
-                  <button class="button is-info">&gt;&gt;&gt;</button>
+                  <button class="button is-info" @click="setReplayTarget(getNextMessageIdx(state.rootKani!))">
+                    &gt;&gt;&gt;
+                  </button>
                 </p>
                 <!-- fwd selected -->
                 <p class="control" title="Jump to next message in selected node">
-                  <button class="button is-info" :disabled="introspectedKani === undefined">&gt;&gt;</button>
+                  <button
+                    class="button is-info"
+                    :disabled="introspectedKani === undefined"
+                    @click="setReplayTarget(getNextMessageIdx(introspectedKani!))"
+                  >
+                    &gt;&gt;
+                  </button>
                 </p>
                 <!-- fwd 1 -->
                 <p class="control" title="Go forward one event">
@@ -167,7 +209,12 @@ onMounted(async () => {
 }
 
 ///// replay controls /////
+.replay-controls {
+  align-items: center;
+}
+
 .slider {
   width: 100%;
+  height: 100%;
 }
 </style>
