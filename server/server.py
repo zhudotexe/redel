@@ -2,14 +2,15 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Awaitable, Callable, Collection
 
 from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect, WebSocketException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from redel import ReDel
 from redel.eventlogger import DEFAULT_LOG_DIR
-from redel.events import BaseEvent, Error, SendMessage
+from redel.events import Error, SendMessage
 from redel.utils import read_jsonl
 from .indexer import find_saves
 from .models import SaveMeta, SessionMeta, SessionState
@@ -20,27 +21,38 @@ log = logging.getLogger("server")
 
 
 class VizServer:
-    def __init__(self, save_dirs=(DEFAULT_LOG_DIR,)):
-        # archives
+    def __init__(
+        self,
+        *,
+        save_dirs: Collection[Path] = (DEFAULT_LOG_DIR,),
+        redel_kwargs: dict = None,
+        redel_factory: Callable[[], Awaitable[ReDel]] = None,
+    ):
+        """
+        :param save_dirs: A list of paths to scan for ReDel saves to make available to load. Defaults to
+            ``.redel/instances/``.
+        :param redel_kwargs: Keyword arguments to supply to the :class:`.ReDel` constructor for each interactive
+            session. Exactly one of ``('redel_kwargs', 'redel_factory')`` must be supplied.
+        :param redel_factory: An asynchronous function that creates a new :class:`.ReDel` instance when called.
+            Exactly one of ``('redel_kwargs', 'redel_factory')`` must be supplied.
+        """
+        if (redel_kwargs and redel_factory) or not (redel_kwargs or redel_factory):
+            raise ValueError("Exactly one of ('redel_kwargs', 'redel_factory') must be supplied.")
+        self.redel_kwargs = redel_kwargs
+        self.redel_factory = redel_factory
+
+        # saves
         self.save_dirs = save_dirs
         self.saves: dict[str, SaveMeta] = {}
 
         # interactive session states
         self.interactive_sessions: dict[str, SessionManager] = {}
-        self._chat_tasks = set()
 
         # webserver
         self.fastapi = FastAPI(lifespan=self._lifespan)
         self.setup_app()
 
-    @asynccontextmanager
-    async def _lifespan(self, _: FastAPI):
-        _ = asyncio.create_task(self.reindex_saves())
-        yield
-        for task in self._chat_tasks:
-            task.cancel()
-        await asyncio.gather(*(session.redel.close() for session in self.interactive_sessions.values()))
-
+    # ==== utils ====
     async def reindex_saves(self):
         """Asynchronously walk the save_dirs and update self.saves."""
 
@@ -54,6 +66,19 @@ class VizServer:
 
         # most of the time is spent in IO with the filesystem so we can thread this
         await asyncio.get_event_loop().run_in_executor(None, _index)
+
+    async def create_new_redel(self) -> ReDel:
+        """Return a new ReDel instance given the server config."""
+        if self.redel_kwargs:
+            return ReDel(**self.redel_kwargs)
+        return await self.redel_factory()
+
+    # ==== fastapi ====
+    @asynccontextmanager
+    async def _lifespan(self, _: FastAPI):
+        _ = asyncio.create_task(self.reindex_saves())
+        yield
+        await asyncio.gather(*(session.close() for session in self.interactive_sessions.values()))
 
     def setup_app(self):
         """Set up the FastAPI routes, middleware, etc."""
@@ -117,11 +142,13 @@ class VizServer:
             """Create a fresh new interactive session, optionally with a first user message.
             This will also create a new save.
             """
-            manager = SessionManager(self)
-            self.interactive_sessions[manager.redel.session_id] = manager
-            self.saves[manager.redel.session_id] = manager.get_save_meta()
-            chat_task = asyncio.create_task(manager.redel.chat_from_queue(manager.msg_queue))
-            self._chat_tasks.add(chat_task)
+            # create a new redel instance given the settings
+            redel = await self.create_new_redel()
+            # assign it to a sessionmanager and start
+            manager = SessionManager(self, redel)
+            self.interactive_sessions[redel.session_id] = manager
+            self.saves[redel.session_id] = manager.get_save_meta()
+            await manager.start()
             if start_content:
                 await manager.msg_queue.put(SendMessage(content=start_content))
             return manager.get_state()

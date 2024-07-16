@@ -1,40 +1,37 @@
 import asyncio
+from typing import TYPE_CHECKING
 
 from fastapi import WebSocket
-from kani.engines.anthropic import AnthropicEngine
-from kani.engines.openai import OpenAIEngine
-from kani.ext.ratelimits import RatelimitedEngine
 
-from redel import AUTOGENERATE_TITLE, ReDel
+from redel import ReDel
 from redel.events import BaseEvent, RoundComplete
-from redel.tools.browsing import BrowsingMixin
 from .models import SaveMeta, SessionMeta, SessionState
 
-engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
-long_engine = RatelimitedEngine(
-    AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
-)
+if TYPE_CHECKING:
+    from .server import VizServer
 
 
 class SessionManager:
     """Responsible for a single session and all connections to it."""
 
-    def __init__(self, server):
+    def __init__(self, server: "VizServer", redel: ReDel):
         self.server = server
-        self.redel = ReDel(
-            root_engine=engine,
-            delegate_engine=engine,
-            title=AUTOGENERATE_TITLE,
-            tool_configs={
-                BrowsingMixin: {
-                    "always_include": True,
-                    "kwargs": {"long_engine": long_engine},
-                },
-            },
-        )
+        self.redel = redel
         self.redel.add_listener(self.on_event)
+        self.task = None
         self.msg_queue = asyncio.Queue()
         self.active_connections: list[WebSocket] = []
+
+    # ==== lifecycle ====
+    async def start(self):
+        if self.task is not None:
+            raise RuntimeError("This session has already been started.")
+        self.task = asyncio.create_task(self.redel.chat_from_queue(self.msg_queue))
+
+    async def close(self):
+        if self.task is not None:
+            self.task.cancel()
+        await self.redel.close()
 
     # ==== state ====
     def get_state(self) -> SessionState:
