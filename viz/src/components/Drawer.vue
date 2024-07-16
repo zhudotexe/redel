@@ -35,45 +35,47 @@ router.afterEach(async () => {
 
 <template>
   <aside class="menu drawer h-100" :class="{ closed: !isOpen, open: isOpen }">
-    <RouterLink class="title" to="/">ReDel</RouterLink>
     <div class="is-clipped">
-      <p class="menu-label">Controls</p>
-      <ul class="menu-list">
-        <li>
-          <a @click="startNewInteractive">
-            <span class="icon-text">
-              <span class="icon is-small mt-1">
-                <font-awesome-icon :icon="['fas', 'circle-plus']" />
+      <div class="fixed-drawer-width">
+        <RouterLink class="title" to="/">ReDel</RouterLink>
+        <p class="menu-label">Controls</p>
+        <ul class="menu-list">
+          <li>
+            <a @click="startNewInteractive">
+              <span class="icon-text">
+                <span class="icon is-small mt-1">
+                  <font-awesome-icon :icon="['fas', 'circle-plus']" />
+                </span>
+                <span>Start a new session</span>
               </span>
-              <span>Start a new session</span>
-            </span>
-          </a>
-        </li>
-        <li>
-          <a @click="loadSaveModal!.open()">
-            <span class="icon-text">
-              <span class="icon is-small mt-1">
-                <font-awesome-icon :icon="['fas', 'folder-open']" />
+            </a>
+          </li>
+          <li>
+            <a @click="loadSaveModal!.open()">
+              <span class="icon-text">
+                <span class="icon is-small mt-1">
+                  <font-awesome-icon :icon="['fas', 'folder-open']" />
+                </span>
+                <span>Load a saved session</span>
               </span>
-              <span>Load a saved session</span>
-            </span>
-          </a>
-        </li>
-      </ul>
+            </a>
+          </li>
+        </ul>
 
-      <p class="menu-label">Interactive Sessions</p>
-      <ul class="menu-list">
-        <li
-          v-for="session in sorted(
-            interactiveSessions,
-            (a: SessionMeta, b: SessionMeta) => b.last_modified - a.last_modified,
-          )"
-        >
-          <RouterLink :to="{ name: 'interactive', params: { sessionId: session.id } }" active-class="is-active">
-            <SessionMetaRow :data="session" hide-icon-hints />
-          </RouterLink>
-        </li>
-      </ul>
+        <p class="menu-label">Interactive Sessions</p>
+        <ul class="menu-list">
+          <li
+            v-for="session in sorted(
+              interactiveSessions,
+              (a: SessionMeta, b: SessionMeta) => b.last_modified - a.last_modified,
+            )"
+          >
+            <RouterLink :to="{ name: 'interactive', params: { sessionId: session.id } }" active-class="is-active">
+              <SessionMetaRow :data="session" hide-icon-hints />
+            </RouterLink>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <div class="drawer-handle has-text-weight-bold has-text-centered is-unselectable" @click="isOpen = !isOpen">
@@ -88,6 +90,7 @@ router.afterEach(async () => {
 @import "@/global.scss";
 
 $drawer-width: 20rem;
+$drawer-padding: 1rem;
 $handle-width: 0.75rem;
 $handle-height: 3rem;
 
@@ -99,7 +102,6 @@ $handle-height: 3rem;
 
 .open {
   width: $drawer-width;
-  padding: 1rem;
 }
 
 .closed {
@@ -120,5 +122,11 @@ $handle-height: 3rem;
 
 .drawer-handle:hover {
   background-color: rgba($beige-light, 1);
+}
+
+.fixed-drawer-width {
+  width: $drawer-width - ($drawer-padding * 2);
+  margin: $drawer-padding;
+  overflow: hidden;
 }
 </style>
