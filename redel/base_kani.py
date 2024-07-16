@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import AsyncIterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, AsyncIterable
 from weakref import WeakValueDictionary
 
 from kani import ChatMessage, ChatRole, Kani
@@ -12,7 +12,7 @@ from .state import KaniState, RunState
 from .utils import create_kani_id
 
 if TYPE_CHECKING:
-    from .app import Kanpai
+    from .app import ReDel
 
 
 class BaseKani(Kani):
@@ -21,7 +21,7 @@ class BaseKani(Kani):
     def __init__(
         self,
         *args,
-        app: "Kanpai",
+        app: "ReDel",
         parent: "BaseKani" = None,
         id: str = None,
         name: str = None,

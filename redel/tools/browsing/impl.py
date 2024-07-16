@@ -2,7 +2,7 @@ import contextlib
 import logging
 import tempfile
 import urllib.parse
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import httpx
 import pymupdf
@@ -54,7 +54,6 @@ class BrowsingMixin(ToolBase):
             BrowsingMixin.browser = await BrowsingMixin.playwright.chromium.launch(
                 channel="chrome", args=[f"--user-agent={CHROME_UA}"], **kwargs
             )
-            # Kanpai.browser = await Kanpai.playwright.firefox.launch(**kwargs)
         if BrowsingMixin.browser_context is None:
             BrowsingMixin.browser_context = await BrowsingMixin.browser.new_context()
         return BrowsingMixin.browser_context
@@ -77,12 +76,10 @@ class BrowsingMixin(ToolBase):
 
     async def close(self):
         await super().close()
-        if BrowsingMixin.browser is not None:
-            browser = BrowsingMixin.browser
+        if (browser := BrowsingMixin.browser) is not None:
             BrowsingMixin.browser = None
             await browser.close()
-        if BrowsingMixin.playwright is not None:
-            pw = BrowsingMixin.playwright
+        if (pw := BrowsingMixin.playwright) is not None:
             BrowsingMixin.playwright = None
             await pw.stop()
 

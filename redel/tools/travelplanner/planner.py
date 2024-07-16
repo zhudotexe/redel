@@ -46,14 +46,16 @@ class TravelPlannerRootMixin(ToolBase):
         If a field does not apply for a given day, use "-" to indicate this.
         You MUST call this function to save the plan for each query.
         """
-        self.current_plan.append({
-            "day": day,
-            "current_city": current_city,
-            "transportation": transportation,
-            "breakfast": breakfast,
-            "attraction": attraction,
-            "lunch": lunch,
-            "dinner": dinner,
-            "accommodation": accommodation,
-        })
+        self.current_plan.append(
+            {
+                "day": day,
+                "current_city": current_city,
+                "transportation": transportation,
+                "breakfast": breakfast,
+                "attraction": attraction,
+                "lunch": lunch,
+                "dinner": dinner,
+                "accommodation": accommodation,
+            }
+        )
         return f"Saved plan for day {day}."

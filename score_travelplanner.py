@@ -16,6 +16,7 @@ EXPECTED_RESULTS = {
     "validation": 180,
 }
 
+
 async def transform_submission(fp: Path):
     """Read in the answers and generations and transform them all into the correct TP eval format."""
     results = read_jsonl(fp)

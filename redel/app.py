@@ -16,7 +16,7 @@ from . import events
 from .base_kani import BaseKani
 from .delegation.delegate_and_wait import DelegateWaitMixin
 from .eventlogger import EventLogger
-from .kanis import DELEGATE_KANPAI, ROOT_KANPAI, create_root_kani
+from .kanis import DEFAULT_DELEGATE_PROMPT, DEFAULT_ROOT_PROMPT, create_root_kani
 from .tool_config import ToolConfigType, validate_tool_configs
 from .utils import AUTOGENERATE_TITLE, AutogenerateTitle, generate_conversation_title
 
@@ -28,7 +28,7 @@ def default_engine():
     return OpenAIEngine(model="gpt-4o", temperature=0.8, top_p=0.95)
 
 
-class Kanpai:
+class ReDel:
     """This class is the monolithic core app. It represents a single session with recursive delegation.
 
     It's responsible for:
@@ -45,9 +45,9 @@ class Kanpai:
         root_engine: BaseEngine = None,
         delegate_engine: BaseEngine = None,
         # prompt/kani
-        root_system_prompt: str | None = ROOT_KANPAI,
+        root_system_prompt: str | None = DEFAULT_ROOT_PROMPT,
         root_kani_kwargs: dict = None,
-        delegate_system_prompt: str | None = DELEGATE_KANPAI,
+        delegate_system_prompt: str | None = DEFAULT_DELEGATE_PROMPT,
         delegate_kani_kwargs: dict = None,
         # delegation/function calling
         delegation_scheme: type | None = DelegateWaitMixin,
@@ -76,7 +76,7 @@ class Kanpai:
         :param root_has_tools: Whether the root kani should have access to the configured tools (default
             False).
         :param title: The title of this session. Set to ``redel.AUTOGENERATE_TITLE`` to automatically generate one.
-        :param log_dir: A path to a directory to save logs for this session. Defaults to ``.kanpai/{session_id}/``.
+        :param log_dir: A path to a directory to save logs for this session. Defaults to ``.redel/{session_id}/``.
         :param clear_existing_log: If the log directory has existing events, clear them before writing new events.
             Otherwise, append to existing events.
         :param session_id: The ID of this session. Generally this should not be set manually; it is used for loading
@@ -142,13 +142,13 @@ class Kanpai:
                     tool_configs=self.tool_configs,
                     root_has_tools=self.root_has_tools,
                     # BaseKani args
-                    name="kanpai",
+                    name="root",
                     # Kani args
                     system_prompt=self.root_system_prompt,
                     **self.root_kani_kwargs,
                 )
             if self.dispatch_task is None:
-                self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="kanpai-dispatch")
+                self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="redel-dispatch")
 
     # === entrypoints ===
     async def chat_from_queue(self, q: asyncio.Queue):
@@ -239,7 +239,7 @@ class Kanpai:
 
     # --- kani lifecycle ---
     def on_kani_creation(self, ai: BaseKani):
-        """Called by the kanpai kani constructor.
+        """Called by the redel kani constructor.
         Registers a new kani in the app, handles parent-child bookkeeping, and dispatches a KaniSpawn event."""
         self.kanis[ai.id] = ai
         if ai.parent:

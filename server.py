@@ -1,5 +1,5 @@
 """
-Visualized UI for interacting with kanpai.
+Visualized UI for interacting with ReDel.
 """
 
 import logging

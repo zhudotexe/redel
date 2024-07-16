@@ -39,7 +39,7 @@ class VizServer:
         yield
         for task in self._chat_tasks:
             task.cancel()
-        await asyncio.gather(*(session.kanpai_app.close() for session in self.interactive_sessions.values()))
+        await asyncio.gather(*(session.redel.close() for session in self.interactive_sessions.values()))
 
     async def reindex_saves(self):
         """Asynchronously walk the save_dirs and update self.saves."""
@@ -118,9 +118,9 @@ class VizServer:
             This will also create a new save.
             """
             manager = SessionManager(self)
-            self.interactive_sessions[manager.kanpai_app.session_id] = manager
-            self.saves[manager.kanpai_app.session_id] = manager.get_save_meta()
-            chat_task = asyncio.create_task(manager.kanpai_app.chat_from_queue(manager.msg_queue))
+            self.interactive_sessions[manager.redel.session_id] = manager
+            self.saves[manager.redel.session_id] = manager.get_save_meta()
+            chat_task = asyncio.create_task(manager.redel.chat_from_queue(manager.msg_queue))
             self._chat_tasks.add(chat_task)
             if start_content:
                 await manager.msg_queue.put(SendMessage(content=start_content))

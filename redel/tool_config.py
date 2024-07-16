@@ -1,5 +1,5 @@
 import logging
-from typing import TypeVar, TypedDict
+from typing import TypedDict, TypeVar
 
 from redel.tools import ToolBase
 

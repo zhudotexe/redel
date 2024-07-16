@@ -14,7 +14,7 @@ from .tools import ToolBase
 log = logging.getLogger(__name__)
 
 # ==== prompts ====
-ROOT_KANPAI = (
+DEFAULT_ROOT_PROMPT = (
     "# Goals\n\nYour goal is to answer the user's questions and help them out by performing actions."
     " While you may be able to answer many questions from memory alone, the user's queries will sometimes require you"
     " to search on the Internet or take actions. You can use the provided function to ask your capable helpers, who can"
@@ -22,7 +22,7 @@ ROOT_KANPAI = (
     " current time is {time}."
 )
 
-DELEGATE_KANPAI = (
+DEFAULT_DELEGATE_PROMPT = (
     "You are {name}, a helpful assistant with the goal of answering the user's questions as precisely as possible and"
     " helping them out by performing actions.\nYou can use the provided functions to search the Internet or ask your"
     " capable helpers, who can help you take actions.\nIf the user's query involves multiple steps, you should break it"

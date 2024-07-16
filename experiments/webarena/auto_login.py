@@ -8,13 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from itertools import combinations
 from pathlib import Path
 
-from browser_env.env_config import (
-    ACCOUNTS,
-    GITLAB,
-    REDDIT,
-    SHOPPING,
-    SHOPPING_ADMIN,
-)
+from browser_env.env_config import ACCOUNTS, GITLAB, REDDIT, SHOPPING, SHOPPING_ADMIN
 from playwright.sync_api import sync_playwright
 
 HEADLESS = True

@@ -1,11 +1,11 @@
 import asyncio
 import logging
 
-from redel.app import Kanpai
+from redel.app import ReDel
 
 
 async def main():
-    app = Kanpai()
+    app = ReDel()
     await app.chat_in_terminal()
 
 

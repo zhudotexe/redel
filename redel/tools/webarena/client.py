@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from browser_env import Action
     from multiprocessing.connection import Connection
+
+    from browser_env import Action
 
 
 class FatalSubprocessException(BaseException):

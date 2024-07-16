@@ -6,7 +6,6 @@ from playwright.async_api import async_playwright
 
 from redel.tools.browsing.webutils import CHROME_UA, get_google_links, web_markdownify
 
-
 # from playwright.sync_api import sync_playwright
 #
 # playwright = sync_playwright().start()

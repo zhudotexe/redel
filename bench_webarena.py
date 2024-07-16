@@ -28,7 +28,7 @@ import tqdm
 from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
-from redel import Kanpai, events
+from redel import ReDel, events
 from redel.tools.webarena.client import FatalSubprocessException, WebArenaClient
 from redel.tools.webarena.delegate_one import WebArenaDelegate1Mixin
 from redel.tools.webarena.patches import patch_to_support_webarena
@@ -38,6 +38,7 @@ from redel.utils import read_jsonl
 patch_to_support_webarena()
 
 from browser_env.auto_login import get_site_comb_from_filepath
+
 from redel.tools.webarena.impl import WebArenaMixin
 from redel.tools.webarena.subprocess import wa_entrypoint
 from redel.tools.webarena.utils import map_url_to_real
@@ -143,14 +144,16 @@ def wa_ensure_auth(config_file: Path) -> Path:
             comb = get_site_comb_from_filepath(cookie_file_name)
             temp_dir = tempfile.mkdtemp()
             # subprocess to renew the cookie
-            subprocess.run([
-                "python",
-                "experiments/webarena/auto_login.py",
-                "--auth_folder",
-                temp_dir,
-                "--site_list",
-                *comb,
-            ])
+            subprocess.run(
+                [
+                    "python",
+                    "experiments/webarena/auto_login.py",
+                    "--auth_folder",
+                    temp_dir,
+                    "--site_list",
+                    *comb,
+                ]
+            )
             _c["storage_state"] = f"{temp_dir}/{cookie_file_name}"
             assert os.path.exists(_c["storage_state"])
             # write a temp copy of the config file
@@ -169,7 +172,7 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
         task_id = config["task_id"]
 
     # setup redel
-    ai = Kanpai(
+    ai = ReDel(
         root_engine=root_engine,
         delegate_engine=delegate_engine,
         root_system_prompt=SYSTEM_PROMPT_ROOT,
@@ -254,14 +257,16 @@ async def run():
             )
             log.info(root_output)
             results_file.write(
-                json.dumps({
-                    "id": task_id,
-                    "score": score,
-                    "answer": answer,
-                    "root_output": root_output,
-                    "intent": wa_config["intent"],
-                    "log_dir": str(result_log_dir.resolve()),
-                })
+                json.dumps(
+                    {
+                        "id": task_id,
+                        "score": score,
+                        "answer": answer,
+                        "root_output": root_output,
+                        "intent": wa_config["intent"],
+                        "log_dir": str(result_log_dir.resolve()),
+                    }
+                )
             )
             results_file.write("\n")
             results_file.flush()

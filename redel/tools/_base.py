@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from redel.app import Kanpai
+    from redel.app import ReDel
     from redel.kanis import ReDelKani
 
 
@@ -12,7 +12,7 @@ class ToolBase:
     and the kani it's bound to (for access to the chat state), as well as common setup/teardown hooks.
     """
 
-    def __init__(self, app: "Kanpai", kani: "ReDelKani"):
+    def __init__(self, app: "ReDel", kani: "ReDelKani"):
         self.app = app
         """The app session this tool is running in."""
         self.kani = kani

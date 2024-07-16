@@ -5,7 +5,7 @@ from kani.engines.anthropic import AnthropicEngine
 from kani.engines.openai import OpenAIEngine
 from kani.ext.ratelimits import RatelimitedEngine
 
-from redel import AUTOGENERATE_TITLE, Kanpai
+from redel import AUTOGENERATE_TITLE, ReDel
 from redel.events import BaseEvent, RoundComplete
 from redel.tools.browsing import BrowsingMixin
 from .models import SaveMeta, SessionMeta, SessionState
@@ -21,7 +21,7 @@ class SessionManager:
 
     def __init__(self, server):
         self.server = server
-        self.kanpai_app = Kanpai(
+        self.redel = ReDel(
             root_engine=engine,
             delegate_engine=engine,
             title=AUTOGENERATE_TITLE,
@@ -32,38 +32,38 @@ class SessionManager:
                 },
             },
         )
-        self.kanpai_app.add_listener(self.on_event)
+        self.redel.add_listener(self.on_event)
         self.msg_queue = asyncio.Queue()
         self.active_connections: list[WebSocket] = []
 
     # ==== state ====
     def get_state(self) -> SessionState:
-        kanis = [ai.get_save_state() for ai in self.kanpai_app.kanis.values()]
+        kanis = [ai.get_save_state() for ai in self.redel.kanis.values()]
         return SessionState(
-            id=self.kanpai_app.session_id,
-            title=self.kanpai_app.title,
-            last_modified=self.kanpai_app.logger.last_modified,
-            n_events=self.kanpai_app.logger.event_count.total(),
+            id=self.redel.session_id,
+            title=self.redel.title,
+            last_modified=self.redel.logger.last_modified,
+            n_events=self.redel.logger.event_count.total(),
             state=kanis,
         )
 
     def get_session_meta(self) -> SessionMeta:
         return SessionMeta(
-            id=self.kanpai_app.session_id,
-            title=self.kanpai_app.title,
-            last_modified=self.kanpai_app.logger.last_modified,
-            n_events=self.kanpai_app.logger.event_count.total(),
+            id=self.redel.session_id,
+            title=self.redel.title,
+            last_modified=self.redel.logger.last_modified,
+            n_events=self.redel.logger.event_count.total(),
         )
 
     def get_save_meta(self) -> SaveMeta:
         return SaveMeta(
-            id=self.kanpai_app.session_id,
-            title=self.kanpai_app.title,
-            last_modified=self.kanpai_app.logger.last_modified,
-            n_events=self.kanpai_app.logger.event_count.total(),
-            grouping_prefix=self.kanpai_app.logger.log_dir.parent.parts,
-            state_fp=self.kanpai_app.logger.state_path,
-            event_fp=self.kanpai_app.logger.aof_path,
+            id=self.redel.session_id,
+            title=self.redel.title,
+            last_modified=self.redel.logger.last_modified,
+            n_events=self.redel.logger.event_count.total(),
+            grouping_prefix=self.redel.logger.log_dir.parent.parts,
+            state_fp=self.redel.logger.state_path,
+            event_fp=self.redel.logger.aof_path,
         )
 
     # ==== ws ====
@@ -83,4 +83,4 @@ class SessionManager:
         await self.broadcast(event.model_dump_json())
         # update the server save info on each RoundComplete
         if isinstance(event, RoundComplete):
-            self.server.saves[self.kanpai_app.session_id] = self.get_save_meta()
+            self.server.saves[self.redel.session_id] = self.get_save_meta()

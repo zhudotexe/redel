@@ -8,15 +8,16 @@ Statefulness: This server is STATEFUL between calls to `/reset`, and NOT paralle
 launch an instance of this server for each run.
 """
 
-from typing import Any, TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from .patches import patch_to_support_webarena
 
 patch_to_support_webarena()
 
-from .utils import map_url_to_real
 from browser_env import Action, ScriptBrowserEnv, StateInfo, Trajectory, create_stop_action
 from evaluation_harness import evaluator_router
+
+from .utils import map_url_to_real
 
 if TYPE_CHECKING:
     from multiprocessing.connection import Connection

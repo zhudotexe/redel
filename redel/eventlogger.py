@@ -9,16 +9,16 @@ from . import events
 from .utils import read_jsonl
 
 if TYPE_CHECKING:
-    from .app import Kanpai
+    from .app import ReDel
 
-DEFAULT_LOG_DIR = pathlib.Path(__file__).parents[1] / ".kanpai/instances"
+DEFAULT_LOG_DIR = pathlib.Path(__file__).parents[1] / ".redel/instances"
 DEFAULT_LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 log = logging.getLogger(__name__)
 
 
 class EventLogger:
-    def __init__(self, app: "Kanpai", session_id: str, log_dir: pathlib.Path = None, clear_existing_log: bool = False):
+    def __init__(self, app: "ReDel", session_id: str, log_dir: pathlib.Path = None, clear_existing_log: bool = False):
         self.app = app
         self.session_id = session_id
         self.last_modified = time.time()

@@ -25,7 +25,7 @@ from fanoutqa.models import DevQuestion, TestQuestion
 from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
-from redel import Kanpai, events
+from redel import ReDel, events
 from redel.delegation.delegate_one import Delegate1Mixin
 from redel.tools.fanoutqa.impl import FanOutQAMixin
 from redel.utils import read_jsonl
@@ -98,7 +98,7 @@ print("============================")
 
 # ==== main ====
 async def query(q: DevQuestion | TestQuestion):
-    ai = Kanpai(
+    ai = ReDel(
         root_engine=root_engine,
         delegate_engine=delegate_engine,
         root_system_prompt=None,

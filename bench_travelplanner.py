@@ -24,7 +24,7 @@ from datasets import load_dataset
 from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
-from redel import Kanpai, events
+from redel import ReDel, events
 from redel.delegation.delegate_one import Delegate1Mixin
 from redel.tools.travelplanner.planner import TravelPlannerRootMixin
 from redel.tools.travelplanner.search import TravelPlannerMixin
@@ -90,7 +90,7 @@ print("============================")
 
 # ==== main ====
 async def query(q: dict, qid: str):
-    ai = Kanpai(
+    ai = ReDel(
         root_engine=root_engine,
         delegate_engine=delegate_engine,
         root_system_prompt=root_system_prompt,
@@ -145,14 +145,16 @@ async def run():
         else:
             log.info(result)
             results_file.write(
-                json.dumps({
-                    "id": qid,
-                    "idx": idx,
-                    "plan": plan,
-                    "answer": result,
-                    "question": q["query"],
-                    "log_dir": str(result_log_dir.resolve()),
-                })
+                json.dumps(
+                    {
+                        "id": qid,
+                        "idx": idx,
+                        "plan": plan,
+                        "answer": result,
+                        "question": q["query"],
+                        "log_dir": str(result_log_dir.resolve()),
+                    }
+                )
             )
             results_file.write("\n")
             results_file.flush()
