@@ -9,14 +9,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from redel import ReDel
-from redel.eventlogger import DEFAULT_LOG_DIR
+from redel.config import DEFAULT_LOG_DIR
 from redel.events import Error, SendMessage
 from redel.utils import read_jsonl
 from .indexer import find_saves
 from .models import SaveMeta, SessionMeta, SessionState
 from .session_manager import SessionManager
 
-REPO_ROOT = Path(__file__).parents[1]
+VIZ_DIST = Path(__file__).parent / "viz_dist"
 log = logging.getLogger("server")
 
 
@@ -30,7 +30,7 @@ class VizServer:
     ):
         """
         :param save_dirs: A list of paths to scan for ReDel saves to make available to load. Defaults to
-            ``.redel/instances/``.
+            ``~/.redel/instances/``.
         :param redel_kwargs: Keyword arguments to supply to the :class:`.ReDel` constructor for each interactive
             session. Defaults to an empty dictionary. If this is set, ``redel_factory`` must not be set.
         :param redel_factory: An asynchronous function that creates a new :class:`.ReDel` instance when called.
@@ -193,4 +193,4 @@ class VizServer:
                     await websocket.send_text(Error(msg=str(e)).model_dump_json())
 
         # viz static files
-        self.fastapi.mount("/", StaticFiles(directory=REPO_ROOT / "viz/dist", html=True), name="viz")
+        self.fastapi.mount("/", StaticFiles(directory=VIZ_DIST, html=True), name="viz")

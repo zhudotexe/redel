@@ -11,6 +11,8 @@ from .server import VizServer
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("redel-server")
 
+# todo args for save dirs
+
 # Define the configuration for each interactive session
 redel_config = dict(
     title=AUTOGENERATE_TITLE,

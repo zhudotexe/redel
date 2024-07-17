@@ -6,13 +6,12 @@ from collections import Counter
 from typing import TYPE_CHECKING
 
 from . import events
+from .config import DEFAULT_LOG_DIR
 from .utils import read_jsonl
 
 if TYPE_CHECKING:
     from .app import ReDel
 
-DEFAULT_LOG_DIR = pathlib.Path(__file__).parents[1] / ".redel/instances"
-DEFAULT_LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 log = logging.getLogger(__name__)
 

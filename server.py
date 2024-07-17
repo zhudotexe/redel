@@ -18,7 +18,7 @@ from kani.engines.openai import OpenAIEngine
 from kani.ext.ratelimits import RatelimitedEngine
 
 from redel import AUTOGENERATE_TITLE
-from redel.eventlogger import DEFAULT_LOG_DIR
+from redel.config import DEFAULT_LOG_DIR
 from redel.server import VizServer
 from redel.tools.browsing import Browsing
 

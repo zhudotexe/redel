@@ -27,16 +27,69 @@ TODO
 
 ## Usage
 
-TODO
+There are two primary ways to interact with a system: interactively, through the web
+interface, or programmatically. The former is particularly useful to debug your system's behaviour, iterate on prompts,
+or otherwise provide an interactive experience. The latter is useful for running experiments and batch queries.
 
-- how to change the delegation policy
-- how to change the engine
-- how to change the prompt
-- how to add additional functions
-- how to set which functions are always included in a delegate
-- other options
+See the docs for more usage information at https://redel.readthedocs.io!
 
-## Defining Your Own Modules
+### Server
+
+```python
+from kani.engines.openai import OpenAIEngine
+from redel import AUTOGENERATE_TITLE
+from redel.server import VizServer
+from redel.tools.browsing import Browsing
+
+# Define the LLM engines to use for each node
+engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
+
+# Define the configuration for each interactive session
+redel_config = dict(
+    root_engine=engine,
+    delegate_engine=engine,
+    title=AUTOGENERATE_TITLE,
+    tool_configs={
+        Browsing: {"always_include": True},
+    },
+)
+
+# configure and start the server
+server = VizServer(redel_kwargs=redel_config)
+server.serve()
+```
+
+### Programmatic
+
+```python
+import asyncio
+from kani import ChatRole
+from kani.engines.openai import OpenAIEngine
+from redel import ReDel, events
+from redel.tools.browsing import Browsing
+
+# Define the LLM engines to use for each node
+engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
+
+# Define the configuration for the session
+ai = ReDel(
+    root_engine=engine,
+    delegate_engine=engine,
+    title="Airspeed of a swallow",
+    tool_configs={
+        Browsing: {"always_include": True},
+    },
+)
+
+# ReDel is async, so define an async function and use asyncio.run()
+async def main():
+    async for event in ai.query("What is the airspeed velocity of an unladen swallow?"):
+        if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
+            if event.msg.text:
+                print(event.msg.text)
+
+asyncio.run(main())
+```
 
 ## EMNLP Demo Experiments
 

@@ -80,7 +80,7 @@ class ReDel:
         :param title: The title of this session. Set to ``redel.AUTOGENERATE_TITLE`` to automatically generate one
             (default), or ``None`` to disable title generation.
         :param log_dir: A path to a directory to save logs for this session. Defaults to
-            ``.redel/instances/{session_id}/``.
+            ``$REDEL_HOME/instances/{session_id}/`` (default ``~/.redel/instances/{session_id}``).
         :param clear_existing_log: If the log directory has existing events, clear them before writing new events.
             Otherwise, append to existing events.
         :param session_id: The ID of this session. Generally this should not be set manually; it is used for loading
