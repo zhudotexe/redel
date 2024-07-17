@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-class BrowsingMixin(ToolBase):
+class Browsing(ToolBase):
     # app-global browser instance
     playwright = None
     browser = None
@@ -48,15 +48,15 @@ class BrowsingMixin(ToolBase):
     # noinspection PyMethodMayBeStatic
     async def get_browser(self, **kwargs) -> BrowserContext:
         """Get the current active browser context, or launch it on the first call."""
-        if BrowsingMixin.playwright is None:
-            BrowsingMixin.playwright = await async_playwright().start()
-        if BrowsingMixin.browser is None:
-            BrowsingMixin.browser = await BrowsingMixin.playwright.chromium.launch(
+        if Browsing.playwright is None:
+            Browsing.playwright = await async_playwright().start()
+        if Browsing.browser is None:
+            Browsing.browser = await Browsing.playwright.chromium.launch(
                 channel="chrome", args=[f"--user-agent={CHROME_UA}"], **kwargs
             )
-        if BrowsingMixin.browser_context is None:
-            BrowsingMixin.browser_context = await BrowsingMixin.browser.new_context()
-        return BrowsingMixin.browser_context
+        if Browsing.browser_context is None:
+            Browsing.browser_context = await Browsing.browser.new_context()
+        return Browsing.browser_context
 
     async def get_page(self, create=True) -> Optional["Page"]:
         """Get the current page.
@@ -76,11 +76,11 @@ class BrowsingMixin(ToolBase):
 
     async def close(self):
         await super().close()
-        if (browser := BrowsingMixin.browser) is not None:
-            BrowsingMixin.browser = None
+        if (browser := Browsing.browser) is not None:
+            Browsing.browser = None
             await browser.close()
-        if (pw := BrowsingMixin.playwright) is not None:
-            BrowsingMixin.playwright = None
+        if (pw := Browsing.playwright) is not None:
+            Browsing.playwright = None
             await pw.stop()
 
     # ==== functions ====

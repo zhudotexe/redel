@@ -130,12 +130,12 @@ An example of a tool configuration that gives all delegate agents access to the 
 
 .. code-block:: python
 
-    from redel.tools.browsing import BrowsingMixin
+    from redel.tools.browsing import Browsing
 
     sys = ReDel(
         ...,
         tool_configs={
-            BrowsingMixin: {
+            Browsing: {
                 "always_include": True,
                 "kwargs": {"long_engine": long_engine},  # long_engine defined somewhere else
             },

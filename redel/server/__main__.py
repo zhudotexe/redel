@@ -5,7 +5,7 @@ This is the minimal configuration for a ReDel visualization server with web brow
 import logging
 
 from redel import AUTOGENERATE_TITLE
-from redel.tools.browsing import BrowsingMixin
+from redel.tools.browsing import Browsing
 from .server import VizServer
 
 logging.basicConfig(level=logging.INFO)
@@ -15,7 +15,7 @@ log = logging.getLogger("redel-server")
 redel_config = dict(
     title=AUTOGENERATE_TITLE,
     tool_configs={
-        BrowsingMixin: {"always_include": True},
+        Browsing: {"always_include": True},
     },
 )
 

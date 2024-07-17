@@ -11,7 +11,7 @@ from ._base import DelegationBase
 log = logging.getLogger(__name__)
 
 
-class DelegateWaitMixin(DelegationBase):
+class DelegateWait(DelegationBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helpers = {}  # name -> delegate

@@ -20,7 +20,7 @@ from kani.ext.ratelimits import RatelimitedEngine
 from redel import AUTOGENERATE_TITLE
 from redel.eventlogger import DEFAULT_LOG_DIR
 from redel.server import VizServer
-from redel.tools.browsing import BrowsingMixin
+from redel.tools.browsing import Browsing
 
 # Host saves from the experiments
 EXPERIMENTS_DIR = Path(__file__).parent / "experiments"
@@ -40,7 +40,7 @@ redel_config = dict(
     delegate_engine=engine,
     title=AUTOGENERATE_TITLE,
     tool_configs={
-        BrowsingMixin: {
+        Browsing: {
             "always_include": True,
             "kwargs": {"long_engine": long_engine},
         },

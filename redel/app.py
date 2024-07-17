@@ -14,7 +14,7 @@ from kani.engines.openai import OpenAIEngine
 
 from . import events
 from .base_kani import BaseKani
-from .delegation.delegate_and_wait import DelegateWaitMixin
+from .delegation.delegate_and_wait import DelegateWait
 from .eventlogger import EventLogger
 from .kanis import DEFAULT_DELEGATE_PROMPT, DEFAULT_ROOT_PROMPT, create_root_kani
 from .tool_config import ToolConfigType, validate_tool_configs
@@ -53,7 +53,7 @@ class ReDel:
         delegate_system_prompt: str | None = DEFAULT_DELEGATE_PROMPT,
         delegate_kani_kwargs: dict = None,
         # delegation/function calling
-        delegation_scheme: type | None = DelegateWaitMixin,
+        delegation_scheme: type | None = DelegateWait,
         max_delegation_depth: int = 8,
         tool_configs: ToolConfigType = None,
         root_has_tools: bool = False,

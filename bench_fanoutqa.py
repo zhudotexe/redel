@@ -26,7 +26,7 @@ from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
 from redel import ReDel, events
-from redel.delegation.delegate_one import Delegate1Mixin
+from redel.delegation.delegate_one import DelegateOne
 from redel.tools.fanoutqa.impl import FanOutQAMixin
 from redel.utils import read_jsonl
 
@@ -35,7 +35,7 @@ experiment_config = sys.argv[-1]
 log = logging.getLogger("bench_fanoutqa")
 
 # ==== config ====
-delegation_scheme = Delegate1Mixin
+delegation_scheme = DelegateOne
 log_dir = LOG_BASE / "dev/trial2" / experiment_config
 # gross but whatever
 # - **full**: no root FC, gpt-4o everything

@@ -10,7 +10,7 @@ from ._base import DelegationBase
 log = logging.getLogger(__name__)
 
 
-class Delegate1Mixin(DelegationBase):
+class DelegateOne(DelegationBase):
     @ai_function()
     async def delegate(
         self,

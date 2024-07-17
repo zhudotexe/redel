@@ -25,7 +25,7 @@ from kani import ChatRole
 from kani.engines.openai import OpenAIEngine
 
 from redel import ReDel, events
-from redel.delegation.delegate_one import Delegate1Mixin
+from redel.delegation.delegate_one import DelegateOne
 from redel.tools.travelplanner.planner import TravelPlannerRootMixin
 from redel.tools.travelplanner.search import TravelPlannerMixin
 from redel.utils import read_jsonl
@@ -35,7 +35,7 @@ experiment_config = sys.argv[-1]
 log = logging.getLogger("bench_travelplanner")
 
 # ==== config ====
-delegation_scheme = Delegate1Mixin
+delegation_scheme = DelegateOne
 log_dir = LOG_BASE / "validation" / experiment_config
 root_system_prompt = (
     "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions."

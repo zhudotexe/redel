@@ -1,1 +1,1 @@
-from .impl import BrowsingMixin
+from .impl import Browsing
