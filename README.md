@@ -23,7 +23,13 @@ $ OPENAI_API_KEY="..." python -m redel.server
 
 ## Screenshots
 
-TODO
+![The ReDel homepage](docs/_static/home.png)
+
+![Interactive](docs/_static/delegate2.png)
+
+![Loading saved logs](docs/_static/loader.png)
+
+![Replay](docs/_static/replay.png)
 
 ## Usage
 

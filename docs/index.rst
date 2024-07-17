@@ -20,6 +20,17 @@ Features
   built by a big tech organization with their own motives. Everything in ReDel is implemented in pure, idiomatic Python
   and permissively licensed.
 
+Screenshots
+-----------
+
+.. image:: _static/home.png
+
+.. image:: _static/delegate2.png
+
+.. image:: _static/loader.png
+
+.. image:: _static/replay.png
+
 Quickstart (EMNLP Demo)
 -----------------------
 

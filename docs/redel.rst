@@ -6,7 +6,7 @@ ReDel is a toolkit for researchers and developers to build, iterate on, and anal
 It consists of two main parts: a Python library for building, running, and logging systems, and a web visualizer
 to view system logs and interact with systems in a sandbox environment.
 
-.. todo some kind of video here
+.. video:: _static/demo1.webm
 
 What is a recursive multi-agent system?
 ---------------------------------------
@@ -207,6 +207,11 @@ way to provide this is to change ``ReDel`` to ``dict``.
 
     # VizServer.serve() makes the web interface available at 127.0.0.1:8000 by default
     server.serve()
+
+This will allow you to chat with the current configuration and visualize the computation tree:
+
+.. image:: _static/delegate2.png
+    :width: 1000
 
 See :doc:`viz` for more information about the web interface.
 

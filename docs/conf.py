@@ -25,6 +25,7 @@ extensions = [
     "sphinx_inline_tabs",  # https://sphinx-inline-tabs.readthedocs.io/en/latest/usage.html
     "sphinx_copybutton",  # https://sphinx-copybutton.readthedocs.io/en/latest/
     "sphinxemoji.sphinxemoji",  # https://sphinxemojicodes.readthedocs.io/en/stable/
+    "sphinxcontrib.video",  # https://sphinxcontrib-video.readthedocs.io/en/latest/quickstart.html
     "myst_parser",
 ]
 
@@ -42,6 +43,10 @@ html_static_path = ["_static"]
 # html_logo = "_static/kani-logo@512.png"
 # html_favicon = "_extra/favicon.ico"
 html_baseurl = "https://redel.readthedocs.io/en/latest/"
+
+html_css_files = [
+    "furo_fixes.css",
+]
 
 nitpicky = True
 nitpick_ignore_regex = [
