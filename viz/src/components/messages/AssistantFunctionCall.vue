@@ -15,9 +15,13 @@ const isOpen = ref(true);
       <p>Called {{ props.functionCall.name }}()...</p>
     </div>
     <div class="message-body" v-if="isOpen">
-      <kbd>{{ functionCall.arguments }}</kbd>
+      <kbd class="allow-wrap-anywhere">{{ functionCall.arguments }}</kbd>
     </div>
   </article>
 </template>
 
-<style scoped></style>
+<style scoped>
+.allow-wrap-anywhere {
+  overflow-wrap: anywhere;
+}
+</style>
