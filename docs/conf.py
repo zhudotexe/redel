@@ -2,10 +2,7 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
-import pathlib
 import sys
-
-import matplotlib.font_manager
 
 # ensure kani is available in path
 sys.path.append("..")
@@ -28,6 +25,7 @@ extensions = [
     "sphinx_inline_tabs",  # https://sphinx-inline-tabs.readthedocs.io/en/latest/usage.html
     "sphinx_copybutton",  # https://sphinx-copybutton.readthedocs.io/en/latest/
     "sphinxemoji.sphinxemoji",  # https://sphinxemojicodes.readthedocs.io/en/stable/
+    "myst_parser",
 ]
 
 templates_path = ["_templates"]
@@ -58,10 +56,13 @@ nitpick_ignore_regex = [
 # sphinx.ext.autodoc
 autoclass_content = "both"
 autodoc_member_order = "bysource"
+autodoc_preserve_defaults = True
 
 # sphinx.ext.intersphinx
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "kani": ("https://kani.readthedocs.io/en/latest", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
 
 # sphinx_copybutton

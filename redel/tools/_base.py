@@ -13,29 +13,29 @@ class ToolBase:
     """
 
     def __init__(self, app: "ReDel", kani: "ReDelKani"):
-        self.app = app
+        self.app: "ReDel" = app
         """The app session this tool is running in."""
-        self.kani = kani
+        self.kani: "ReDelKani" = kani
         """The kani this tool is bound to."""
 
     async def setup(self):
         """Called once per bound instance in an async context for each time this tool is bound to a new kani.
 
-        Use this method for any necessary async setup.
+        Override this method to perform any necessary async setup.
         """
         pass
 
     async def cleanup(self):
         """Called each time the kani this tool is bound to completes its task.
 
-        Use this method to clean up any ephemeral chat round-scoped resources if needed, but maintain any other state
-        as the bound kani might still run again.
+        Override this method to clean up any ephemeral chat round-scoped resources if needed, but maintain any other
+        state as the bound kani might still run again.
         """
         pass
 
     async def close(self):
         """Called once per bound instance when the app closes the session.
 
-        Use this method to gracefully clean up all resources attached to this tool.
+        Override this method to gracefully clean up all resources attached to this tool.
         """
         pass

@@ -42,9 +42,10 @@ def get_system_prompt(kani: "BaseKani") -> str:
 
 # ==== implementation ====
 class ReDelKani(BaseKani):
-    """Base class for recursive delegation kanis.
+    """Base class for recursive delegation kanis. Extends :class:`.BaseKani`.
 
-    This class should not be constructed manually - it is tightly coupled to and managed by the application.
+    This class should not be constructed manually - it is tightly coupled to and managed by the application. You can
+    get a reference to a kani powering an agent in a tool by using :attr:`.ToolBase.kani`.
     """
 
     def __init__(self, *args, **kwargs):

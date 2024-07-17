@@ -5,10 +5,12 @@ from redel.tools import ToolBase
 
 log = logging.getLogger(__name__)
 
-_ToolBase = TypeVar("_ToolBase", bound=ToolBase)
+_ToolBaseT = TypeVar("_ToolBaseT", bound=ToolBase)
 
 
 class ToolConfig(TypedDict, total=False):
+    """A tool's config should be a dictionary with any of the following keys:"""
+
     always_include: bool
     """If true, each delegate kani will *always* have access to this tool. Defaults to False."""
     always_include_root: bool
@@ -22,7 +24,7 @@ class ToolConfig(TypedDict, total=False):
     """
 
 
-ToolConfigType = dict[type[_ToolBase], ToolConfig]
+ToolConfigType = dict[type[_ToolBaseT], ToolConfig]
 
 
 def validate_tool_configs(configs: ToolConfigType):

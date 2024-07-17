@@ -29,13 +29,16 @@ def default_engine():
 
 
 class ReDel:
-    """This class is the monolithic core app. It represents a single session with recursive delegation.
+    """This class represents a single session of a recursive multi-agent system.
 
     It's responsible for:
-    - all delegation configuration options
-    - all the spawned kani and their relations within the session
-    - dispatching all events from the session
-    - logging events
+
+    * all delegation configuration options
+    * all the spawned kani and their relations within the session
+    * dispatching all events from the session
+    * logging events
+
+    All arguments to the constructor are keyword arguments.
     """
 
     def __init__(
@@ -64,12 +67,11 @@ class ReDel:
         :param root_engine: The engine to use for the root kani. Requires function calling. (default: gpt-4o)
         :param delegate_engine: The engine to use for each delegate kani. Requires function calling. (default: gpt-4o)
         :param root_system_prompt: The system prompt for the root kani. See ``redel.kanis`` for default.
-        :param root_kani_kwargs: Additional keyword args to pass to :class:``kani.Kani``.
+        :param root_kani_kwargs: Additional keyword args to pass to :class:`kani.Kani`.
         :param delegate_system_prompt: The system prompt for the each delegate kani. See ``redel.kanis`` for default.
-        :param delegate_kani_kwargs: Additional keyword args to pass to :class:``kani.Kani``.
-        :param delegation_scheme: A class that each kani capable of delegation will inherit from. See
-            ``redel.delegation`` for examples. This class can assume the existence of a ``create_delegate_kani`` method.
-            Can be ``None`` to disable delegation (this makes ReDel a nice kani visualization tool).
+        :param delegate_kani_kwargs: Additional keyword args to pass to :class:`kani.Kani`.
+        :param delegation_scheme: A class that each kani capable of delegation will use to provide the delegation tool.
+            See ``redel.delegation`` for examples. Can be ``None`` to disable delegation.
         :param max_delegation_depth: The maximum delegation depth. Kanis created at this depth will not inherit from the
             ``delegation_scheme`` class.
         :param tool_configs: A mapping of tool mixin classes to their configurations (see :class:`.ToolConfig`).
@@ -154,7 +156,7 @@ class ReDel:
 
     # === entrypoints ===
     async def chat_from_queue(self, q: asyncio.Queue):
-        """Get chat messages from the queue."""
+        """Get chat messages from a provided queue. Used internally in the visualization server."""
         await self.ensure_init()
         while True:
             # main loop
@@ -172,6 +174,7 @@ class ReDel:
                 await self.logger.write_state()  # autosave
 
     async def chat_in_terminal(self):
+        """Chat with the defined system in the terminal. Prints function calls and root messages to the terminal."""
         await self.ensure_init()
         while True:
             try:

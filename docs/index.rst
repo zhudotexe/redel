@@ -60,6 +60,7 @@ benchmarks.
     delegation
     events
     viz
-    experiments
+    experiments.md
+    glossary
     api_reference
     genindex

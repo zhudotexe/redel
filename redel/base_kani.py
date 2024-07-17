@@ -16,7 +16,11 @@ if TYPE_CHECKING:
 
 
 class BaseKani(Kani):
-    """Base class for all kani in the application, regardless of recursive delegation."""
+    """
+    Base class for all kani in the application, regardless of recursive delegation.
+
+    Extends :class:`kani.Kani`.
+    """
 
     def __init__(
         self,
@@ -28,6 +32,14 @@ class BaseKani(Kani):
         dispatch_creation: bool = True,
         **kwargs,
     ):
+        """
+        :param app: The :class:`.ReDel` instance this kani is a part of.
+        :param parent: The parent of this kani, or ``None`` if this is the root of a system.
+        :param id: The internal ID of this kani. If not passed, generates a UUID.
+        :param name: The human-readable name of this kani. If not passed, uses the ID.
+        :param dispatch_creation: Whether to dispatch a :class:`.events.KaniSpawn` event automatically. If false, the
+            caller is responsible for calling ``app.on_kani_creation()`` to dispatch the event.
+        """
         super().__init__(*args, **kwargs)
         self.state = RunState.STOPPED
         self._old_state_stack = []

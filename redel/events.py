@@ -8,6 +8,8 @@ from .state import KaniState, RunState
 
 
 class BaseEvent(BaseModel, abc.ABC):
+    """The base event that all other events should inherit from."""
+
     __log_event__ = True  # whether or not the event should be logged
     type: str
 
@@ -35,7 +37,7 @@ class KaniStateChange(BaseEvent):
 
 
 class TokensUsed(BaseEvent):
-    """A kani just finishes a request to the engine, which used this many tokens."""
+    """A kani just finished a request to the engine, which used this many tokens."""
 
     type: Literal["tokens_used"] = "tokens_used"
     id: str

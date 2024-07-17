@@ -22,7 +22,9 @@ def get_embedding_client():
 @dataclass
 class EmbeddingResult:
     idx: int
+    """The index of the input text in its input list."""
     embedding: np.ndarray
+    """The embedding returned by the server (an array of floats)."""
 
 
 def get_embeddings(qs: list[str], model: str) -> list[EmbeddingResult]:

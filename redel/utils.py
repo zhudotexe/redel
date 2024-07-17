@@ -19,7 +19,13 @@ def create_kani_id() -> str:
 # ===== title =====
 # thin class for typing
 class AutogenerateTitle:
-    pass
+    """
+    A sentinel class to tell ReDel to automatically generate a session title.
+
+    Do not construct manually - use the singleton ``redel.AUTOGENERATE_TITLE``.
+    """
+    def __repr__(self):
+        return "<AUTOGENERATE_TITLE>"
 
 
 AUTOGENERATE_TITLE = AutogenerateTitle()
