@@ -142,5 +142,95 @@ An example of a tool configuration that gives all delegate agents access to the 
         },
     )
 
+.. note::
+    In a future version, tools will be retrieved instead of always included or excluded, hence why they must
+    be explicitly included in the current version to avoid breaking changes.
+
+
 If ``root_has_tools`` is ``True``, the root agent will have access to all of the same tools each delegate agent has
 access to, *in addition to* any tools with ``always_include_root`` set to ``True``.
+
+Logging Configuration
+^^^^^^^^^^^^^^^^^^^^^
+ReDel automatically logs each run of a ReDel system, allowing researchers and developers to easily analyze system
+outputs and introspect internal behaviour. These arguments configure where these logs are saved and other logging
+behaviour. To learn more about the logging, see :doc:`events`.
+
+``title`` is a human-readable title for the system's run. This allows you to search previous sessions in the web
+visualizer.
+You can set this to the special value ``redel.AUTOGENERATE_TITLE`` in order to have an LLM generate the title after
+a couple rounds of interaction, which is particularly useful for web-based interactive sessions.
+
+``log_dir`` is the directory where the session's events should be saved. ReDel will create a new save the system's event
+logs and final state as ``events.jsonl`` and ``state.json`` in this directory.
+
+If the ``log_dir`` already contains an existing save, ``clear_existing_log`` controls whether new events should be
+appended to an existing ``events.jsonl`` file or if the file should be truncated before writing events. This should be
+``True`` if the session does not load the existing save (e.g. rerunning an experiment from scratch) and ``False`` if it
+does (e.g. continuing an interactive session).
+
+Interacting with a ReDel System
+-------------------------------
+Now that we know how to configure a system, how do we actually use it?
+
+There are two primary ways to interact with a system now that you've configured it: interactively, through the web
+interface, or programmatically. The former is particularly useful to debug your system's behaviour, iterate on prompts,
+or otherwise provide an interactive experience. The latter is useful for running experiments and batch queries.
+
+Serving for WebViz
+^^^^^^^^^^^^^^^^^^
+To serve a ReDel configuration using the included web interface, the library includes the :class:`.VizServer` class.
+
+This class expects the arguments used to configure a ReDel session -- if you've used the ReDel constructor, the easiest
+way to provide this is to change ``ReDel`` to ``dict``.
+
+.. code-block:: python
+    :caption: An example of serving a ReDel configuration with web browsing over the web interface.
+
+    from redel.server import VizServer
+
+    # a ReDel session configuration, with ReDel replaced by dict
+    redel_config = dict(
+        root_engine=root_engine,
+        delegate_engine=delegate_engine,
+        title=redel.AUTOGENERATE_TITLE,
+        tool_configs={
+            Browsing: {
+                "always_include": True,
+                "kwargs": {"long_engine": long_engine},
+            },
+        },
+    )
+
+    # pass that dict to VizServer
+    server = VizServer(redel_kwargs=redel_config)
+
+    # VizServer.serve() makes the web interface available at 127.0.0.1:8000 by default
+    server.serve()
+
+See :doc:`viz` for more information about the web interface.
+
+Programmatic
+^^^^^^^^^^^^
+Otherwise, to use a ReDel configuration in a larger program, you should use :meth:`.ReDel.query` to send queries
+to the root node. This method will return an iterator of events that the system emits -- you can use this to listen
+for specific events, or filter the stream for :class:`.events.RootMessage` to emulate a chat with a single agent.
+
+A full script might look something like this:
+
+.. code-block:: python
+    :emphasize-lines: 8
+
+    import asyncio
+    from kani import ChatRole
+    from redel import ReDel, events
+
+    ai = ReDel()  # configure your system here, or leave blank for a default system
+
+    async def main():
+        async for event in ai.query("What is the airspeed velocity of an unladen swallow?"):
+            if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
+                if event.msg.text:
+                    print(event.msg.text)
+
+    asyncio.run(main())

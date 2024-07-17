@@ -1,2 +1,2 @@
-Events
-======
+Events & Logging
+================

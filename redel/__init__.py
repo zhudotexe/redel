@@ -1,3 +1,4 @@
+from . import events
 from .app import ReDel
 from .delegation import DelegationBase
 from .events import BaseEvent
