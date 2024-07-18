@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable
 from weakref import WeakValueDictionary
 
+import kani.exceptions
 from kani import ChatRole, chat_in_terminal_async
 from kani.engines import BaseEngine
-from kani.engines.openai import OpenAIEngine
 
 from . import events
 from .base_kani import BaseKani
@@ -25,6 +25,14 @@ log = logging.getLogger(__name__)
 
 @functools.cache
 def default_engine():
+    try:
+        from kani.engines.openai import OpenAIEngine
+    except kani.exceptions.MissingModelDependencies:
+        raise ImportError(
+            'Default OpenAI engine is not installed. You can either install it using `pip install "kani[openai]"` or'
+            " specify the engine to use in your ReDel system."
+        )
+
     return OpenAIEngine(model="gpt-4o", temperature=0.8, top_p=0.95)
 
 

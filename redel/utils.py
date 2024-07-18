@@ -24,6 +24,7 @@ class AutogenerateTitle:
 
     Do not construct manually - use the singleton ``redel.AUTOGENERATE_TITLE``.
     """
+
     def __repr__(self):
         return "<AUTOGENERATE_TITLE>"
 
