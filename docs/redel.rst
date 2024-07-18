@@ -115,6 +115,8 @@ schemes, see :doc:`delegation`.
 agent tree). ReDel disables delegation by removing the ``delegate()`` function from an agent's list of available tools
 when this limit is reached.
 
+.. _tool_config:
+
 Tool Configuration
 ^^^^^^^^^^^^^^^^^^
 ``tool_configs`` is a dictionary, where the keys are *classes* and the values are their configurations

@@ -4,7 +4,7 @@
 
 ReDel is a toolkit for researchers and developers to build, iterate on, and analyze recursive multi-agent systems.
 
-Built using the `kani <https://kani.readthedocs.io/en/latest/>`_ framework, it offers best-in-class support for modern
+Built using the [kani](https://github.com/zhudotexe/kani) framework, it offers best-in-class support for modern
 LLMs with tool usage.
 
 ## Features
