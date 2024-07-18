@@ -1,8 +1,9 @@
 import abc
+import time
 from typing import Literal
 
 from kani import ChatMessage, ChatRole
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .state import KaniState, RunState
 
@@ -12,6 +13,7 @@ class BaseEvent(BaseModel, abc.ABC):
 
     __log_event__ = True  # whether or not the event should be logged
     type: str
+    timestamp: float = Field(default_factory=time.time)
 
 
 # server events
