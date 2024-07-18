@@ -30,6 +30,7 @@ API Reference
 
 Default Events
 --------------
+Most events contain an ``id`` attribute, which refers to the ID of the kani that the event refers to.
 
 .. autoclass:: redel.BaseEvent
     :members:
