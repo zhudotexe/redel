@@ -1,11 +1,11 @@
 """
-This is the minimal configuration for a ReDel visualization server with web browsing.
+This is the minimal configuration for a ReDel visualization server. This is useful for when you just want to
+view saves without defining a full system configuration.
 """
 
 import logging
 
 from redel import AUTOGENERATE_TITLE
-from redel.tools.browsing import Browsing
 from .server import VizServer
 
 logging.basicConfig(level=logging.INFO)
@@ -14,12 +14,7 @@ log = logging.getLogger("redel-server")
 # todo args for save dirs
 
 # Define the configuration for each interactive session
-redel_config = dict(
-    title=AUTOGENERATE_TITLE,
-    tool_configs={
-        Browsing: {"always_include": True},
-    },
-)
+redel_config = dict(title=AUTOGENERATE_TITLE)
 
 log.info("Launching a minimal ReDel server with web browsing...")
 log.info("Please open the URL below in your favorite web browser.")

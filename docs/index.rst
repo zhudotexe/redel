@@ -45,7 +45,7 @@ You'll need Python 3.10 or higher, as well as node.js 16 or higher.
     $ cd redel
 
     # install python dependencies
-    $ pip install -e ".[web]"
+    $ pip install -e ".[all]"
     $ playwright install chrome
 
     # build visualizer

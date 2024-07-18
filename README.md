@@ -2,8 +2,23 @@
 
 *A framework for recursive delegation of LLMs*
 
-ReDel is an experimental project intended to see how well LLMs with function calling can achieve high-level goals
-through delegation and decomposition.
+ReDel is a toolkit for researchers and developers to build, iterate on, and analyze recursive multi-agent systems.
+
+Built using the `kani <https://kani.readthedocs.io/en/latest/>`_ framework, it offers best-in-class support for modern
+LLMs with tool usage.
+
+## Features
+
+- **Modular design** - ReDel makes it easy to experiment by providing a modular interface for creating tools, different
+  delegation methods, and logs for later analysis.
+- **Event-driven architecture** - Granular logging and a central event system makes it easy to listen for signals
+  from anywhere in your system. Every event is automatically logged so you can run your favorite data analysis tools.
+- **Bundled visualization** - Multi-agent systems can be hard to reason about from a human perspective. We provide a
+  web-based visualization that allows you to interact with a configured system directly or view replays of saved runs
+  (e.g. your own experiments!).
+- **Built with open, unopinionated tech** - ReDel won't force you to learn bizarre library-specific tooling and isn't
+  built by a big tech organization with their own motives. Everything in ReDel is implemented in pure, idiomatic Python
+  and permissively licensed.
 
 ## Quickstart
 
@@ -11,12 +26,7 @@ Requires Python 3.10+
 
 ```shell
 # install python dependencies
-$ pip install -e ".[web]"
-$ playwright install chrome
-# build visualizer
-$ cd viz
-$ npm i
-$ npm run build
+$ pip install -e "redel[all]"
 # run web visualization of a ReDel system with web browsing
 $ OPENAI_API_KEY="..." python -m redel.server
 ```
@@ -87,12 +97,14 @@ ai = ReDel(
     },
 )
 
+
 # ReDel is async, so define an async function and use asyncio.run()
 async def main():
     async for event in ai.query("What is the airspeed velocity of an unladen swallow?"):
         if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
             if event.msg.text:
                 print(event.msg.text)
+
 
 asyncio.run(main())
 ```

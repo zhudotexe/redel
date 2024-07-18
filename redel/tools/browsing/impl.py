@@ -4,12 +4,19 @@ import tempfile
 import urllib.parse
 from typing import Optional, TYPE_CHECKING
 
-import httpx
-import pymupdf
-import pymupdf4llm
 from kani import ChatMessage, ChatRole, ai_function
 from kani.engines import BaseEngine
-from playwright.async_api import BrowserContext, TimeoutError as PlaywrightTimeoutError, async_playwright
+
+try:
+    import httpx
+    import pymupdf
+    import pymupdf4llm
+    from playwright.async_api import BrowserContext, TimeoutError as PlaywrightTimeoutError, async_playwright
+except ImportError:
+    raise ImportError(
+        "You are missing required dependencies to use the bundled tools. Please install ReDel using `pip install"
+        ' "redel[bundled]"`.'
+    ) from None
 
 from redel.tools import ToolBase
 from .webutils import CHROME_UA, get_google_links, web_markdownify, web_summarize

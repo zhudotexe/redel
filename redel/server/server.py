@@ -4,9 +4,15 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Awaitable, Callable, Collection
 
-from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect, WebSocketException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+try:
+    from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect, WebSocketException
+    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.staticfiles import StaticFiles
+except ImportError:
+    raise ImportError(
+        "You are missing required dependencies to use the bundled web viewer. Please install ReDel using `pip install"
+        ' "redel[web]"`.'
+    ) from None
 
 from redel import ReDel
 from redel.config import DEFAULT_LOG_DIR
