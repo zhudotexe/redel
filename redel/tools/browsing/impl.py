@@ -28,6 +28,12 @@ log = logging.getLogger(__name__)
 
 
 class Browsing(ToolBase):
+    """
+    A tool that provides tools to search Google and visit webpages.
+
+    Renders webpages in Markdown and has basic support for reading PDFs.
+    """
+
     # app-global browser instance
     playwright = None
     browser = None

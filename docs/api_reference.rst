@@ -67,15 +67,6 @@ Most events contain an ``id`` attribute, which refers to the ID of the kani that
     :exclude-members: model_config, model_fields, model_computed_fields
     :class-doc-from: class
 
-Internals
----------
-
-.. autoclass:: redel.base_kani.BaseKani
-    :members: last_user_message, last_assistant_message, set_run_state, run_state, cleanup, close
-
-.. autoclass:: redel.kanis.ReDelKani
-    :members:
-
 Visualizer
 ----------
 
@@ -92,3 +83,38 @@ Utilities
     :members:
 
 .. autoclass:: redel.utils.AutogenerateTitle
+
+Bundled Tools
+-------------
+
+.. autoclass:: redel.tools.browsing.Browsing
+
+    .. automethod:: search
+
+    .. automethod:: visit_page
+
+.. autoclass:: redel.tools.email.Email
+
+    .. automethod:: send_email
+
+Bundled Delegation Schemes
+--------------------------
+
+.. autoclass:: redel.delegation.delegate_one.DelegateOne
+
+    .. automethod:: delegate
+
+.. autoclass:: redel.delegation.delegate_and_wait.DelegateWait
+
+    .. automethod:: delegate
+
+    .. automethod:: wait
+
+Internals
+---------
+
+.. autoclass:: redel.base_kani.BaseKani
+    :members: last_user_message, last_assistant_message, set_run_state, run_state, cleanup, close
+
+.. autoclass:: redel.kanis.ReDelKani
+    :members:

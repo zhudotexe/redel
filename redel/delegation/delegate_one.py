@@ -11,6 +11,11 @@ log = logging.getLogger(__name__)
 
 
 class DelegateOne(DelegationBase):
+    """
+    Delegate and immediately wait for the result of the sub-agent.
+    Can be called in parallel to run multiple sub-agents in parallel.
+    """
+
     @ai_function()
     async def delegate(
         self,

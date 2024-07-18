@@ -12,6 +12,12 @@ log = logging.getLogger(__name__)
 
 
 class DelegateWait(DelegationBase):
+    """
+    Does not immediately wait for a sub-agent after delegating a task; agents must be explicitly waited by using
+    ``wait()`` instead. This lets models without the ability to perform parallel function calling spawn multiple agents
+    in parallel by calling ``delegate()`` multiple times before calling ``wait()``.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helpers = {}  # name -> delegate

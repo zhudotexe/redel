@@ -8,6 +8,8 @@ from ._base import ToolBase
 
 
 class Email(ToolBase):
+    """A toy tool to send emails via a given SMTP server."""
+
     def __init__(self, *args, email_from: str, smtp_host: str, smtp_pass: str, **kwargs):
         """
         :param email_from: the email address to send email from

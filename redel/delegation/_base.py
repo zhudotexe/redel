@@ -27,28 +27,5 @@ class DelegationBase(ToolBase):
         * Providing the instructions to the delegate kani and calling its ``full_round_stream`` method
         * Buffering the delegate's response and returning it to the caller
         * Calling the appropriate cleanup methods of the delegate
-
-        Example (implementation of ``delegate_one``):
-
-        .. code-block:: python
-
-            @ai_function()
-            async def delegate(instructions: str):
-                # initialize the instance
-                helper = await self.create_delegate_kani(instructions)
-
-                # set the state of the delegator to be waiting on the delegate
-                with self.kani.run_state(RunState.WAITING):
-                    # buffer the delegate's response as a list of strings, filtering for ASSISTANT messages
-                    # use full_round_stream so that the app automatically dispatches streaming events
-                    result = []
-                    async for stream in helper.full_round_stream(instructions, max_function_rounds=5):
-                        msg = await stream.message()
-                        if msg.role == ChatRole.ASSISTANT and msg.content:
-                            result.append(msg.content)
-
-                    # clean up any of the delegate's ephemeral state and return result to caller
-                    await helper.cleanup()
-                    return "\n".join(result)
         """
         return await self.kani.create_delegate_kani(instructions)
