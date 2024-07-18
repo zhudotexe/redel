@@ -160,7 +160,9 @@ class ReDel:
                     **self.root_kani_kwargs,
                 )
             if self.dispatch_task is None:
-                self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="redel-dispatch")
+                self.dispatch_task = asyncio.create_task(
+                    self._dispatch_task(), name=f"redel-dispatch-{self.session_id}"
+                )
 
     # === entrypoints ===
     async def chat_from_queue(self, q: asyncio.Queue):
@@ -230,9 +232,14 @@ class ReDel:
 
     # === events ===
     def add_listener(self, callback: Callable[[events.BaseEvent], Awaitable[Any]]):
+        """
+        Add a listener which is called for every event dispatched by the system.
+        The listener must be an asynchronous function that takes in an event in a single argument.
+        """
         self.listeners.append(callback)
 
     def remove_listener(self, callback):
+        """Remove a listener added by :meth:`add_listener`."""
         self.listeners.remove(callback)
 
     async def _dispatch_task(self):

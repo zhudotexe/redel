@@ -55,7 +55,13 @@ def batched(iterable: Iterable[T], n: int) -> Iterable[tuple[T, ...]]:
 
 
 def read_jsonl(fp) -> Iterable[dict]:
-    """Yield JSON objects from the given JSONL file."""
+    """
+    Yield JSON objects from the JSONL file at the given path.
+
+    .. note::
+        This function returns an iterator, not a list -- to read a full JSONL file into memory, use
+        ``list(read_jsonl(...))``.
+    """
     with open(fp) as f:
         for line in f:
             yield json.loads(line)

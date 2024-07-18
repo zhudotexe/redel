@@ -19,7 +19,8 @@ class BaseKani(Kani):
     """
     Base class for all kani in the application, regardless of recursive delegation.
 
-    Extends :class:`kani.Kani`.
+    Extends :class:`kani.Kani`. See the Kani documentation for more details on the internal chat state and LLM
+    interface.
     """
 
     def __init__(

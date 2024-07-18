@@ -23,7 +23,9 @@ class Error(BaseEvent):
 
 
 class KaniSpawn(KaniState, BaseEvent):
-    """A new kani was spawned.
+    """
+    A new kani was spawned. Includes the state of the kani. See :class:`.BaseKani`.
+
     The ID can be the same as an existing ID, in which case this event should overwrite the previous state.
     """
 
@@ -31,7 +33,11 @@ class KaniSpawn(KaniState, BaseEvent):
 
 
 class KaniStateChange(BaseEvent):
-    """A kani's run state changed."""
+    """
+    A kani's run state changed.
+
+    This is primarily used for rendering the color of a node in the web interface.
+    """
 
     type: Literal["kani_state_change"] = "kani_state_change"
     id: str
@@ -56,7 +62,11 @@ class KaniMessage(BaseEvent):
 
 
 class RootMessage(BaseEvent):
-    """The root kani has a new result."""
+    """
+    The root kani has a new result.
+
+    This will be fired *in addition* to a ``kani_message`` event.
+    """
 
     type: Literal["root_message"] = "root_message"
     msg: ChatMessage
