@@ -11,12 +11,3 @@ REDEL_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 # log instances to ~/.redel/instances by default
 DEFAULT_LOG_DIR = REDEL_HOME / "instances"
 DEFAULT_LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-# ==== voice ====
-ELEVEN_API_KEY = os.getenv("ELEVEN_API_KEY")
-ELEVEN_VOICE_ID = os.getenv("ELEVEN_VOICE_ID")
-
-# ==== email ====
-EMAIL_HOST = os.getenv("EMAIL_HOST")  # a string like mailserv.zhu.codes:465
-EMAIL_FROM = os.getenv("EMAIL_FROM")  # the email address to send email from
-EMAIL_PASS = os.getenv("EMAIL_PASS")  # the password for the email account
