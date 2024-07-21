@@ -1,19 +1,16 @@
 # EMNLP Demo Experiments
 
-The ReDel repository includes the logs of every single experiment run included in our paper in
-the `experiments/` directory. You can load any of these runs in the visualization to view what the ReDel system did!
+Of course, the question remains: is using recursive multi-agent systems actually better than just improving a single
+model? To test this, we ran three different benchmarks and compared the performance of various configurations of
+ReDel systems. The benchmarks we ran were:
 
-The experiments directory is broken down into the following
-structure: `experiments/BENCHMARK_NAME/BENCHMARK_SPLIT/[RUN_ID]/SYSTEM_ID/QUERY_ID`, where:
-
-- `BENCHMARK_NAME` is the name of the benchmark (fanoutqa, travelplanner, webarena, or qasper)
-- `BENCHMARK_SPLIT` is the split of the benchmark we ran (usually the dev/validation split)
-- `RUN_ID` is an internal split in the FanOutQA experiment to analyze an edge-case behaviour wrt parallel function
-  calling and long contexts
-- `SYSTEM_ID` is the system under test, configured as in the table below
-- `QUERY_ID` is the benchmark-specific ID of a single run (loadable in the visualizer).
+- FanOutQA, a multi-hop, multi-document information seeking benchmark with open-domain search
+- TravelPlanner, a real-world planning benchmark for language agents
+- WebArena, an autonomous agent benchmark with diverse tasks in a realistic web environment
 
 ## System Configurations
+
+We tested the following system configurations:
 
 | System ID      | Root Model    | Delegate Model | Root Functions? | Delegation? | Root Context | Delegate Context |
 |----------------|---------------|----------------|-----------------|-------------|--------------|------------------|
@@ -26,7 +23,50 @@ structure: `experiments/BENCHMARK_NAME/BENCHMARK_SPLIT/[RUN_ID]/SYSTEM_ID/QUERY_
 | short-context  | gpt-4o        | gpt-4o         | no              | yes         | 8192         | 8192             |
 | short-baseline | gpt-4o        | N/A            | yes             | no          | 8192         | N/A              |
 
+For each benchmark, we also provided the system with benchmark-specific tools (e.g. Wikipedia search for FanOutQA,
+database search for TravelPlanner, and browser click/type actions for WebArena).
+
+## Results
+
+| System ID      | FanOutQA (GPTScore) | TravelPlanner (SR) | WebArena (SR) |
+|----------------|---------------------|--------------------|---------------|
+| full           | **0.494**           | **2.778**          | **0.203**     |
+| root-fc        | 0.429               | 0.000              | 0.188         |
+| baseline       | 0.394               | 0.000              | 0.162         |
+| small-leaf     | 0.255               | 0.556              | 0.122         |
+| small-all      | 0.087               | 0.000              | 0.092         |
+| small-baseline | 0.077               | 0.000              | 0.085         |
+| short-context  | 0.426               | ---                | 0.129         |
+| short-baseline | 0.361               | ---                | 0.122         |
+
+We find that overall, recursive delegation systems perform better than their baseline systems in every single benchmark.
+
+From these high-level results, we can conclude that:
+
+- Adding recursive delegation on top of a model improves its performance as tasks get harder
+- To fully take advantage of delegation, it is often important to remove tools from the root node to avoid the root node
+  overcommitting
+- Recursive delegation allows you to use a "strong" model as the root and "weaker" models as delegates to gain a major
+  performance boost over a system comprised entirely of a weaker model
+- Recursive delegation can help in long-context tasks by removing the requirement for a single model to process
+  everything in serial
+
+We will release a deeper dive into the results in a future paper.
+
 ## Reproducing Experiments
+
+The ReDel repository includes the logs of every single experiment run in
+the `experiments/` directory. You can load any of these runs in the visualization to view what the ReDel system did!
+
+The experiments directory is broken down into the following
+structure: `experiments/BENCHMARK_NAME/BENCHMARK_SPLIT/[RUN_ID]/SYSTEM_ID/QUERY_ID`, where:
+
+- `BENCHMARK_NAME` is the name of the benchmark (fanoutqa, travelplanner, or webarena)
+- `BENCHMARK_SPLIT` is the split of the benchmark we ran (usually the dev/validation split)
+- `RUN_ID` is an internal split in the FanOutQA experiment to analyze an edge-case behaviour wrt parallel function
+  calling and long contexts
+- `SYSTEM_ID` is the system under test, configured as in the table below
+- `QUERY_ID` is the benchmark-specific ID of a single run (loadable in the visualizer).
 
 To reproduce the experiments included in this repository, we include scripts to run each benchmark.
 
