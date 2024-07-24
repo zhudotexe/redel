@@ -49,3 +49,24 @@ jobs:
 
       - name: Print version
         run: python -m redel --version
+
+  web:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+          cache-dependency-path: viz/package-lock.json
+
+      - name: Install dependencies
+        working-directory: viz
+        run: npm i
+
+      - name: Build web interface
+        working-directory: viz
+        run: npm run build
