@@ -26,14 +26,13 @@ delegation disabled, so interactive sessions with this server are just a nice GP
 Custom Interactive System
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 To configure the interactive system with your own tools and delegation capabilities, you'll need to tell the server
-what configuration to use. This means providing :class:`.VizServer` with a ``redel_kwargs`` dictionary: a dictionary
-containing the same arguments you'd use in the :class:`.ReDel` constructor.
+what configuration to use. This means providing :class:`.VizServer` with a prototype ``ReDel`` instance:
 
 .. code-block:: python
     :caption: An example of serving a ReDel configuration with web browsing over the web interface.
 
-    import redel
     from kani.engines.openai import OpenAIEngine
+    from redel import ReDel
     from redel.server import VizServer
     from redel.tools.browsing import Browsing
 
@@ -41,7 +40,7 @@ containing the same arguments you'd use in the :class:`.ReDel` constructor.
     engine = OpenAIEngine(model="gpt-4o", temperature=0.8, top_p=0.95)
 
     # a ReDel session configuration, with ReDel replaced by dict
-    redel_config = dict(
+    proto = ReDel(
         # set your LLM engines...
         root_engine=engine,
         delegate_engine=engine,
@@ -52,10 +51,17 @@ containing the same arguments you'd use in the :class:`.ReDel` constructor.
     )
 
     # pass that dict to VizServer
-    server = VizServer(redel_kwargs=redel_config)
+    server = VizServer(proto)
 
     # VizServer.serve() makes the web interface available at 127.0.0.1:8000 by default
     server.serve()
+
+Each time you start a new interactive session in the web interface, the server will construct a *new* :class:`.ReDel`
+instance with the same configuration as the given prototype.
+
+.. note::
+    For more control over how the server creates new ReDel instances, you can use the ``redel_factory`` argument instead
+    -- see the :class:`.VizServer` documentation for more information.
 
 Interface Walkthrough
 ---------------------

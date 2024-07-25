@@ -3,6 +3,7 @@ import logging
 import pathlib
 import time
 from collections import Counter
+from functools import cached_property
 from typing import TYPE_CHECKING
 
 from . import events
@@ -22,22 +23,25 @@ class EventLogger:
         self.session_id = session_id
         self.last_modified = time.time()
         self.log_dir = log_dir or (DEFAULT_LOG_DIR / session_id)
-        self.log_dir.mkdir(exist_ok=True)
+        self.clear_existing_log = clear_existing_log
 
         self.aof_path = self.log_dir / "events.jsonl"
         self.state_path = self.log_dir / "state.json"
 
-        if clear_existing_log:
-            self.event_file = open(self.aof_path, "w", buffering=1)
-            self.event_count = Counter()
+        self.event_count = Counter()
 
-        else:
-            if self.aof_path.exists():
-                existing_events = read_jsonl(self.aof_path)
-                self.event_count = Counter(event["type"] for event in existing_events)
-            else:
-                self.event_count = Counter()
-            self.event_file = open(self.aof_path, "a", buffering=1)
+    @cached_property
+    def event_file(self):
+        # we use a cached property here to only lazily create the log dir if we need it
+        self.log_dir.mkdir(exist_ok=True)
+
+        if self.clear_existing_log:
+            return open(self.aof_path, "w", buffering=1)
+
+        if self.aof_path.exists():
+            existing_events = read_jsonl(self.aof_path)
+            self.event_count = Counter(event["type"] for event in existing_events)
+        return open(self.aof_path, "a", buffering=1)
 
     async def log_event(self, event: events.BaseEvent):
         if not event.__log_event__:
@@ -50,6 +54,7 @@ class EventLogger:
 
     async def write_state(self):
         """Write the full state of the app to the state file, with a basic checksum against the AOF to check validity"""
+        self.log_dir.mkdir(exist_ok=True)
         state = [ai.get_save_state().model_dump(mode="json") for ai in self.app.kanis.values()]
         data = {
             "id": self.session_id,
@@ -62,5 +67,8 @@ class EventLogger:
             json.dump(data, f, indent=2)
 
     async def close(self):
+        # if we haven't done anything, don't write anything
+        if not self.event_count.total():
+            return
         await self.write_state()
         self.event_file.close()

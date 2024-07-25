@@ -17,7 +17,7 @@ from kani.engines.anthropic import AnthropicEngine
 from kani.engines.openai import OpenAIEngine
 from kani.ext.ratelimits import RatelimitedEngine
 
-from redel import AUTOGENERATE_TITLE
+from redel import AUTOGENERATE_TITLE, ReDel
 from redel.config import DEFAULT_LOG_DIR
 from redel.server import VizServer
 from redel.tools.browsing import Browsing
@@ -35,7 +35,7 @@ else:
     long_engine = None
 
 # Define the configuration for each interactive session
-redel_config = dict(
+ai = ReDel(
     root_engine=engine,
     delegate_engine=engine,
     title=AUTOGENERATE_TITLE,
@@ -48,7 +48,7 @@ redel_config = dict(
 )
 
 # configure and start the server
-server = VizServer(save_dirs=(DEFAULT_LOG_DIR, EXPERIMENTS_DIR), redel_kwargs=redel_config)
+server = VizServer(ai, save_dirs=(DEFAULT_LOG_DIR, EXPERIMENTS_DIR))
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

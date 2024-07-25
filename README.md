@@ -53,7 +53,7 @@ See the docs for more usage information at https://redel.readthedocs.io!
 
 ```python
 from kani.engines.openai import OpenAIEngine
-from redel import AUTOGENERATE_TITLE
+from redel import AUTOGENERATE_TITLE, ReDel
 from redel.server import VizServer
 from redel.tools.browsing import Browsing
 
@@ -61,7 +61,7 @@ from redel.tools.browsing import Browsing
 engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
 
 # Define the configuration for each interactive session
-redel_config = dict(
+redel_proto = ReDel(
     root_engine=engine,
     delegate_engine=engine,
     title=AUTOGENERATE_TITLE,
@@ -71,7 +71,7 @@ redel_config = dict(
 )
 
 # configure and start the server
-server = VizServer(redel_kwargs=redel_config)
+server = VizServer(redel_proto)
 server.serve()
 ```
 

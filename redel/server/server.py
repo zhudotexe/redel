@@ -29,24 +29,25 @@ log = logging.getLogger("server")
 class VizServer:
     def __init__(
         self,
+        redel_proto: ReDel = None,
+        /,
         *,
         save_dirs: Collection[Path] = (DEFAULT_LOG_DIR,),
-        redel_kwargs: dict = None,
         redel_factory: Callable[[], Awaitable[ReDel]] = None,
     ):
         """
+        :param redel_proto: If passed, interactive sessions will use the same configuration as the given prototype.
+            Mutually exclusive with ``redel_factory``.
         :param save_dirs: A list of paths to scan for ReDel saves to make available to load. Defaults to
             ``~/.redel/instances/``.
-        :param redel_kwargs: Keyword arguments to supply to the :class:`.ReDel` constructor for each interactive
-            session. Defaults to an empty dictionary. If this is set, ``redel_factory`` must not be set.
         :param redel_factory: An asynchronous function that creates a new :class:`.ReDel` instance when called.
-            If this is set, ``redel_kwargs`` must not be set.
+            If this is set, ``redel_kwargs`` and ``redel_proto`` must not be set.
         """
-        if redel_kwargs and redel_factory:
+        if redel_proto and redel_factory:
             raise ValueError("At most one of ('redel_kwargs', 'redel_factory') may be supplied.")
-        elif not (redel_kwargs or redel_factory):
-            redel_kwargs = {}
-        self.redel_kwargs = redel_kwargs
+        elif not (redel_proto or redel_factory):
+            redel_proto = ReDel()
+        self.redel_proto = redel_proto
         self.redel_factory = redel_factory
 
         # saves
@@ -77,8 +78,8 @@ class VizServer:
 
     async def create_new_redel(self) -> ReDel:
         """Return a new ReDel instance given the server config."""
-        if self.redel_kwargs:
-            return ReDel(**self.redel_kwargs)
+        if self.redel_proto:
+            return ReDel(**self.redel_proto.get_config())
         return await self.redel_factory()
 
     def serve(self, host="127.0.0.1", port=8000, **kwargs):

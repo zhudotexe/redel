@@ -7,7 +7,7 @@ import argparse
 import logging
 from pathlib import Path
 
-from redel import AUTOGENERATE_TITLE
+from redel import AUTOGENERATE_TITLE, ReDel
 from redel.config import DEFAULT_LOG_DIR
 from .server import VizServer
 
@@ -35,7 +35,7 @@ if not args.no_default_save_dir:
     save_dirs = (DEFAULT_LOG_DIR, *save_dirs)
 
 # Define the configuration for each interactive session
-redel_config = dict(
+proto = ReDel(
     title=AUTOGENERATE_TITLE,
     delegation_scheme=None,
 )
@@ -49,5 +49,5 @@ print(f"Loading saves from the following paths: {save_dirs}")
 print("Please open the URL below in your favorite web browser.")
 
 # configure and start the server
-server = VizServer(save_dirs=save_dirs, redel_kwargs=redel_config)
+server = VizServer(proto, save_dirs=save_dirs)
 server.serve()

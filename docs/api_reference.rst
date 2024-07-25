@@ -14,6 +14,8 @@ API Reference
         A reference to the root node. Guaranteed to exist after :meth:`query` or :meth:`chat_in_terminal` is called;
         can be ``None`` before then.
 
+    .. automethod:: get_config
+
     .. automethod:: chat_in_terminal
 
     .. automethod:: query
