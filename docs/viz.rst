@@ -39,7 +39,7 @@ what configuration to use. This means providing :class:`.VizServer` with a proto
     # configure the LLM(s) your system will use
     engine = OpenAIEngine(model="gpt-4o", temperature=0.8, top_p=0.95)
 
-    # a ReDel session configuration, with ReDel replaced by dict
+    # a ReDel session configuration
     proto = ReDel(
         # set your LLM engines...
         root_engine=engine,

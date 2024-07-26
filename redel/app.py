@@ -73,7 +73,9 @@ class ReDel:
     ):
         """
         :param root_engine: The engine to use for the root kani. Requires function calling. (default: gpt-4o)
+            See :external+kani:doc:`engines` for a list of available engines and their capabilities.
         :param delegate_engine: The engine to use for each delegate kani. Requires function calling. (default: gpt-4o)
+            See :external+kani:doc:`engines` for a list of available engines and their capabilities.
         :param root_system_prompt: The system prompt for the root kani. See ``redel.kanis`` for default.
         :param root_kani_kwargs: Additional keyword args to pass to :class:`kani.Kani`.
         :param delegate_system_prompt: The system prompt for the each delegate kani. See ``redel.kanis`` for default.

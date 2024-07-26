@@ -41,6 +41,10 @@ you can accomplish in a normal Python script, you can also do in a method body.
     Methods can be either asynchronous or synchronous. Synchronous methods will automatically be run in a threadpool
     when called by an LLM.
 
+.. tip::
+    For more information on function calling and what you can do with functions, see
+    :external+kani:doc:`function_calling`!
+
 Providing tools to a system
 ---------------------------
 To provide a tool to a ReDel system, you should include it in the system's ``tool_configs`` dictionary.
