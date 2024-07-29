@@ -111,13 +111,17 @@ asyncio.run(main())
 
 ## EMNLP Demo Experiments
 
-This repository includes the logs of every single experiment run included in our paper (TODO: link) in
+> [!NOTE]
+> This section is specific to the `demo/emnlp` branch of this repository. You can switch branches in the top-left of
+> the GitHub UI or by using this link: https://github.com/zhudotexe/redel/tree/demo/emnlp
+
+This repository includes the logs of every single experiment run included in our paper in
 the `experiments/` directory. You can load any of these runs in the visualization to view what the ReDel system did!
 
 The experiments directory is broken down into the following
 structure: `experiments/BENCHMARK_NAME/BENCHMARK_SPLIT/[RUN_ID]/SYSTEM_ID/QUERY_ID`, where:
 
-- `BENCHMARK_NAME` is the name of the benchmark (fanoutqa, travelplanner, webarena, or qasper)
+- `BENCHMARK_NAME` is the name of the benchmark (fanoutqa, travelplanner, or webarena)
 - `BENCHMARK_SPLIT` is the split of the benchmark we ran (usually the dev/validation split)
 - `RUN_ID` is an internal split in the FanOutQA experiment to analyze an edge-case behaviour wrt parallel function
   calling and long contexts
