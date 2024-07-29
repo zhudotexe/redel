@@ -36,7 +36,7 @@ Quickstart (EMNLP Demo)
 
 Want to see what ReDel can do? To get started, we recommend cloning this repository.
 
-You'll need Python 3.10 or higher.
+You'll need Python 3.10 or higher, as well as node.js 16 or higher.
 
 .. code-block:: console
 
@@ -47,6 +47,12 @@ You'll need Python 3.10 or higher.
     # install python dependencies
     $ pip install -e ".[all]"
     $ playwright install chrome
+
+    # build visualizer
+    $ cd viz
+    $ npm i
+    $ npm run build
+    $ cd ..
 
     # run web visualization of a ReDel system with web browsing
     $ OPENAI_API_KEY="..." python server.py
