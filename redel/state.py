@@ -9,6 +9,13 @@ if TYPE_CHECKING:
 
 
 class RunState(enum.Enum):
+    """
+    * ``RunState.STOPPED``: This kani is not currently running anything or waiting on a child.
+    * ``RunState.RUNNING``: This kani is currently generating text.
+    * ``RunState.WAITING``: This kani is waiting for the results of a sub-kani.
+    * ``RunState.ERRORED``: This kani has run into a fatal error. Its internal state is indeterminate.
+    """
+
     STOPPED = "stopped"  # not currently running anything or waiting on a child
     RUNNING = "running"  # gpt-4 is generating something
     WAITING = "waiting"  # waiting on a child
@@ -45,6 +52,7 @@ class KaniState(BaseModel):
     state: RunState
     name: str
     engine_type: str
+    engine_repr: str = ""
     functions: list[AIFunctionState]
 
     @classmethod
@@ -59,6 +67,7 @@ class KaniState(BaseModel):
             state=ai.state,
             name=ai.name,
             engine_type=type(ai.engine).__name__,
+            engine_repr=repr(ai.engine),
             functions=[AIFunctionState.from_aifunction(f) for f in ai.functions.values()],
             **kwargs,
         )

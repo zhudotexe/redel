@@ -1,26 +1,27 @@
 import asyncio
 import logging
-from abc import abstractmethod
 from typing import Annotated
 
 from kani import AIParam, ChatRole, ai_function
 from rapidfuzz import fuzz
 
-from redel.base_kani import BaseKani
 from redel.state import RunState
+from ._base import DelegationBase
 
 log = logging.getLogger(__name__)
 
 
-class DelegateWaitMixin(BaseKani):
+class DelegateWait(DelegationBase):
+    """
+    Does not immediately wait for a sub-agent after delegating a task; agents must be explicitly waited by using
+    ``wait()`` instead. This lets models without the ability to perform parallel function calling spawn multiple agents
+    in parallel by calling ``delegate()`` multiple times before calling ``wait()``.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helpers = {}  # name -> delegate
         self.helper_futures = {}  # name -> Future[tuple[str, str]]
-
-    @abstractmethod
-    async def create_delegate_kani(self) -> BaseKani:
-        raise NotImplementedError
 
     @ai_function()
     async def delegate(
@@ -47,7 +48,7 @@ class DelegateWaitMixin(BaseKani):
         """
         log.info(f"Delegated with instructions: {instructions}")
         # if the instructions are >80% the same as the current goal, bonk
-        if self.last_user_message and fuzz.ratio(instructions, self.last_user_message.content) > 80:
+        if self.kani.last_user_message and fuzz.ratio(instructions, self.kani.last_user_message.content) > 80:
             return (
                 "You shouldn't delegate the entire task to a helper. Handle it yourself, or if it's still too complex,"
                 " try breaking it up into smaller steps and call this again."
@@ -62,7 +63,7 @@ class DelegateWaitMixin(BaseKani):
                 )
             helper = self.helpers[who]
         else:
-            helper = await self.create_delegate_kani()
+            helper = await self.create_delegate_kani(instructions)
             self.helpers[helper.name] = helper
 
         async def _task():
@@ -95,7 +96,7 @@ class DelegateWaitMixin(BaseKani):
             return 'The "until" param must be the name of a running helper, "next", or "all".'
 
         if until == "next":
-            with self.run_state(RunState.WAITING):
+            with self.kani.run_state(RunState.WAITING):
                 done, _ = await asyncio.wait(self.helper_futures.values(), return_when=asyncio.FIRST_COMPLETED)
             future = done.pop()
             # prompt with name
@@ -104,7 +105,7 @@ class DelegateWaitMixin(BaseKani):
             self.helper_futures.pop(helper_name)
             return f"{helper_name}:\n{result}"
         elif until == "all":
-            with self.run_state(RunState.WAITING):
+            with self.kani.run_state(RunState.WAITING):
                 done, _ = await asyncio.wait(self.helper_futures.values(), return_when=asyncio.ALL_COMPLETED)
             # prompt with name
             results = []
@@ -116,6 +117,6 @@ class DelegateWaitMixin(BaseKani):
             return "\n\n=====\n\n".join(results)
         else:
             future = self.helper_futures.pop(until)
-            with self.run_state(RunState.WAITING):
+            with self.kani.run_state(RunState.WAITING):
                 result, _ = await future
             return f"{until}:\n{result}"

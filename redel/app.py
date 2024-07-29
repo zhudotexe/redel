@@ -5,41 +5,48 @@ import time
 import uuid
 from collections.abc import AsyncIterable
 from pathlib import Path
-from typing import Any, Awaitable, Callable, Iterable
+from typing import Any, Awaitable, Callable
 from weakref import WeakValueDictionary
 
+import kani.exceptions
 from kani import ChatRole, chat_in_terminal_async
 from kani.engines import BaseEngine
-from kani.engines.openai import OpenAIEngine
 
-from . import config, events
+from . import events
 from .base_kani import BaseKani
-from .delegation.delegate_and_wait import DelegateWaitMixin
+from .delegation.delegate_and_wait import DelegateWait
 from .eventlogger import EventLogger
-from .functions.browsing import BrowsingMixin
-from .kanis import DELEGATE_KANPAI, ROOT_KANPAI, create_root_kani
-from .utils import generate_conversation_title
+from .kanis import DEFAULT_DELEGATE_PROMPT, DEFAULT_ROOT_PROMPT, create_root_kani
+from .tool_config import ToolConfigType, validate_tool_configs
+from .utils import AUTOGENERATE_TITLE, AutogenerateTitle, generate_conversation_title
 
 log = logging.getLogger(__name__)
-AUTOGENERATE_TITLE = object()
 
 
 @functools.cache
 def default_engine():
-    return OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95, organization=config.OPENAI_ORG_ID_GPT4)
+    try:
+        from kani.engines.openai import OpenAIEngine
+    except kani.exceptions.MissingModelDependencies:
+        raise ImportError(
+            'Default OpenAI engine is not installed. You can either install it using `pip install "kani[openai]"` or'
+            " specify the engine to use in your ReDel system."
+        )
+
+    return OpenAIEngine(model="gpt-4o", temperature=0.8, top_p=0.95)
 
 
-@functools.cache
-def default_long_engine():
-    # engine = RatelimitedEngine(
-    #     AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
-    # )
-    return OpenAIEngine(model="gpt-4o", temperature=0.1)
+class ReDel:
+    """This class represents a single session of a recursive multi-agent system.
 
+    It's responsible for:
 
-class Kanpai:
-    """Kanpai is the core app.
-    It's responsible for keeping track of all the spawned kani, and reporting their relations.
+    * all delegation configuration options
+    * all the spawned kani and their relations within the session
+    * dispatching all events from the session
+    * logging events
+
+    All arguments to the constructor are keyword arguments.
     """
 
     def __init__(
@@ -48,98 +55,145 @@ class Kanpai:
         # engines
         root_engine: BaseEngine = None,
         delegate_engine: BaseEngine = None,
-        long_engine: BaseEngine = None,
         # prompt/kani
-        root_system_prompt: str | None = ROOT_KANPAI,
+        root_system_prompt: str | None = DEFAULT_ROOT_PROMPT,
         root_kani_kwargs: dict = None,
-        delegate_system_prompt: str | None = DELEGATE_KANPAI,
+        delegate_system_prompt: str | None = DEFAULT_DELEGATE_PROMPT,
         delegate_kani_kwargs: dict = None,
         # delegation/function calling
-        delegation_scheme: type = DelegateWaitMixin,
+        delegation_scheme: type | None = DelegateWait,
         max_delegation_depth: int = 8,
-        always_included_mixins: Iterable[type] = (BrowsingMixin,),
-        root_has_functions: bool = False,
+        tool_configs: ToolConfigType = None,
+        root_has_tools: bool = False,
         # logging
-        title: str = None,
+        title: str | AutogenerateTitle | None = AUTOGENERATE_TITLE,
         log_dir: Path = None,
+        clear_existing_log: bool = False,
+        session_id: str = None,
     ):
         """
-        :param root_engine: The engine to use for the root kani. Requires function calling. (default: gpt-4)
-        :param delegate_engine: The engine to use for each delegate kani. Requires function calling. (default: gpt-4)
-        :param long_engine: The engine to use for long-context tasks (e.g. summarization of long web pages). Does not
-            require function calling. (default: gpt-4o)
+        :param root_engine: The engine to use for the root kani. Requires function calling. (default: gpt-4o)
+            See :external+kani:doc:`engines` for a list of available engines and their capabilities.
+        :param delegate_engine: The engine to use for each delegate kani. Requires function calling. (default: gpt-4o)
+            See :external+kani:doc:`engines` for a list of available engines and their capabilities.
         :param root_system_prompt: The system prompt for the root kani. See ``redel.kanis`` for default.
-        :param root_kani_kwargs: Additional keyword args to pass to :class:``kani.Kani``.
+        :param root_kani_kwargs: Additional keyword args to pass to :class:`kani.Kani`.
         :param delegate_system_prompt: The system prompt for the each delegate kani. See ``redel.kanis`` for default.
-        :param delegate_kani_kwargs: Additional keyword args to pass to :class:``kani.Kani``.
-        :param delegation_scheme: A class that each kani capable of delegation will inherit from. See
-            ``redel.delegation`` for examples. This class can assume the existence of a ``create_delegate_kani`` method.
-            Can be ``None`` to disable delegation (this makes ReDel a nice kani visualization tool).
+        :param delegate_kani_kwargs: Additional keyword args to pass to :class:`kani.Kani`.
+        :param delegation_scheme: A class that each kani capable of delegation will use to provide the delegation tool.
+            See ``redel.delegation`` for examples. Can be ``None`` to disable delegation.
         :param max_delegation_depth: The maximum delegation depth. Kanis created at this depth will not inherit from the
             ``delegation_scheme`` class.
-        :param always_included_mixins: A list of mixins (i.e., classes containing one or more ``@ai_function`` methods)
-            that each delegate kani will *always* inherit from.
-        :param root_has_functions: Whether the root kani should have access to the ``always_included_mixins`` (default
+        :param tool_configs: A mapping of tool mixin classes to their configurations (see :class:`.ToolConfig`).
+        :param root_has_tools: Whether the root kani should have access to the configured tools (default
             False).
-        :param title: The title of this session. Set to ``AUTOGENERATE_TITLE`` to automatically generate one.
-        :param log_dir: A path to a directory to save logs for this session. Defaults to ``.kanpai/{session_id}/``.
+        :param title: The title of this session. Set to ``redel.AUTOGENERATE_TITLE`` to automatically generate one
+            (default), or ``None`` to disable title generation.
+        :param log_dir: A path to a directory to save logs for this session. Defaults to
+            ``$REDEL_HOME/instances/{session_id}/`` (default ``~/.redel/instances/{session_id}``).
+        :param clear_existing_log: If the log directory has existing events, clear them before writing new events.
+            Otherwise, append to existing events.
+        :param session_id: The ID of this session. Generally this should not be set manually; it is used for loading
+            previous states.
         """
         if root_engine is None:
             root_engine = default_engine()
         if delegate_engine is None:
             delegate_engine = default_engine()
-        if long_engine is None:
-            long_engine = default_long_engine()
         if root_kani_kwargs is None:
             root_kani_kwargs = {}
         if delegate_kani_kwargs is None:
             delegate_kani_kwargs = {}
+        if tool_configs is None:
+            tool_configs = {}
+
+        validate_tool_configs(tool_configs)
 
         # engines
         self.root_engine = root_engine
         self.delegate_engine = delegate_engine
-        self.long_engine = long_engine
+        # prompt/kani
+        self.root_system_prompt = root_system_prompt
+        self.root_kani_kwargs = root_kani_kwargs
+        self.delegate_system_prompt = delegate_system_prompt
+        self.delegate_kani_kwargs = delegate_kani_kwargs
+        # delegation/function calling
+        self.delegation_scheme = delegation_scheme
+        self.max_delegation_depth = max_delegation_depth
+        self.tool_configs = tool_configs
+        self.root_has_tools = root_has_tools
+
+        # internals
+        self._init_lock = asyncio.Lock()
+
         # events
         self.listeners = []
         self.event_queue = asyncio.Queue()
         self.dispatch_task = None
         # state
-        self.session_id = f"{int(time.time())}-{uuid.uuid4()}"
+        self.session_id = session_id or f"{int(time.time())}-{uuid.uuid4()}"
         if title is AUTOGENERATE_TITLE:
             self.title = None
             self.add_listener(self.create_title_listener)
         else:
             self.title = title
         # logging
-        self.logger = EventLogger(self, self.session_id, log_dir=log_dir)
+        self.logger = EventLogger(self, self.session_id, log_dir=log_dir, clear_existing_log=clear_existing_log)
         self.add_listener(self.logger.log_event)
         # kanis
         self.kanis = WeakValueDictionary()
-        self.root_kani = create_root_kani(
-            self.root_engine,
-            # ReDelBase args
-            delegate_engine=delegate_engine,
-            delegate_system_prompt=delegate_system_prompt,
-            delegation_scheme=delegation_scheme,
-            always_included_mixins=always_included_mixins,
-            max_delegation_depth=max_delegation_depth,
-            delegate_kani_kwargs=delegate_kani_kwargs,
-            root_has_functions=root_has_functions,
-            # BaseKani args
-            app=self,
-            name="kanpai",
-            # Kani args
-            system_prompt=root_system_prompt,
-            **root_kani_kwargs,
-        )
+        self.root_kani = None
+
+    def get_config(self, **kwargs):
+        """
+        Get a dictionary with arguments suitable for passing to a ReDel constructor to create a new instance with
+        mostly the same configuration.
+
+        By default, the title, log_dir, and session_id will not be copied. Explicitly set these as keyword
+        arguments if you want to copy them.
+
+        Pass keyword arguments to override existing configuration options (valid arguments are same as constructor).
+        """
+        config = {
+            "root_engine": self.root_engine,
+            "delegate_engine": self.delegate_engine,
+            "root_system_prompt": self.root_system_prompt,
+            "root_kani_kwargs": self.root_kani_kwargs,
+            "delegate_system_prompt": self.delegate_system_prompt,
+            "delegate_kani_kwargs": self.delegate_kani_kwargs,
+            "delegation_scheme": self.delegation_scheme,
+            "max_delegation_depth": self.max_delegation_depth,
+            "tool_configs": self.tool_configs,
+            "root_has_tools": self.root_has_tools,
+        }
+        config.update(kwargs)
+        return config
 
     async def ensure_init(self):
-        if self.dispatch_task is None:
-            self.dispatch_task = asyncio.create_task(self._dispatch_task(), name="kanpai-dispatch")
+        """Called at least once before any messaging happens. Used to do async init. Must be idempotent."""
+        async with self._init_lock:  # lock in case of parallel calls - no double creation
+            if self.root_kani is None:
+                self.root_kani = await create_root_kani(
+                    self.root_engine,
+                    # create_root_kani args
+                    app=self,
+                    delegation_scheme=self.delegation_scheme,
+                    tool_configs=self.tool_configs,
+                    root_has_tools=self.root_has_tools,
+                    # BaseKani args
+                    name="root",
+                    # Kani args
+                    system_prompt=self.root_system_prompt,
+                    **self.root_kani_kwargs,
+                )
+            if self.dispatch_task is None:
+                self.dispatch_task = asyncio.create_task(
+                    self._dispatch_task(), name=f"redel-dispatch-{self.session_id}"
+                )
 
     # === entrypoints ===
     async def chat_from_queue(self, q: asyncio.Queue):
-        """Get chat messages from the queue."""
+        """Get chat messages from a provided queue. Used internally in the visualization server."""
         await self.ensure_init()
         while True:
             # main loop
@@ -154,8 +208,10 @@ class Kanpai:
                 log.exception("Error in chat_from_queue:")
             finally:
                 self.dispatch(events.RoundComplete(session_id=self.session_id))
+                await self.logger.write_state()  # autosave
 
     async def chat_in_terminal(self):
+        """Chat with the defined system in the terminal. Prints function calls and root messages to the terminal."""
         await self.ensure_init()
         while True:
             try:
@@ -164,6 +220,7 @@ class Kanpai:
                 await self.close()
             finally:
                 self.dispatch(events.RoundComplete(session_id=self.session_id))
+                await self.logger.write_state()  # autosave
 
     async def query(self, query: str) -> AsyncIterable[events.BaseEvent]:
         """Run one round with the given query.
@@ -184,6 +241,7 @@ class Kanpai:
                     pass
             finally:
                 self.dispatch(events.RoundComplete(session_id=self.session_id))
+                await self.logger.write_state()  # autosave
 
         task = asyncio.create_task(_task())
 
@@ -192,7 +250,7 @@ class Kanpai:
             event = await q.get()
             if event.__log_event__:
                 yield event
-            if event.type == events.RoundComplete.type:
+            if event.type == "round_complete":
                 break
 
         # ensure task is completed and cleanup
@@ -201,9 +259,14 @@ class Kanpai:
 
     # === events ===
     def add_listener(self, callback: Callable[[events.BaseEvent], Awaitable[Any]]):
+        """
+        Add a listener which is called for every event dispatched by the system.
+        The listener must be an asynchronous function that takes in an event in a single argument.
+        """
         self.listeners.append(callback)
 
     def remove_listener(self, callback):
+        """Remove a listener added by :meth:`add_listener`."""
         self.listeners.remove(callback)
 
     async def _dispatch_task(self):
@@ -223,7 +286,7 @@ class Kanpai:
 
     # --- kani lifecycle ---
     def on_kani_creation(self, ai: BaseKani):
-        """Called by the kanpai kani constructor.
+        """Called by the redel kani constructor.
         Registers a new kani in the app, handles parent-child bookkeeping, and dispatches a KaniSpawn event."""
         self.kanis[ai.id] = ai
         if ai.parent:

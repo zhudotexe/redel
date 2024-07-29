@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ChatMessage } from "@/kanpai/models";
+import type { ChatMessage } from "@/redel/models";
 
 const props = defineProps<{
   message: ChatMessage;
@@ -34,6 +34,6 @@ const props = defineProps<{
 }
 
 .content {
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 </style>

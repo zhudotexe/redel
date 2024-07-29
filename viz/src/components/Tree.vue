@@ -1,7 +1,7 @@
 <!-- @formatter:off -->
 <!-- this file in JS because d3 is wack -->
 <script setup>
-import {RunState} from "@/kanpai/models";
+import {RunState} from "@/redel/models";
 import {greekLetter} from "@/utils";
 import * as d3 from "d3";
 import {inject, onMounted, onUnmounted, ref, watch} from "vue";
@@ -9,7 +9,7 @@ import {inject, onMounted, onUnmounted, ref, watch} from "vue";
 const props = defineProps(['selectedId']);
 const emit = defineEmits(["nodeClicked"]);
 
-const client = inject("client");
+const state = inject("state");
 const d3Mount = ref(null);
 
 // ==== style stuff ====
@@ -110,11 +110,12 @@ onMounted(() => {
     .selectAll("g");
 });
 
-// update data based on current state of client
+// update data based on current state
 const update = () => {
+  if (!state.rootKani) return;
   let root = d3.hierarchy(
-    client.rootKani,
-    (kani) => kani?.children.map(id => client.kaniMap.get(id)),
+    state.rootKani,
+    (kani) => kani?.children.map(id => state.kaniMap.get(id)),
   );
   let links = root.links();
   let nodes = root.descendants();
@@ -167,7 +168,6 @@ const update = () => {
   tickSimulation(); // render now!
 };
 
-// update data based on current state of client
 const updateColors = () => {
   node = node
     .attr("fill", d => colorForNode(d.data));
@@ -176,18 +176,11 @@ const updateColors = () => {
 onUnmounted(() => simulation.stop());
 
 // --- reactivity ---
-// update on load
-onMounted(async () => {
-  await client.waitForReady();
-  update();
-});
+// expose update methods for consumers to call
+defineExpose({ update, updateColors });
 
 // update colors when selected changes
 watch(() => props.selectedId, () => updateColors());
-
-// update on messages and state changes
-client.events.addEventListener("kani_message", () => update());
-client.events.addEventListener("kani_state_change", () => updateColors());
 </script>
 
 <template>

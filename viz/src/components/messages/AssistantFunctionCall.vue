@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FunctionCall } from "@/kanpai/models";
+import type { FunctionCall } from "@/redel/models";
 import { ref } from "vue";
 
 const props = defineProps<{
@@ -10,14 +10,18 @@ const isOpen = ref(true);
 </script>
 
 <template>
-  <article class="message is-small">
+  <article class="message is-small is-dark">
     <div class="message-header">
       <p>Called {{ props.functionCall.name }}()...</p>
     </div>
     <div class="message-body" v-if="isOpen">
-      <kbd>{{ functionCall.arguments }}</kbd>
+      <kbd class="allow-wrap-anywhere">{{ functionCall.arguments }}</kbd>
     </div>
   </article>
 </template>
 
-<style scoped></style>
+<style scoped>
+.allow-wrap-anywhere {
+  overflow-wrap: anywhere;
+}
+</style>

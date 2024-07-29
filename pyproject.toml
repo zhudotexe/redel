@@ -4,11 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "redel"
-version = "0.0.1"
+dynamic = ["version"]
 authors = [
     { name = "Andrew Zhu", email = "andrew@zhu.codes" },
 ]
-description = "A framework for recursive delegation of LLMs"
+description = "A toolkit for recursive delegation of LLMs"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
@@ -21,18 +21,25 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    "kani[openai,anthropic]>=1.0.2,<2.0.0",
+    "kani>=1.1.0,<2.0.0",
     "kani-ratelimits",
-    "playwright>=1.43.0,<2.0.0",
+    "pydantic>=2.0.0,<3.0.0",
     "rapidfuzz>=3.9.0,<4.0.0",
-    "trafilatura>=1.9.0,<2.0.0",
-    "PyMuPDF>=1.24.3,<2.0.0",
-    "pymupdf4llm~=0.0.1",
 ]
 
 [project.optional-dependencies]
 all = [
-    "redel[web,voice]"
+    "redel[bundled,web]"
+]
+
+bundled = [
+    "httpx>=0.23.0,<1.0.0",
+    "kani[openai,anthropic]",
+    "numpy>=1.26.0,<2.0.0",
+    "playwright>=1.43.0,<2.0.0",
+    "PyMuPDF>=1.24.3,<2.0.0",
+    "pymupdf4llm~=0.0.1",
+    "trafilatura>=1.9.0,<2.0.0",
 ]
 
 web = [
@@ -41,13 +48,23 @@ web = [
     "websockets~=11.0.3",
 ]
 
-voice = [
-    "elevenlabs>=1.0.0,<2.0.0",
-]
-
 [project.urls]
 "Homepage" = "https://github.com/zhudotexe/redel"
 "Bug Tracker" = "https://github.com/zhudotexe/redel/issues"
+
+[tool.hatch]
+version.path = "redel/_version.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "sandbox",
+    "viz",
+]
+
+[tool.hatch.build.targets.wheel]
+artifacts = [
+    "redel/server/viz_dist",
+]
 
 [tool.black]
 line-length = 120
@@ -61,3 +78,4 @@ line_length = 120
 no_lines_before = "LOCALFOLDER"
 reverse_relative = true
 combine_as_imports = true
+order_by_type = false

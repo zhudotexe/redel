@@ -1,17 +1,20 @@
+import asyncio
 import datetime
+import inspect
 import logging
-from typing import Iterable
 
-from kani import ChatMessage
-from kani.engines import BaseEngine
+from kani import AIFunction, ChatMessage
 
 from .base_kani import BaseKani
+from .delegation import DelegationBase
 from .namer import Namer
+from .tool_config import ToolConfigType
+from .tools import ToolBase
 
 log = logging.getLogger(__name__)
 
 # ==== prompts ====
-ROOT_KANPAI = (
+DEFAULT_ROOT_PROMPT = (
     "# Goals\n\nYour goal is to answer the user's questions and help them out by performing actions."
     " While you may be able to answer many questions from memory alone, the user's queries will sometimes require you"
     " to search on the Internet or take actions. You can use the provided function to ask your capable helpers, who can"
@@ -19,7 +22,7 @@ ROOT_KANPAI = (
     " current time is {time}."
 )
 
-DELEGATE_KANPAI = (
+DEFAULT_DELEGATE_PROMPT = (
     "You are {name}, a helpful assistant with the goal of answering the user's questions as precisely as possible and"
     " helping them out by performing actions.\nYou can use the provided functions to search the Internet or ask your"
     " capable helpers, who can help you take actions.\nIf the user's query involves multiple steps, you should break it"
@@ -38,84 +41,131 @@ def get_system_prompt(kani: "BaseKani") -> str:
 
 
 # ==== implementation ====
-class ReDelBase(BaseKani):
-    """Base class for recursive delegation kanis."""
+class ReDelKani(BaseKani):
+    """Base class for recursive delegation kanis. Extends :class:`.BaseKani`.
 
-    def __init__(
-        self,
-        *args,
-        # prompting
-        delegate_engine: BaseEngine = None,
-        delegate_system_prompt: str | None = DELEGATE_KANPAI,
-        # delegation
-        delegation_scheme: type,
-        always_included_mixins: Iterable[type] = (),
-        max_delegation_depth: int = None,
-        # base kani stuff
-        delegate_kani_kwargs: dict = None,
-        **kwargs,
-    ):
-        """
-        :param delegate_system_prompt: The system prompt to use for each delegate kani.
-        :param delegation_scheme: The delegation scheme to use (Delegate1Mixin or DelegateWaitMixin).
-        :param max_delegation_depth: The maximum depth of the delegation chain - any kanis created at this depth will
-            not inherit from the *delegation_scheme*.
-        :param always_included_mixins: Mixins to include for each delegate (but not the root).
-        :param delegate_kani_kwargs: Additional kwargs to pass to each constructed delegate kani.
-        """
+    This class should not be constructed manually - it is tightly coupled to and managed by the application. You can
+    get a reference to a kani powering an agent in a tool by using :attr:`.ToolBase.kani`.
+    """
+
+    def __init__(self, *args, **kwargs):
         kwargs.setdefault("retry_attempts", 10)
         super().__init__(*args, **kwargs)
-
-        if delegate_engine is None:
-            delegate_engine = self.engine
-        if delegate_kani_kwargs is None:
-            delegate_kani_kwargs = {}
-
         self.namer = Namer()
-        self.delegate_engine = delegate_engine
-        self.delegate_system_prompt = delegate_system_prompt
-        self.delegation_scheme = delegation_scheme
-        self.max_delegation_depth = max_delegation_depth
-        self.always_included_mixins = always_included_mixins
-        self.delegate_kani_kwargs = delegate_kani_kwargs
+        self.delegator = None
+        self.tools = []
 
-    async def get_prompt(self) -> list[ChatMessage]:
-        if self.system_prompt is not None:
-            self.always_included_messages[0] = ChatMessage.system(get_system_prompt(self))
-        return await super().get_prompt()
+    def _register_tools(self, delegator: DelegationBase | None, tools: list[ToolBase]):
+        """Overwrite this kani's functions with the functions provided by the given delegation scheme and tools.
 
-    # noinspection PyPep8Naming
-    async def create_delegate_kani(self):
-        # construct the type for the new delegate, TODO with the retrieved functions to use
-        if self.depth == self.max_delegation_depth:
-            DelegateKani = type("DelegateKani", (*self.always_included_mixins, ReDelBase), {})
-        else:
-            DelegateKani = type("DelegateKani", (*self.always_included_mixins, ReDelBase, self.delegation_scheme), {})
+        Should be called only once, immediately after __init__.
+        """
+        new_functions = {}
+        # find all registered ai_functions in the delegation scheme and tools and save them
+        self.delegator = delegator
+        if delegator:
+            new_functions.update(get_tool_functions(delegator))
+        self.tools = tools
+        for inst in tools:
+            new_functions.update(get_tool_functions(inst))
+        self.functions = new_functions
 
-        # then create an instance of that type
+    def get_tool(self, cls: type[ToolBase]) -> ToolBase | None:
+        """Get the tool from this kani's list of tools, or None if this kani does not have the given tool class."""
+        return next((t for t in self.tools if type(t) is cls), None)
+
+    async def create_delegate_kani(self, instructions: str):
+        # create the new instance
         name = self.namer.get_name()
-        return DelegateKani(
-            self.delegate_engine,
-            # redel args
-            delegation_scheme=self.delegation_scheme,
-            always_included_mixins=self.always_included_mixins,
+        kani_inst = ReDelKani(
+            self.app.delegate_engine,
             # app args
             app=self.app,
             parent=self,
             name=name,
+            dispatch_creation=False,
             # kani args
-            system_prompt=self.delegate_system_prompt,
-            **self.delegate_kani_kwargs,
+            system_prompt=self.app.delegate_system_prompt,
+            **self.app.delegate_kani_kwargs,
         )
 
+        # set up tools
+        # delegation
+        if self.app.delegation_scheme is None or self.depth == self.app.max_delegation_depth:
+            delegation_scheme_inst = None
+        else:
+            delegation_scheme_inst = self.app.delegation_scheme(app=self.app, kani=kani_inst)
+        # tools, TODO with the retrieved functions to use
+        tool_insts = []
+        for t, config in self.app.tool_configs.items():
+            if config.get("always_include", False):
+                tool_insts.append(t(app=self.app, kani=kani_inst, **config.get("kwargs", {})))
 
-def create_root_kani(
-    *args, delegation_scheme: type | None, always_included_mixins: Iterable[type], root_has_functions: bool, **kwargs
-) -> ReDelBase:
+        # noinspection PyProtectedMember
+        kani_inst._register_tools(delegator=delegation_scheme_inst, tools=tool_insts)
+        if delegation_scheme_inst:
+            await delegation_scheme_inst.setup()
+        await asyncio.gather(*(t.setup() for t in tool_insts))
+        self.app.on_kani_creation(kani_inst)
+        return kani_inst
+
+    # overrides
+    async def get_prompt(self) -> list[ChatMessage]:
+        # if we have a system prompt, update it with any time/name templates
+        if self.system_prompt is not None:
+            self.always_included_messages[0] = ChatMessage.system(get_system_prompt(self))
+        return await super().get_prompt()
+
+    async def cleanup(self):
+        if self.delegator:
+            await self.delegator.cleanup()
+        await asyncio.gather(*(t.cleanup() for t in self.tools))
+        await super().cleanup()
+
+    async def close(self):
+        if self.delegator:
+            await self.delegator.close()
+        await asyncio.gather(*(t.close() for t in self.tools))
+        await super().close()
+
+
+async def create_root_kani(
+    *args,
+    app,
+    delegation_scheme: type[DelegationBase] | None,
+    tool_configs: ToolConfigType,
+    root_has_tools: bool,
+    **kwargs,
+) -> ReDelKani:
     """Create the root kani for the kani delegation tree."""
-    bases = (ReDelBase, delegation_scheme) if delegation_scheme is not None else (ReDelBase,)
-    if root_has_functions:
-        t = type("RootKani", (*always_included_mixins, *bases), {})
+    kani_inst = ReDelKani(*args, app=app, dispatch_creation=False, **kwargs)
+    # delegation
+    if delegation_scheme:
+        delegation_scheme_inst = delegation_scheme(app=app, kani=kani_inst)
     else:
-        t = type("RootKani", bases, {})
-    return t(*args, delegation_scheme=delegation_scheme, always_included_mixins=always_included_mixins, **kwargs)
+        delegation_scheme_inst = None
+    # tools
+    tool_insts = []
+    for t, config in tool_configs.items():
+        if config.get("always_include_root", False) or (config.get("always_include", False) and root_has_tools):
+            tool_insts.append(t(app=app, kani=kani_inst, **config.get("kwargs", {})))
+
+    # noinspection PyProtectedMember
+    kani_inst._register_tools(delegator=delegation_scheme_inst, tools=tool_insts)
+    if delegation_scheme_inst:
+        await delegation_scheme_inst.setup()
+    await asyncio.gather(*(t.setup() for t in tool_insts))
+    app.on_kani_creation(kani_inst)
+    return kani_inst
+
+
+def get_tool_functions(inst: ToolBase) -> dict[str, AIFunction]:
+    functions = {}
+    for name, member in inspect.getmembers(inst, predicate=inspect.ismethod):
+        if not hasattr(member, "__ai_function__"):
+            continue
+        f = AIFunction(member, **member.__ai_function__)
+        if f.name in functions:
+            raise ValueError(f"AIFunction {f.name!r} is already registered!")
+        functions[f.name] = f
+    return functions
