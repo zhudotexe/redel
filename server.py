@@ -15,14 +15,18 @@ Configuration:
 
 import logging
 import os
+from pathlib import Path
 
 from kani.engines.anthropic import AnthropicEngine
 from kani.engines.openai import OpenAIEngine
 from kani.ext.ratelimits import RatelimitedEngine
 
-from redel import AUTOGENERATE_TITLE, ReDel
+from redel import AUTOGENERATE_TITLE, DEFAULT_LOG_DIR, ReDel
 from redel.server import VizServer
 from redel.tools.browsing import Browsing
+
+# also serve experiments dir
+EXPERIMENTS_DIR = Path(__file__).parent / "experiments"
 
 # Define the engines
 engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
@@ -47,7 +51,7 @@ ai = ReDel(
 )
 
 # configure and start the server
-server = VizServer(ai)
+server = VizServer(ai, save_dirs=(DEFAULT_LOG_DIR, EXPERIMENTS_DIR))
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
