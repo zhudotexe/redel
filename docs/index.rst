@@ -41,7 +41,7 @@ You'll need Python 3.10 or higher. First, you'll need to install the library:
 .. code-block:: console
 
     $ pip install "redel[all]"
-    $ playwright install chrome
+    $ playwright install chromium
 
 Then, use the following code as a starting point in a new file (e.g. ``server.py``). This snippet defines the LLM engine
 your agents will use, what tools they have available, and serves the system configuration over your local interface.

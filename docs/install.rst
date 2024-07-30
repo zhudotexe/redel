@@ -22,7 +22,7 @@ provides these dependencies as extras, which you can specify with your installat
 * ``web``: All the dependencies needed to run the web interface (an HTTP server, ASGI, and websockets)
 * ``bundled``: The dependencies needed to use the bundled :class:`.Browsing` tool.
 
-If you plan to use the bundled browsing tool, you will also need to run ``playwright install chrome``.
+If you plan to use the bundled browsing tool, you will also need to run ``playwright install chromium``.
 
 Installing on Conda
 -------------------
