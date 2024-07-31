@@ -62,6 +62,6 @@ def read_jsonl(fp) -> Iterable[dict]:
         This function returns an iterator, not a list -- to read a full JSONL file into memory, use
         ``list(read_jsonl(...))``.
     """
-    with open(fp) as f:
+    with open(fp, encoding="utf-8") as f:
         for line in f:
             yield json.loads(line)

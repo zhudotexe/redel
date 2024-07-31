@@ -14,7 +14,7 @@ def find_saves(fp: Path) -> Iterable[SaveMeta]:
     state_fp = fp / "state.json"
     event_fp = fp / "events.jsonl"
     if state_fp.exists():
-        with open(state_fp) as f:
+        with open(state_fp, encoding="utf-8") as f:
             data = json.load(f)
             yield SaveMeta(
                 grouping_prefix=fp.parent.parts,
