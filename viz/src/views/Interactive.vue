@@ -87,6 +87,6 @@ onUnmounted(() => client.close());
 .introspection-container {
   padding: 0 2rem;
   min-height: 0;
-  overflow: scroll;
+  overflow-y: auto;
 }
 </style>
