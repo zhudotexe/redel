@@ -14,7 +14,7 @@ const props = defineProps<{
     <div class="media-content">
       <article class="message is-success is-small">
         <div class="message-body">
-          <p class="content">
+          <p class="content allow-wrap-anywhere">
             {{ props.message.content }}
           </p>
         </div>
@@ -23,7 +23,9 @@ const props = defineProps<{
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+@import "./messages.scss";
+
 .function-message {
   margin-top: -0.75em;
 }
@@ -31,9 +33,5 @@ const props = defineProps<{
 /* https://stackoverflow.com/questions/36230944/prevent-flex-items-from-overflowing-a-container */
 .media-content {
   min-width: 0;
-}
-
-.content {
-  overflow-wrap: anywhere;
 }
 </style>

@@ -10,7 +10,11 @@ const markdown = new MarkdownIt({ breaks: true, linkify: true }).use(MarkdownItH
 </script>
 
 <template>
-  <p v-html="markdown.render(props.content)"></p>
+  <p class="markdown" v-html="markdown.render(props.content)"></p>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+.markdown:deep(pre) {
+  white-space: pre-wrap !important;
+}
+</style>
