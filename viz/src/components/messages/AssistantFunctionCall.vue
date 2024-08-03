@@ -20,8 +20,6 @@ const isOpen = ref(true);
   </article>
 </template>
 
-<style scoped>
-.allow-wrap-anywhere {
-  overflow-wrap: anywhere;
-}
+<style scoped lang="scss">
+@import "./messages.scss";
 </style>

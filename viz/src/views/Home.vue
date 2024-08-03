@@ -66,7 +66,7 @@ onMounted(() => {
               </span>
             </div>
             <p class="icon-text">
-              <span>Read the paper</span>
+              <span>Read the paper (soon!)</span>
               <span class="icon">
                 <font-awesome-icon :icon="['fas', 'arrow-up-right-from-square']" />
               </span>
@@ -75,7 +75,7 @@ onMounted(() => {
         </a>
       </div>
       <div class="column is-narrow">
-        <a href="" target="_blank">
+        <a href="https://github.com/zhudotexe/redel" target="_blank">
           <div class="box hover-darken">
             <div>
               <span class="icon">

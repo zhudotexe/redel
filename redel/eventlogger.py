@@ -36,12 +36,12 @@ class EventLogger:
         self.log_dir.mkdir(exist_ok=True)
 
         if self.clear_existing_log:
-            return open(self.aof_path, "w", buffering=1)
+            return open(self.aof_path, "w", buffering=1, encoding="utf-8")
 
         if self.aof_path.exists():
             existing_events = read_jsonl(self.aof_path)
             self.event_count = Counter(event["type"] for event in existing_events)
-        return open(self.aof_path, "a", buffering=1)
+        return open(self.aof_path, "a", buffering=1, encoding="utf-8")
 
     async def log_event(self, event: events.BaseEvent):
         if not event.__log_event__:
@@ -63,7 +63,7 @@ class EventLogger:
             "n_events": self.event_count.total(),
             "state": state,
         }
-        with open(self.state_path, "w") as f:
+        with open(self.state_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
 
     async def close(self):

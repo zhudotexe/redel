@@ -41,10 +41,10 @@ class VizServer:
         :param save_dirs: A list of paths to scan for ReDel saves to make available to load. Defaults to
             ``~/.redel/instances/``.
         :param redel_factory: An asynchronous function that creates a new :class:`.ReDel` instance when called.
-            If this is set, ``redel_kwargs`` and ``redel_proto`` must not be set.
+            If this is set, ``redel_proto`` must not be set.
         """
         if redel_proto and redel_factory:
-            raise ValueError("At most one of ('redel_kwargs', 'redel_factory') may be supplied.")
+            raise ValueError("At most one of ('redel_proto', 'redel_factory') may be supplied.")
         elif not (redel_proto or redel_factory):
             redel_proto = ReDel()
         self.redel_proto = redel_proto

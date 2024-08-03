@@ -1,6 +1,7 @@
 from . import events
 from ._version import __version__
 from .app import ReDel
+from .config import DEFAULT_LOG_DIR
 from .delegation import DelegationBase
 from .events import BaseEvent
 from .tool_config import ToolConfig

@@ -4,7 +4,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import sys
 
-# ensure kani is available in path
+# ensure redel is available in path
 sys.path.append("..")
 
 # -- Project information -----------------------------------------------------

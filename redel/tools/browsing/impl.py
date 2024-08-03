@@ -11,7 +11,12 @@ try:
     import httpx
     import pymupdf
     import pymupdf4llm
-    from playwright.async_api import BrowserContext, TimeoutError as PlaywrightTimeoutError, async_playwright
+    from playwright.async_api import (
+        BrowserContext,
+        TimeoutError as PlaywrightTimeoutError,
+        async_playwright,
+        Error as PlaywrightError,
+    )
 except ImportError:
     raise ImportError(
         "You are missing required dependencies to use the bundled tools. Please install ReDel using `pip install"
@@ -19,7 +24,7 @@ except ImportError:
     ) from None
 
 from redel.tools import ToolBase
-from .webutils import CHROME_UA, get_google_links, web_markdownify, web_summarize
+from .webutils import get_google_links, web_markdownify, web_summarize
 
 if TYPE_CHECKING:
     from playwright.async_api import Page
@@ -64,9 +69,7 @@ class Browsing(ToolBase):
         if Browsing.playwright is None:
             Browsing.playwright = await async_playwright().start()
         if Browsing.browser is None:
-            Browsing.browser = await Browsing.playwright.chromium.launch(
-                channel="chrome", args=[f"--user-agent={CHROME_UA}"], **kwargs
-            )
+            Browsing.browser = await Browsing.playwright.chromium.launch(**kwargs)
         if Browsing.browser_context is None:
             Browsing.browser_context = await Browsing.browser.new_context()
         return Browsing.browser_context
@@ -89,12 +92,16 @@ class Browsing(ToolBase):
 
     async def close(self):
         await super().close()
-        if (browser := Browsing.browser) is not None:
-            Browsing.browser = None
-            await browser.close()
-        if (pw := Browsing.playwright) is not None:
-            Browsing.playwright = None
-            await pw.stop()
+        try:
+            if (browser := Browsing.browser) is not None:
+                Browsing.browser = None
+                await browser.close()
+            if (pw := Browsing.playwright) is not None:
+                Browsing.playwright = None
+                await pw.stop()
+        except PlaywrightError:
+            # sometimes playwright doesn't like closing in parallel
+            pass
 
     # ==== functions ====
     @ai_function()

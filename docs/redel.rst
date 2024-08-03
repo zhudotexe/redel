@@ -78,22 +78,20 @@ root and delegate agent, respectively. By default, these are:
     # Goals
 
     Your goal is to answer the user's questions and help them out by performing actions. While you may be able to answer
-    many questions from memory alone, the user's queries will sometimes require you to search on the Internet or take
-    actions. You can use the provided function to ask your capable helpers, who can help you search the Internet and
-    take actions. You should include any links they used in your response.
+    many questions from memory alone, the user's queries will sometimes require you to take actions. You can use the
+    provided function to ask your capable helpers, who can help you take actions.
     The current time is {time}.
 
 **delegate**
 
     You are {name}, a helpful assistant with the goal of answering the user's questions as precisely as possible and
     helping them out by performing actions.
-    You can use the provided functions to search the Internet or ask your capable helpers, who can help you take
-    actions.
-    If the user's query involves multiple steps, you should break it up into smaller pieces and delegate those pieces -
-    for example, if you need to look up multiple sites, delegate each search to a helper. Say your plan before you do.
-    If those pieces can be resolved at the same time, delegate them all at once and use wait("all"). You may do multiple
-    rounds of delegating and waiting for additional steps that depend on earlier steps.
-    You should include any links you used in your response.
+    You can use the provided functions to take actions yourself or break queries up into smaller pieces and ask your
+    capable helpers, who can help you.
+    If the user's query involves multiple steps, you should break it up into smaller pieces and delegate those pieces
+    - for example, if you need to look up multiple sites, delegate each search to a helper. Say your plan before you do.
+    If those pieces can be resolved at the same time, delegate them all at once. You may do multiple rounds of
+    delegating for additional steps that depend on earlier steps.
     The current time is {time}.
 
 The strings ``{name}`` and ``{time}`` will be replaced with an agent's name (see :class:`.BaseKani`) and the current
@@ -179,23 +177,28 @@ There are two primary ways to interact with a system now that you've configured 
 interface, or programmatically. The former is particularly useful to debug your system's behaviour, iterate on prompts,
 or otherwise provide an interactive experience. The latter is useful for running experiments and batch queries.
 
-Serving for WebViz
-^^^^^^^^^^^^^^^^^^
+Serving for Web Interface
+^^^^^^^^^^^^^^^^^^^^^^^^^
 To serve a ReDel configuration using the included web interface, the library includes the :class:`.VizServer` class.
 
-This class expects the arguments used to configure a ReDel session -- if you've used the ReDel constructor, the easiest
-way to provide this is to change ``ReDel`` to ``dict``.
+This class takes a :class:`.ReDel` instance and will make copies of it to serve interactive chats.
 
 .. code-block:: python
     :caption: An example of serving a ReDel configuration with web browsing over the web interface.
 
+    from kani.engines.openai import OpenAIEngine
+    from redel import Redel
     from redel.server import VizServer
+    from redel.tools.browsing import Browsing
 
-    # a ReDel session configuration, with ReDel replaced by dict
-    redel_config = dict(
+    # configure your LLMs - see the Kani engine documentation for more info
+    root_engine = OpenAIEngine(model="gpt-4o", temperature=0.8, top_p=0.95)
+    delegate_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0.8, top_p=0.95)
+
+    # a ReDel session configuration, acting as a prototype for interactive sessions
+    redel_proto = ReDel(
         root_engine=root_engine,
         delegate_engine=delegate_engine,
-        title=redel.AUTOGENERATE_TITLE,
         tool_configs={
             Browsing: {
                 "always_include": True,
@@ -204,8 +207,8 @@ way to provide this is to change ``ReDel`` to ``dict``.
         },
     )
 
-    # pass that dict to VizServer
-    server = VizServer(redel_kwargs=redel_config)
+    # pass the prototype to VizServer
+    server = VizServer(redel_proto)
 
     # VizServer.serve() makes the web interface available at 127.0.0.1:8000 by default
     server.serve()
@@ -223,7 +226,7 @@ Otherwise, to use a ReDel configuration in a larger program, you should use :met
 to the root node. This method will return an iterator of events that the system emits -- you can use this to listen
 for specific events, or filter the stream for :class:`.events.RootMessage` to emulate a chat with a single agent.
 
-A full script might look something like this:
+The minimal script for programmatically querying a ReDel system looks like this:
 
 .. code-block:: python
     :emphasize-lines: 8
@@ -232,12 +235,74 @@ A full script might look something like this:
     from kani import ChatRole
     from redel import ReDel, events
 
-    ai = ReDel()  # configure your system here, or leave blank for a default system
-
     async def main():
+        ai = ReDel()  # configure your system here, or leave blank for a default system
+
         async for event in ai.query("What is the airspeed velocity of an unladen swallow?"):
+            # your event logic here - this example prints all the messages from the root
             if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
                 if event.msg.text:
                     print(event.msg.text)
 
     asyncio.run(main())
+
+
+In most cases, however, your programmatic entrypoint will be significantly longer, involving any data loading and
+pre-/post-processing steps you need for your own application.
+
+For example, if you're an academic wanting to run the ReDel system over each task in a dataset, you might have a
+script that looks like this:
+
+.. code-block:: python
+    :emphasize-lines: 32
+
+    import asyncio
+    from kani import ChatRole
+    from kani.engines.openai import OpenAIEngine
+    from redel import ReDel, events
+    from redel.delegation import DelegateOne
+    from redel.tools.browsing import Browsing
+
+    # configure your LLMs - see the Kani engine documentation for more info
+    root_engine = OpenAIEngine(model="gpt-4o", temperature=0.8, top_p=0.95)
+    delegate_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0.8, top_p=0.95)
+
+    # helper: run one task through the ReDel system
+    async def query_redel(query):
+        # create a new instance for each query
+        # and configure your system here
+        ai = ReDel(
+            # LLMs
+            root_engine=root_engine,
+            delegate_engine=delegate_engine,
+            # delegation
+            delegation_scheme=DelegateOne,
+            # tools
+            tool_configs={
+                Browsing: {
+                    "always_include": True,
+                    "kwargs": {"long_engine": long_engine},
+                },
+            },
+        )
+
+        # send a message to the root node and listen for events from the system
+        async for event in ai.query(query):
+            # your event logic here - this example prints all the messages from the root
+            if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
+                if event.msg.text:
+                    print(event.msg.text)
+
+        # any additional logic (e.g. evaluation, saving
+
+    # main entrypoint: load in your dataset and iterate over it
+    async def main():
+        # your logic to load the dataset
+        dataset = load_dataset(...)
+
+        for task in dataset:
+            await query_redel(task)
+
+    # run the script when invoked from the command line
+    if __name__ == "__main__":
+        asyncio.run(main())

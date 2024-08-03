@@ -15,14 +15,16 @@ const props = defineProps<{
       </p>
     </figure>
     <div class="media-content">
-      <div class="content">
+      <div class="content allow-wrap-anywhere">
         <Markdown :content="props.message.content!" />
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+@import "./messages.scss";
+
 .user-message {
   background: rgba(0, 0, 0, 0.05);
   border-radius: 0.5em;

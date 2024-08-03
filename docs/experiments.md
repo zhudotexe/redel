@@ -8,6 +8,9 @@ ReDel systems. The benchmarks we ran were:
 - TravelPlanner, a real-world planning benchmark for language agents
 - WebArena, an autonomous agent benchmark with diverse tasks in a realistic web environment
 
+All of our experiment code is open-source on the `demo/emnlp` branch of the ReDel repository:
+https://github.com/zhudotexe/redel/tree/demo/emnlp
+
 ## System Configurations
 
 We tested the following system configurations:
@@ -55,7 +58,7 @@ We will release a deeper dive into the results in a future paper.
 
 ## Reproducing Experiments
 
-The ReDel repository includes the logs of every single experiment run in
+In the `demo/emnlp` branch of the ReDel repository, we include the logs of every single experiment run in
 the `experiments/` directory. You can load any of these runs in the visualization to view what the ReDel system did!
 
 The experiments directory is broken down into the following

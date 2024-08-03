@@ -16,7 +16,7 @@ const props = defineProps<{
       </p>
     </figure>
     <div class="media-content">
-      <div class="content" v-if="message.content">
+      <div class="content allow-wrap-anywhere" v-if="message.content">
         <Markdown :content="props.message.content!" />
       </div>
       <!-- function call -->
@@ -27,4 +27,6 @@ const props = defineProps<{
   </div>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+@import "./messages.scss";
+</style>
