@@ -14,7 +14,7 @@ const props = defineProps<{
       </p>
     </figure>
     <div class="media-content">
-      <div class="content">
+      <div class="content allow-wrap-anywhere">
         <Markdown :content="props.content" />
         <slot></slot>
       </div>
@@ -22,4 +22,6 @@ const props = defineProps<{
   </div>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+@import "./messages.scss";
+</style>
