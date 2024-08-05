@@ -27,4 +27,4 @@ $ systemctl restart redel-demo.zhu.codes
 ## Other infrastructure notes
 
 - arborea: nginx target file, uvicorn service
-- cf: DNS
+- cf: DNS, WAF
