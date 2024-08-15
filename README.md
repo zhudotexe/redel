@@ -262,3 +262,18 @@ python bench_webarena.py <full|root-fc|baseline|small-leaf|small-all|small-basel
 
 We release ReDel under the terms of the MIT license, included in `LICENSE`. ReDel is intended for academic and personal
 use only. To use ReDel for commercial purposes, please contact us.
+
+## Citation
+
+If you use our code or findings in your research, please cite us as:
+```
+@misc{zhu2024redeltoolkit,
+      title={ReDel: A Toolkit for LLM-Powered Recursive Multi-Agent Systems}, 
+      author={Andrew Zhu and Liam Dugan and Chris Callison-Burch},
+      year={2024},
+      eprint={2408.02248},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2408.02248}, 
+}
+```
