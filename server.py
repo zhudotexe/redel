@@ -28,7 +28,7 @@ from redel.tools.browsing import Browsing
 engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
 if "ANTHROPIC_API_KEY" in os.environ:
     long_engine = RatelimitedEngine(
-        AnthropicEngine(model="claude-3-opus-20240229", temperature=0.7, max_tokens=4096), max_concurrency=1
+        AnthropicEngine(model="claude-3-5-sonnet-20240620", temperature=0.7, max_tokens=4096), max_concurrency=1
     )
 else:
     long_engine = None
