@@ -66,19 +66,44 @@ Development Version
 -------------------
 If you'd like to install the development version of ReDel, you can install it from GitHub directly:
 
-.. code-block:: console
+.. tab:: From source
 
-    $ pip install 'redel[all] @ git+https://github.com/zhudotexe/redel.git@main'
+    .. code-block:: console
 
-This will install the latest version of ReDel.
+        $ git clone https://github.com/zhudotexe/redel.git
+        $ cd redel
+        $ pip install -e ".[all]"
+          # alternatively, use `pip install -r requirements.txt` for dev dependencies
 
-.. note::
-    You may need to use ``pip install --upgrade --no-deps --force-reinstall ...`` to force pip to re-fetch the
-    latest ReDel from GitHub.
+.. tab:: pip
+
+    .. code-block:: console
+
+        $ pip install 'redel[all] @ git+https://github.com/zhudotexe/redel.git@main'
+
+    .. note::
+        You may need to use ``pip install --upgrade --no-deps --force-reinstall ...`` to force pip to re-fetch the
+        latest ReDel from GitHub.
+
+This will install the latest version of ReDel. You'll then need to build the web frontend yourself (see below).
 
 .. caution::
-    Development versions of ReDel may be unstable! Do not use development ReDel in production or in final research
-    experiments; pin a released version of ReDel instead.
+    Development versions of ReDel may be unstable! We do not recommend using development ReDel in production or in
+    final research experiments; pin a released version of ReDel instead.
+
+Building Web Interface
+^^^^^^^^^^^^^^^^^^^^^^
+To build the web interface, you'll need Node 18 or higher. If you don't have Node installed on your system, we recommend
+using `nvm <https://github.com/nvm-sh/nvm>`_ to install the latest LTS version.
+
+.. code-block:: console
+
+    $ cd viz
+    $ npm run build
+
+.. note::
+    We recommend rebuilding the frontend after each update when using a development version. The version distributed
+    over pip will always include the latest frontend version.
 
 Requirements File
 -----------------
