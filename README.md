@@ -279,6 +279,29 @@ If you use our code or findings in your research, please cite us as:
 }
 ```
 
+## Who we are
+
+<img alt="University of Pennsylvania Logo" src="docs/_static/penn-logo.jpg" width="300">
+
+The core development team is made of two PhD students in the Department of Computer and Information Science at the
+University of Pennsylvania. We're members of
+[Prof. Chris Callison-Burch's](https://www.cis.upenn.edu/~ccb/) lab, working towards advancing the future of NLP.
+
+- [**Andrew Zhu**](https://zhu.codes/) started in Fall 2022. His research interests include natural language processing,
+  programming languages, distributed systems, and more. He's also a full-stack software engineer, proficient in all
+  manner of backend, devops, database, and frontend engineering. Andrew strives to make idiomatic, clean, performant,
+  and low-maintenance code — philosophies that are often rare in academia. His research is supported by the NSF Graduate
+  Research Fellowship.
+- [**Liam Dugan**](https://liamdugan.com/) started in Fall 2021. His research focuses primarily on large language models
+  and how humans interact with them. In particular, he is interested in human detection of generated text and whether we
+  can apply those insights to automatic detection systems. He is also interested in the practical application of large
+  language models to education.
+
+**Library Support**: 
+We are working on researching recursive multi-agent systems using ReDel, and we aim to keep it up-to-date with modern
+NLP practices. As an active research library, the release schedule is somewhat ad-hoc. Published releases should be 
+stable for wide use, and any experiment-specific code should be contained within a branch or fork.
+
 ## Acknowledgements
 
 This research is supported in part by the Office of the Director of National Intelligence (ODNI), Intelligence Advanced
