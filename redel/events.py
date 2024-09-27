@@ -32,6 +32,17 @@ class KaniSpawn(KaniState, BaseEvent):
     type: Literal["kani_spawn"] = "kani_spawn"
 
 
+class KaniDelegated(BaseEvent):
+    """A kani was just delegated."""
+
+    type: Literal["kani_delegated"] = "kani_delegated"
+    parent_id: str
+    child_id: str
+    parent_message_idx: int
+    child_message_idx: int
+    instructions: str
+
+
 class KaniStateChange(BaseEvent):
     """
     A kani's run state changed.
