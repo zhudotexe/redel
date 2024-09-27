@@ -190,6 +190,7 @@ class ReDel:
                 self.dispatch_task = asyncio.create_task(
                     self._dispatch_task(), name=f"redel-dispatch-{self.session_id}"
                 )
+        return self.root_kani
 
     # === entrypoints ===
     async def chat_from_queue(self, q: asyncio.Queue):
