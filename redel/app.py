@@ -279,11 +279,17 @@ class ReDel:
                 await asyncio.gather(*(callback(event) for callback in self.listeners), return_exceptions=True)
             except Exception:
                 log.exception("Exception when dispatching event:")
+            finally:
+                self.event_queue.task_done()
 
     def dispatch(self, event: events.BaseEvent):
         """Dispatch an event to all listeners.
         Technically this just adds it to a queue and then an async background task dispatches it."""
         self.event_queue.put_nowait(event)
+
+    async def drain(self):
+        """Wait until all events have finished processing."""
+        await self.event_queue.join()
 
     # --- kani lifecycle ---
     def on_kani_creation(self, ai: BaseKani):

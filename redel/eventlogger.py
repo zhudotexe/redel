@@ -1,3 +1,4 @@
+import contextlib
 import json
 import logging
 import pathlib
@@ -29,6 +30,7 @@ class EventLogger:
         self.state_path = self.log_dir / "state.json"
 
         self.event_count = Counter()
+        self._suppress_flag = 0
 
     @cached_property
     def event_file(self):
@@ -44,6 +46,8 @@ class EventLogger:
         return open(self.aof_path, "a", buffering=1, encoding="utf-8")
 
     async def log_event(self, event: events.BaseEvent):
+        if self._suppress_flag:
+            return
         if not event.__log_event__:
             return
         self.last_modified = time.time()
@@ -54,6 +58,8 @@ class EventLogger:
 
     async def write_state(self):
         """Write the full state of the app to the state file, with a basic checksum against the AOF to check validity"""
+        if self._suppress_flag:
+            return
         self.log_dir.mkdir(exist_ok=True)
         state = [ai.get_save_state().model_dump(mode="json") for ai in self.app.kanis.values()]
         data = {
@@ -72,3 +78,12 @@ class EventLogger:
             return
         await self.write_state()
         self.event_file.close()
+
+    @contextlib.contextmanager
+    def suppress_logs(self):
+        """Don't dispatch any events while in this body."""
+        self._suppress_flag += 1
+        try:
+            yield
+        finally:
+            self._suppress_flag -= 1

@@ -73,7 +73,7 @@ class ReDelKani(BaseKani):
         """Get the tool from this kani's list of tools, or None if this kani does not have the given tool class."""
         return next((t for t in self.tools if type(t) is cls), None)
 
-    async def create_delegate_kani(self, instructions: str | None):
+    async def create_delegate_kani(self, instructions: str):
         # create the new instance
         name = self.namer.get_name()
         kani_inst = ReDelKani(
@@ -88,6 +88,19 @@ class ReDelKani(BaseKani):
             **self.app.delegate_kani_kwargs,
         )
 
+        await self.register_child_kani(kani_inst, instructions)
+        self.app.dispatch(
+            events.KaniDelegated(
+                parent_id=self.id,
+                child_id=kani_inst.id,
+                parent_message_idx=len(self.chat_history) - 1,
+                child_message_idx=len(kani_inst.chat_history),
+                instructions=instructions,
+            )
+        )
+        return kani_inst
+
+    async def register_child_kani(self, kani_inst, instructions: str | None):
         # set up tools
         # delegation
         if self.app.delegation_scheme is None or self.depth == self.app.max_delegation_depth:
@@ -107,16 +120,6 @@ class ReDelKani(BaseKani):
         await asyncio.gather(*(t.setup() for t in tool_insts))
         # bookkeeping
         self.app.on_kani_creation(kani_inst)
-        self.app.dispatch(
-            events.KaniDelegated(
-                parent_id=self.id,
-                child_id=kani_inst.id,
-                parent_message_idx=len(self.chat_history) - 1,
-                child_message_idx=len(kani_inst.chat_history),
-                instructions=instructions,
-            )
-        )
-        return kani_inst
 
     # overrides
     async def get_prompt(self) -> list[ChatMessage]:
