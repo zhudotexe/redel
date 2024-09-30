@@ -321,6 +321,8 @@ class ReDel:
 
     async def close(self):
         """Clean up all the app resources."""
+        self.dispatch(events.SessionClose(session_id=self.session_id))
+        await self.drain()
         if self.dispatch_task is not None:
             self.dispatch_task.cancel()
         await asyncio.gather(

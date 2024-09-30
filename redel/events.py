@@ -101,6 +101,15 @@ class RoundComplete(BaseEvent):
     session_id: str
 
 
+class SessionClose(BaseEvent):
+    """The ReDel session is closing and clients should be redirected to the home page."""
+
+    __log_event__ = False
+
+    type: Literal["kani_message"] = "session_close"
+    session_id: str
+
+
 # user events
 class SendMessage(BaseEvent):
     type: Literal["send_message"] = "send_message"
