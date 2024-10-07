@@ -297,15 +297,17 @@ University of Pennsylvania. We're members of
   can apply those insights to automatic detection systems. He is also interested in the practical application of large
   language models to education.
 
-**Library Support**: 
+**Library Support**:
 We are working on researching recursive multi-agent systems using ReDel, and we aim to keep it up-to-date with modern
-NLP practices. As an active research library, the release schedule is somewhat ad-hoc. Published releases should be 
+NLP practices. As an active research library, the release schedule is somewhat ad-hoc. Published releases should be
 stable for wide use, and any experiment-specific code should be contained within a branch or fork.
 
 ## Acknowledgements
 
 This research is supported in part by the Office of the Director of National Intelligence (ODNI), Intelligence Advanced
-Research Projects Activity (IARPA), via the HIATUS Program contract #2022-22072200005. The views and conclusions
-contained herein are those of the authors and should not be interpreted as necessarily representing the official
-policies, either expressed or implied, of ODNI, IARPA, or the U.S. Government. The U.S. Government is authorized to
-reproduce and distribute reprints for governmental purposes notwithstanding any copyright annotation therein.
+Research Projects Activity (IARPA), via the HIATUS Program contract #2022-22072200005.
+This material is based upon work supported by the National Science Foundation Graduate Research Fellowship.
+The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily
+representing the official policies or views, either expressed or implied, of ODNI, IARPA, the NSF, or the U.S.
+Government. The U.S. Government is authorized to reproduce and distribute reprints for governmental purposes
+notwithstanding any copyright annotation therein.
