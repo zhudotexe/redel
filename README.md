@@ -306,7 +306,8 @@ stable for wide use, and any experiment-specific code should be contained within
 
 This research is supported in part by the Office of the Director of National Intelligence (ODNI), Intelligence Advanced
 Research Projects Activity (IARPA), via the HIATUS Program contract #2022-22072200005.
-This material is based upon work supported by the National Science Foundation Graduate Research Fellowship.
+This material is based upon work supported by the National Science Foundation Graduate Research Fellowship, under Grant
+No. DGE-2236662.
 The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily
 representing the official policies or views, either expressed or implied, of ODNI, IARPA, the NSF, or the U.S.
 Government. The U.S. Government is authorized to reproduce and distribute reprints for governmental purposes
