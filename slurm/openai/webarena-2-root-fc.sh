@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --partition=p_nlp
-#SBATCH --job-name=rd-tp-3
+#SBATCH --job-name=rd-wa-root-fc
 #
 #SBATCH --output=/nlpgpu/data/andrz/logs/%j.%x.log
 #SBATCH --error=/nlpgpu/data/andrz/logs/%j.%x.log
@@ -12,6 +12,5 @@
 #SBATCH --mail-type=END,FAIL
 
 source slurm/env.sh
-srun python bench_travelplanner.py small-leaf
-srun python bench_travelplanner.py small-all
-srun python bench_travelplanner.py small-baseline
+source slurm/webarena-env.sh
+srun python bench_webarena.py --config root-fc --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/test/root-fc

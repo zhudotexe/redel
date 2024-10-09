@@ -19,15 +19,14 @@ import logging
 import multiprocessing
 import os
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 from pickle import UnpicklingError
 
 import tqdm
 from kani import ChatRole
-from kani.engines.openai import OpenAIEngine
 
+from bench_engines import get_experiment_config
 from redel import ReDel, events
 from redel.tools.webarena.client import FatalSubprocessException, WebArenaClient
 from redel.tools.webarena.delegate_one import WebArenaDelegate1Mixin
@@ -43,8 +42,6 @@ from redel.tools.webarena.impl import WebArenaMixin
 from redel.tools.webarena.subprocess import wa_entrypoint
 from redel.tools.webarena.utils import map_url_to_real
 
-LOG_BASE = Path(__file__).parent / "experiments/webarena"
-experiment_config = sys.argv[-1]
 log = logging.getLogger("bench_webarena")
 
 # ==== webarena config ====
@@ -53,56 +50,6 @@ END_IDX = 812
 SKIP = 3  # 0, 812, 3 = 270 trials for small
 
 # ==== redel config ====
-delegation_scheme = WebArenaDelegate1Mixin
-log_dir = LOG_BASE / "test" / experiment_config
-trace_dir = LOG_BASE / "traces/test" / experiment_config
-# gross but whatever
-# - **full**: no root FC, gpt-4o everything
-if experiment_config == "full":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, parallel_tool_calls=False)
-    delegate_engine = root_engine
-    root_has_tools = False
-# - **root-fc**: root FC, gpt-4o everything
-elif experiment_config == "root-fc":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, parallel_tool_calls=False)
-    delegate_engine = root_engine
-    root_has_tools = True
-# - **baseline**: root FC, no delegation, gpt-4o
-elif experiment_config == "baseline":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, parallel_tool_calls=False)
-    delegate_engine = root_engine
-    root_has_tools = True
-    delegation_scheme = None
-# - **small-leaf**: no root FC, gpt-4o root, gpt-3.5-turbo leaves
-elif experiment_config == "small-leaf":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, parallel_tool_calls=False)
-    delegate_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0, parallel_tool_calls=False)
-    root_has_tools = False
-#     - **small-all**: no root FC, gpt-3.5-turbo everything
-elif experiment_config == "small-all":
-    root_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0, parallel_tool_calls=False)
-    delegate_engine = root_engine
-    root_has_tools = False
-#     - **small-baseline**: root FC, no delegation, gpt-3.5-turbo
-elif experiment_config == "small-baseline":
-    root_engine = OpenAIEngine(model="gpt-3.5-turbo", temperature=0, parallel_tool_calls=False)
-    delegate_engine = root_engine
-    root_has_tools = True
-    delegation_scheme = None
-# - **short-context**: no root FC, gpt-4o everything, limit to 8192 ctx
-elif experiment_config == "short-context":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, max_context_size=8192, parallel_tool_calls=False)
-    delegate_engine = root_engine
-    root_has_tools = False
-#     - **short-baseline**: root FC, no delegation, gpt-4o, 8192 ctx
-elif experiment_config == "short-baseline":
-    root_engine = OpenAIEngine(model="gpt-4o", temperature=0, max_context_size=8192, parallel_tool_calls=False)
-    delegate_engine = root_engine
-    root_has_tools = True
-    delegation_scheme = None
-else:
-    raise ValueError("invalid experiment config")
-
 SYSTEM_PROMPT = """\
 You are an autonomous intelligent agent tasked with navigating a web browser. You will be given web-based tasks. These tasks will be accomplished through the use of specific functions you can call.
 
@@ -121,16 +68,8 @@ SYSTEM_PROMPT_ROOT = (
     SYSTEM_PROMPT + "\nYou should always call `submit_answer` with just your final answer once you are done."
 )
 
-print("========== CONFIG ==========")
-print("root engine:", root_engine.model)
-print("root ctx:", root_engine.max_context_size)
-print("root tools:", root_has_tools)
-print("delegation scheme:", delegation_scheme)
-if delegation_scheme:
-    print("delegate engine:", delegate_engine.model)
-    print("delegate ctx:", delegate_engine.max_context_size)
-print("saving to:", log_dir.resolve())
-print("============================")
+config = get_experiment_config(delegation_scheme=WebArenaDelegate1Mixin)
+trace_dir = config.save_dir / "traces"
 
 
 def wa_ensure_auth(config_file: Path) -> Path:
@@ -144,16 +83,14 @@ def wa_ensure_auth(config_file: Path) -> Path:
             comb = get_site_comb_from_filepath(cookie_file_name)
             temp_dir = tempfile.mkdtemp()
             # subprocess to renew the cookie
-            subprocess.run(
-                [
-                    "python",
-                    "experiments/webarena/auto_login.py",
-                    "--auth_folder",
-                    temp_dir,
-                    "--site_list",
-                    *comb,
-                ]
-            )
+            subprocess.run([
+                "python",
+                "experiments/webarena/auto_login.py",
+                "--auth_folder",
+                temp_dir,
+                "--site_list",
+                *comb,
+            ])
             _c["storage_state"] = f"{temp_dir}/{cookie_file_name}"
             assert os.path.exists(_c["storage_state"])
             # write a temp copy of the config file
@@ -173,11 +110,11 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
 
     # setup redel
     ai = ReDel(
-        root_engine=root_engine,
-        delegate_engine=delegate_engine,
+        root_engine=config.root_engine,
+        delegate_engine=config.delegate_engine,
         root_system_prompt=SYSTEM_PROMPT_ROOT,
         delegate_system_prompt=SYSTEM_PROMPT,
-        delegation_scheme=delegation_scheme,
+        delegation_scheme=config.delegation_scheme,
         tool_configs={
             WebArenaMixin: {
                 "always_include": True,
@@ -188,9 +125,9 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
                 "kwargs": {"webarena_client": wa_client},
             },
         },
-        root_has_tools=root_has_tools,
+        root_has_tools=config.root_has_tools,
         title=f"webarena: {intent} ({task_id})",
-        log_dir=log_dir / str(task_id),
+        log_dir=config.save_dir / str(task_id),
         clear_existing_log=True,
     )
 
@@ -229,7 +166,7 @@ async def run():
 
     # ==== experiment setup ====
     # check for existing results
-    results_fp = log_dir / "results.jsonl"
+    results_fp = config.save_dir / "results.jsonl"
     existing_results = set()
     if results_fp.exists():
         for r in read_jsonl(results_fp):
@@ -243,7 +180,7 @@ async def run():
             continue
 
         # run trial
-        trial_config_path = LOG_BASE / f"config/{task_id}.json"
+        trial_config_path = Path(__file__).parent / f"experiments/webarena/config/{task_id}.json"
         try:
             # ensure the subprocess is alive
             wa_send.send({"cmd": "ping"})
@@ -257,16 +194,14 @@ async def run():
             )
             log.info(root_output)
             results_file.write(
-                json.dumps(
-                    {
-                        "id": task_id,
-                        "score": score,
-                        "answer": answer,
-                        "root_output": root_output,
-                        "intent": wa_config["intent"],
-                        "log_dir": str(result_log_dir.resolve()),
-                    }
-                )
+                json.dumps({
+                    "id": task_id,
+                    "score": score,
+                    "answer": answer,
+                    "root_output": root_output,
+                    "intent": wa_config["intent"],
+                    "log_dir": str(result_log_dir.resolve()),
+                })
             )
             results_file.write("\n")
             results_file.flush()
@@ -291,6 +226,6 @@ async def run():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.WARNING)
     log.setLevel(logging.INFO)
-    log_dir.mkdir(parents=True, exist_ok=True)
+    config.save_dir.mkdir(parents=True, exist_ok=True)
     trace_dir.mkdir(parents=True, exist_ok=True)
     asyncio.run(run())
