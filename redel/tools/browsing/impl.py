@@ -2,7 +2,7 @@ import contextlib
 import logging
 import tempfile
 import urllib.parse
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from kani import ChatMessage, ChatRole, ai_function
 from kani.engines import BaseEngine
@@ -13,9 +13,9 @@ try:
     import pymupdf4llm
     from playwright.async_api import (
         BrowserContext,
+        Error as PlaywrightError,
         TimeoutError as PlaywrightTimeoutError,
         async_playwright,
-        Error as PlaywrightError,
     )
 except ImportError:
     raise ImportError(

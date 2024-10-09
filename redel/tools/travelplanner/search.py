@@ -29,34 +29,30 @@ class GDMTransportationMethod(enum.Enum):
 class TravelPlannerMixin(ToolBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.flight_data = pd.read_csv(TRAVELPLANNER_DB_PATH / "flights/clean_Flights_2022.csv").dropna()[
-            [
-                "Flight Number",
-                "Price",
-                "DepTime",
-                "ArrTime",
-                "ActualElapsedTime",
-                "FlightDate",
-                "OriginCityName",
-                "DestCityName",
-                "Distance",
-            ]
-        ]
+        self.flight_data = pd.read_csv(TRAVELPLANNER_DB_PATH / "flights/clean_Flights_2022.csv").dropna()[[
+            "Flight Number",
+            "Price",
+            "DepTime",
+            "ArrTime",
+            "ActualElapsedTime",
+            "FlightDate",
+            "OriginCityName",
+            "DestCityName",
+            "Distance",
+        ]]
         self.gdm_data = pd.read_csv(TRAVELPLANNER_DB_PATH / "googleDistanceMatrix/distance.csv")
         self.accommodation_data = pd.read_csv(
             TRAVELPLANNER_DB_PATH / "accommodations/clean_accommodations_2022.csv"
-        ).dropna()[
-            [
-                "NAME",
-                "price",
-                "room type",
-                "house_rules",
-                "minimum nights",
-                "maximum occupancy",
-                "review rate number",
-                "city",
-            ]
-        ]
+        ).dropna()[[
+            "NAME",
+            "price",
+            "room type",
+            "house_rules",
+            "minimum nights",
+            "maximum occupancy",
+            "review rate number",
+            "city",
+        ]]
         self.restaurant_data = pd.read_csv(TRAVELPLANNER_DB_PATH / "restaurants/clean_restaurant_2022.csv").dropna()[
             ["Name", "Average Cost", "Cuisines", "Aggregate Rating", "City"]
         ]

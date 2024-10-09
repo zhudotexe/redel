@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import AsyncIterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, AsyncIterable
 from weakref import WeakValueDictionary
 
 from kani import ChatMessage, ChatRole, Kani

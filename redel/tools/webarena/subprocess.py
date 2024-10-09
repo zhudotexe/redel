@@ -8,7 +8,7 @@ Statefulness: This server is STATEFUL between calls to `/reset`, and NOT paralle
 launch an instance of this server for each run.
 """
 
-from typing import Any, TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from .patches import patch_to_support_webarena
 
