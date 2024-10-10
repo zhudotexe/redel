@@ -200,4 +200,10 @@ class VizServer:
                     await websocket.send_text(Error(msg=str(e)).model_dump_json())
 
         # viz static files
+        if not VIZ_DIST.exists():
+            raise RuntimeError(
+                f"The {VIZ_DIST} directory does not exist. If you have cloned ReDel from source, this is likely because"
+                " you need to build the web frontend.\nSee"
+                " https://redel.readthedocs.io/en/latest/install.html#building-web-interface for more information."
+            )
         self.fastapi.mount("/", StaticFiles(directory=VIZ_DIST, html=True), name="viz")

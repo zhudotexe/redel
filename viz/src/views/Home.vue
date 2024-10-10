@@ -58,7 +58,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="column is-narrow">
-        <a href="" target="_blank">
+        <a href="https://arxiv.org/abs/2408.02248" target="_blank">
           <div class="box hover-darken">
             <div class="has-text-success">
               <span class="icon">
@@ -66,7 +66,7 @@ onMounted(() => {
               </span>
             </div>
             <p class="icon-text">
-              <span>Read the paper (soon!)</span>
+              <span>Read the paper</span>
               <span class="icon">
                 <font-awesome-icon :icon="['fas', 'arrow-up-right-from-square']" />
               </span>

@@ -4,11 +4,15 @@ import ChatMessages from "@/components/ChatMessages.vue";
 import Tree from "@/components/Tree.vue";
 import { InteractiveClient } from "@/redel/interactive";
 import type { KaniState } from "@/redel/models";
+import { Notifications } from "@/redel/notifications";
 import { onMounted, onUnmounted, provide, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps<{
   sessionId: string;
 }>();
+
+const router = useRouter();
 
 const client = reactive(new InteractiveClient(props.sessionId));
 const introspectedKani = ref<KaniState | null>(null);
@@ -24,8 +28,14 @@ onMounted(async () => {
   client.events.addEventListener("kani_state_change", () => tree.value?.updateColors());
 
   // connect ws to backend, get state, update tree
+  const resp = await client.getState();
+  // if this failed (e.g. user bookmarks a state), notify and redir to save
+  if (!resp.success) {
+    Notifications.info("This session is no longer active - you are viewing its replay."); // todo instructions to restart it
+    router.push({ name: "save", params: { saveId: props.sessionId } });
+    return;
+  }
   client.connect();
-  await client.getState(); // todo what if this failed (e.g. user bookmarks a state) - probably redir to save?
   tree.value?.update();
 });
 onUnmounted(() => client.close());

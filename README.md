@@ -262,3 +262,53 @@ python bench_webarena.py <full|root-fc|baseline|small-leaf|small-all|small-basel
 
 We release ReDel under the terms of the MIT license, included in `LICENSE`. ReDel is intended for academic and personal
 use only. To use ReDel for commercial purposes, please contact us.
+
+## Citation
+
+If you use our code or findings in your research, please cite us as:
+
+```
+@misc{zhu2024redeltoolkit,
+      title={ReDel: A Toolkit for LLM-Powered Recursive Multi-Agent Systems}, 
+      author={Andrew Zhu and Liam Dugan and Chris Callison-Burch},
+      year={2024},
+      eprint={2408.02248},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2408.02248}, 
+}
+```
+
+## Who we are
+
+<img alt="University of Pennsylvania Logo" src="docs/_static/penn-logo.jpg" width="300">
+
+The core development team is made of two PhD students in the Department of Computer and Information Science at the
+University of Pennsylvania. We're members of
+[Prof. Chris Callison-Burch's](https://www.cis.upenn.edu/~ccb/) lab, working towards advancing the future of NLP.
+
+- [**Andrew Zhu**](https://zhu.codes/) started in Fall 2022. His research interests include natural language processing,
+  programming languages, distributed systems, and more. He's also a full-stack software engineer, proficient in all
+  manner of backend, devops, database, and frontend engineering. Andrew strives to make idiomatic, clean, performant,
+  and low-maintenance code — philosophies that are often rare in academia. His research is supported by the NSF Graduate
+  Research Fellowship.
+- [**Liam Dugan**](https://liamdugan.com/) started in Fall 2021. His research focuses primarily on large language models
+  and how humans interact with them. In particular, he is interested in human detection of generated text and whether we
+  can apply those insights to automatic detection systems. He is also interested in the practical application of large
+  language models to education.
+
+**Library Support**:
+We are working on researching recursive multi-agent systems using ReDel, and we aim to keep it up-to-date with modern
+NLP practices. As an active research library, the release schedule is somewhat ad-hoc. Published releases should be
+stable for wide use, and any experiment-specific code should be contained within a branch or fork.
+
+## Acknowledgements
+
+This research is supported in part by the Office of the Director of National Intelligence (ODNI), Intelligence Advanced
+Research Projects Activity (IARPA), via the HIATUS Program contract #2022-22072200005.
+This material is based upon work supported by the National Science Foundation Graduate Research Fellowship, under Grant
+No. DGE-2236662.
+The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily
+representing the official policies or views, either expressed or implied, of ODNI, IARPA, the NSF, or the U.S.
+Government. The U.S. Government is authorized to reproduce and distribute reprints for governmental purposes
+notwithstanding any copyright annotation therein.
