@@ -31,7 +31,7 @@ log = logging.getLogger("bench_fanoutqa")
 
 
 # ==== main ====
-async def query(q: DevQuestion | TestQuestion, config):
+async def query(q: DevQuestion | TestQuestion):
     ai = ReDel(
         root_engine=config.root_engine,
         delegate_engine=config.delegate_engine,

@@ -40,7 +40,13 @@ def get_engine(model_id: str, context_size: int = None):
             model_id="mistralai/Mistral-Large-Instruct-2407",
             prompt_pipeline=MISTRAL_V3_PIPELINE,
             max_context_size=context_size,
-            model_load_kwargs={"tensor_parallel_size": 8, "tokenizer_mode": "auto"},
+            model_load_kwargs={
+                "tensor_parallel_size": 8,
+                "tokenizer_mode": "auto",
+                # for more stability
+                "enforce_eager": True,
+                "gpu_memory_utilization": 0.8,
+            },
             sampling_params=SamplingParams(temperature=0, max_tokens=None),
         )
         return MistralFunctionCallingAdapter(model)
@@ -49,7 +55,7 @@ def get_engine(model_id: str, context_size: int = None):
             model_id="mistralai/Mistral-Small-Instruct-2409",
             prompt_pipeline=MISTRAL_V3_PIPELINE,
             max_context_size=context_size,
-            model_load_kwargs={"tensor_parallel_size": 8, "tokenizer_mode": "auto"},
+            model_load_kwargs={"tensor_parallel_size": 8, "tokenizer_mode": "auto", "enforce_eager": True},
             sampling_params=SamplingParams(temperature=0, max_tokens=None),
         )
         return MistralFunctionCallingAdapter(model)
