@@ -68,9 +68,6 @@ SYSTEM_PROMPT_ROOT = (
     SYSTEM_PROMPT + "\nYou should always call `submit_answer` with just your final answer once you are done."
 )
 
-config = get_experiment_config(delegation_scheme=WebArenaDelegate1Mixin)
-trace_dir = config.save_dir / "traces"
-
 
 def wa_ensure_auth(config_file: Path) -> Path:
     """If the given config file requires auth, do the login and save a temp copy with updated cookies."""
@@ -226,6 +223,8 @@ async def run():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.WARNING)
     log.setLevel(logging.INFO)
+    config = get_experiment_config(delegation_scheme=WebArenaDelegate1Mixin)
+    trace_dir = config.save_dir / "traces"
     config.save_dir.mkdir(parents=True, exist_ok=True)
     trace_dir.mkdir(parents=True, exist_ok=True)
     asyncio.run(run())

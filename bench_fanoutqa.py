@@ -28,11 +28,10 @@ from redel.tools.fanoutqa.impl import FanOutQAMixin
 from redel.utils import read_jsonl
 
 log = logging.getLogger("bench_fanoutqa")
-config = get_experiment_config()
 
 
 # ==== main ====
-async def query(q: DevQuestion | TestQuestion):
+async def query(q: DevQuestion | TestQuestion, config):
     ai = ReDel(
         root_engine=config.root_engine,
         delegate_engine=config.delegate_engine,
@@ -103,4 +102,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    config = get_experiment_config()
     asyncio.run(main())

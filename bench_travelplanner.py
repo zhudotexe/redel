@@ -34,8 +34,6 @@ root_system_prompt = (
     "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions."
 )
 
-config = get_experiment_config()
-
 
 # ==== main ====
 async def query(q: dict, qid: str):
@@ -116,4 +114,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    config = get_experiment_config()
     asyncio.run(main())
