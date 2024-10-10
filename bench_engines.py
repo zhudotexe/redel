@@ -31,11 +31,11 @@ class ExperimentConfig:
 
 
 def get_engine(model_id: str, context_size: int = None):
-    if model_id == "gpt-4o":
-        return OpenAIEngine(model="gpt-4o", temperature=0, max_context_size=context_size)
-    if model_id == "gpt-3.5-turbo":
-        return OpenAIEngine(model="gpt-3.5-turbo", temperature=0, max_context_size=context_size)
-    if model_id == "mistral-large-2407":
+    if model_id == "gpt-4o-2024-05-13":
+        return OpenAIEngine(model="gpt-4o-2024-05-13", temperature=0, max_context_size=context_size)
+    if model_id == "gpt-3.5-turbo-0125":
+        return OpenAIEngine(model="gpt-3.5-turbo-0125", temperature=0, max_context_size=context_size)
+    if model_id == "mistralai/Mistral-Large-Instruct-2407":
         model = VLLMEngine(
             model_id="mistralai/Mistral-Large-Instruct-2407",
             prompt_pipeline=MISTRAL_V3_PIPELINE,
@@ -44,7 +44,7 @@ def get_engine(model_id: str, context_size: int = None):
             sampling_params=SamplingParams(temperature=0, max_tokens=None),
         )
         return MistralFunctionCallingAdapter(model)
-    if model_id == "mistral-small-2409":
+    if model_id == "mistralai/Mistral-Small-Instruct-2409":
         model = VLLMEngine(
             model_id="mistralai/Mistral-Small-Instruct-2409",
             prompt_pipeline=MISTRAL_V3_PIPELINE,
