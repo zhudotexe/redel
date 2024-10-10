@@ -190,7 +190,7 @@ async def run():
             wa_client = WebArenaClient.setup_from_config(config_file=str(trial_config_path.resolve()), pipe=wa_send)
             # run
             answer, root_output, score, result_log_dir, wa_config = await asyncio.wait_for(
-                run_one_trial(trial_config_path, wa_client), timeout=600
+                run_one_trial(trial_config_path, wa_client), timeout=config.engine_timeout
             )
             log.info(root_output)
             results_file.write(

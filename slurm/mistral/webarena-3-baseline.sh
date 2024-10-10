@@ -17,4 +17,4 @@ source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
 
 source slurm/webarena-env.sh
-python bench_webarena.py --config baseline --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/mistral
+python bench_webarena.py --config baseline --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/mistral --engine-timeout 1800

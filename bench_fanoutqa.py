@@ -81,7 +81,7 @@ async def run():
         # run query
         log.info(q.question)
         try:
-            result, result_log_dir = await asyncio.wait_for(query(q), timeout=600)
+            result, result_log_dir = await asyncio.wait_for(query(q), timeout=config.engine_timeout)
             log.info(result)
             results_file.write(
                 json.dumps(

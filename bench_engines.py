@@ -17,6 +17,7 @@ parser.add_argument("--config", required=True)
 parser.add_argument("--large-model", required=True)
 parser.add_argument("--small-model", required=True)
 parser.add_argument("--save-dir", type=pathlib.Path, required=True)
+parser.add_argument("--engine-timeout", type=int, default=600)
 
 
 @dataclasses.dataclass
@@ -26,6 +27,7 @@ class ExperimentConfig:
     delegation_scheme: DelegationBase | None
     root_has_tools: bool
     save_dir: pathlib.Path
+    engine_timeout: int
 
 
 def get_engine(model_id: str, context_size: int = None):
@@ -123,4 +125,5 @@ def get_experiment_config(delegation_scheme=DelegateOne) -> ExperimentConfig:
         delegation_scheme=delegation_scheme,
         root_has_tools=root_has_tools,
         save_dir=save_dir,
+        engine_timeout=args.engine_timeout,
     )

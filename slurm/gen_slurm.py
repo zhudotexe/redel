@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 TEMPLATE = """\
 #!/bin/bash
 #
@@ -22,7 +24,8 @@ python bench_{bench}.py \
 --config {config} \
 --large-model {large_model} \
 --small-model {small_model} \
---save-dir /nlpgpu/data/andrz/redel/experiments/{bench}/{model_class}
+--save-dir /nlpgpu/data/andrz/redel/experiments/{bench}/{model_class} \
+{engine_extras}
 """
 BENCHES = ["fanoutqa", "travelplanner", "webarena"]
 CONFIGS = [
@@ -35,19 +38,28 @@ CONFIGS = [
     "short-context",
     "short-baseline",
 ]
+
+ModelConfig = namedtuple("ModelConfig", "model_class large small size extras")
+
 MODELS = [
-    # model class, large, small, size
-    # ("openai", "gpt-4o-2024-05-13", "gpt-3.5-turbo-0125", 0),
-    ("mistral", "mistralai/Mistral-Large-Instruct-2407", "mistralai/Mistral-Small-Instruct-2409", 8),
+    # model class, large, small, size, extras
+    # ModelConfig(model_class="openai", large="gpt-4o-2024-05-13", small="gpt-3.5-turbo-0125", size=0, extras=""),
+    ModelConfig(
+        model_class="mistral",
+        large="mistralai/Mistral-Large-Instruct-2407",
+        small="mistralai/Mistral-Small-Instruct-2409",
+        size=8,
+        extras="--engine-timeout 1800",  # 30 min timeout per trial
+    ),
 ]
 
 
 def main():
-    for model_class, large_model, small_model, size in MODELS:
-        cpus = min(16, max(1, size * 4))
-        mem = str(min(400, max(32, 64 * size))) + "G"
-        gpus = size
-        gpuconstraint = "#SBATCH --constraint=48GBgpu" if size else ""
+    for model in MODELS:
+        cpus = min(16, max(1, model.size * 4))
+        mem = str(min(400, max(32, 64 * model.size))) + "G"
+        gpus = model.size
+        gpuconstraint = "#SBATCH --constraint=48GBgpu" if model.size else ""
 
         for bench in BENCHES:
             # WA needs extra env vars
@@ -61,16 +73,17 @@ def main():
                 content = TEMPLATE.format(
                     config=config,
                     bench=bench,
-                    model_class=model_class,
+                    model_class=model.model_class,
                     cpus=cpus,
                     mem=mem,
                     gpus=gpus,
                     gpuconstraint=gpuconstraint,
-                    large_model=large_model,
-                    small_model=small_model,
+                    large_model=model.large,
+                    small_model=model.small,
                     bench_extras=bench_extras,
+                    engine_extras=model.extras,
                 )
-                with open(f"slurm/{model_class}/{bench}-{idx+1}-{config}.sh", "w") as f:
+                with open(f"slurm/{model.model_class}/{bench}-{idx+1}-{config}.sh", "w") as f:
                     f.write(content)
 
 

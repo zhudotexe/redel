@@ -88,7 +88,7 @@ async def run():
         # run query
         log.info(q["query"])
         try:
-            result, plan, result_log_dir = await asyncio.wait_for(query(q, qid), timeout=600)
+            result, plan, result_log_dir = await asyncio.wait_for(query(q, qid), timeout=config.engine_timeout)
         except Exception as e:
             log.exception(e)
         else:
