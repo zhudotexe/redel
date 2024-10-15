@@ -47,7 +47,7 @@ def get_engine(model_id: str, context_size: int = None):
                 "gpu_memory_utilization": 0.7,
                 "enable_prefix_caching": True,
             },
-            sampling_params=SamplingParams(temperature=0, max_tokens=None),
+            sampling_params=SamplingParams(temperature=0, max_tokens=2048),
         )
         return MistralFunctionCallingAdapter(model)
     if model_id == "mistralai/Mistral-Small-Instruct-2409":
@@ -56,7 +56,7 @@ def get_engine(model_id: str, context_size: int = None):
             prompt_pipeline=MISTRAL_V3_PIPELINE,
             max_context_size=context_size,
             model_load_kwargs={"tensor_parallel_size": 8, "tokenizer_mode": "auto"},
-            sampling_params=SamplingParams(temperature=0, max_tokens=None),
+            sampling_params=SamplingParams(temperature=0, max_tokens=2048),
         )
         return MistralFunctionCallingAdapter(model)
     raise ValueError("unknown engine")
