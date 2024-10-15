@@ -44,7 +44,7 @@ def get_engine(model_id: str, context_size: int = None):
                 "tensor_parallel_size": 8,
                 "tokenizer_mode": "auto",
                 # for more stability
-                "gpu_memory_utilization": 0.7,
+                "gpu_memory_utilization": 0.8,
                 "enable_prefix_caching": True,
             },
             sampling_params=SamplingParams(temperature=0, max_tokens=2048),
