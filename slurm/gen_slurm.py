@@ -24,7 +24,7 @@ python bench_{bench}.py \
 --config {config} \
 --large-model {large_model} \
 --small-model {small_model} \
---save-dir /nlpgpu/data/andrz/redel/experiments/{bench}/{model_class} \
+--save-dir /nlpgpu/data/andrz/redel/experiments/{bench}/{model_class}/{config} \
 {engine_extras}
 """
 BENCHES = ["fanoutqa", "travelplanner", "webarena"]
