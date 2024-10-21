@@ -4,6 +4,7 @@ import tempfile
 import urllib.parse
 from typing import Optional, TYPE_CHECKING
 
+from duckduckgo_search import AsyncDDGS
 from kani import ChatMessage, ChatRole, ai_function
 from kani.engines import BaseEngine
 
@@ -106,26 +107,28 @@ class Browsing(ToolBase):
     # ==== functions ====
     @ai_function()
     async def search(self, query: str):
-        """Search a query on Google."""
-        page = await self.get_page()
-        query_enc = urllib.parse.quote_plus(query)
-        await page.goto(f"https://www.google.com/search?q={query_enc}")
-        # content
-        try:
-            # if the main content is borked, fallback
-            search_html = await page.inner_html("#main", timeout=5000)
-            search_text = web_markdownify(search_html, include_links=False)
-            # links
-            search_loc = page.locator("#search")
-            links = await get_google_links(search_loc)
-            return (
-                f"{search_text.strip()}\n\nYou should visit some of these links for more information or delegate"
-                f" helpers to visit multiple:\n\n===== Links =====\n{links.to_md_str()}"
-            )
-        except PlaywrightTimeoutError:
-            content_html = await page.content()
-            content = web_markdownify(content_html)
-            return content
+        """Search for a query on a web search engine."""
+        # page = await self.get_page()
+        # query_enc = urllib.parse.quote_plus(query)
+        # await page.goto(f"https://www.google.com/search?q={query_enc}")
+        # # content
+        # try:
+        #     # if the main content is borked, fallback
+        #     search_html = await page.inner_html("#main", timeout=5000)
+        #     search_text = web_markdownify(search_html, include_links=False)
+        #     # links
+        #     search_loc = page.locator("#search")
+        #     links = await get_google_links(search_loc)
+        #     return (
+        #         f"{search_text.strip()}\n\nYou should visit some of these links for more information or delegate"
+        #         f" helpers to visit multiple:\n\n===== Links =====\n{links.to_md_str()}"
+        #     )
+        # except PlaywrightTimeoutError:
+        #     content_html = await page.content()
+        #     content = web_markdownify(content_html)
+        #     return content
+        results = await AsyncDDGS().atext(query)
+        return results
 
     @ai_function()
     async def visit_page(self, href: str):
