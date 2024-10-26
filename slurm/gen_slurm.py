@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-TEMPLATE = """\
+HEADER_TEMPLATE = """\
 #!/bin/bash
 #
 #SBATCH --partition=p_nlp
@@ -20,6 +20,8 @@ source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
 
 {bench_extras}
+"""
+RUN_TEMPLATE = """\
 python bench_{bench}.py \
 --config {config} \
 --large-model {large_model} \
@@ -65,12 +67,14 @@ def main():
             # WA needs extra env vars
             bench_extras = "source slurm/webarena-env.sh" if bench == "webarena" else ""
 
+            all_commands = []
+
             for idx, config in enumerate(CONFIGS):
                 # no short context settings for TP
                 if bench == "travelplanner" and idx > 5:
                     continue
 
-                content = TEMPLATE.format(
+                header = HEADER_TEMPLATE.format(
                     config=config,
                     bench=bench,
                     model_class=model.model_class,
@@ -78,13 +82,35 @@ def main():
                     mem=mem,
                     gpus=gpus,
                     gpuconstraint=gpuconstraint,
+                    bench_extras=bench_extras,
+                )
+                content = RUN_TEMPLATE.format(
+                    config=config,
+                    bench=bench,
+                    model_class=model.model_class,
                     large_model=model.large,
                     small_model=model.small,
-                    bench_extras=bench_extras,
                     engine_extras=model.extras,
                 )
+                all_commands.append(content)
                 with open(f"slurm/{model.model_class}/{bench}-{idx+1}-{config}.sh", "w") as f:
+                    f.write(header)
                     f.write(content)
+
+            # write all file
+            header = HEADER_TEMPLATE.format(
+                config="all",
+                bench=bench,
+                model_class=model.model_class,
+                cpus=cpus,
+                mem=mem,
+                gpus=gpus,
+                gpuconstraint=gpuconstraint,
+                bench_extras=bench_extras,
+            )
+            with open(f"slurm/{model.model_class}/{bench}-all.sh", "w") as f:
+                f.write(header)
+                f.write("\n\n".join(all_commands))
 
 
 if __name__ == "__main__":
