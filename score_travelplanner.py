@@ -14,6 +14,7 @@ from redel.utils import read_jsonl
 
 EXPECTED_RESULTS = {
     "validation": 180,
+    "mistral": 180,
 }
 
 
