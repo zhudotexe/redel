@@ -1,7 +1,7 @@
+import asyncio
 import contextlib
 import logging
 import tempfile
-import urllib.parse
 from typing import Optional, TYPE_CHECKING
 
 from duckduckgo_search import AsyncDDGS
@@ -25,7 +25,7 @@ except ImportError:
     ) from None
 
 from redel.tools import ToolBase
-from .webutils import get_google_links, web_markdownify, web_summarize
+from .webutils import web_markdownify, web_summarize
 
 if TYPE_CHECKING:
     from playwright.async_api import Page
@@ -45,11 +45,26 @@ class Browsing(ToolBase):
     browser = None
     browser_context = None
 
-    def __init__(self, *args, long_engine: BaseEngine = None, max_webpage_len: int = None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        long_engine: BaseEngine = None,
+        max_webpage_len: int = None,
+        page_concurrency_sem: asyncio.Semaphore | None = None,
+        **kwargs,
+    ):
+        """
+        :param long_engine: If a webpage is longer than *max_webpage_len*, send it to this engine to summarize it. If
+            not supplied, uses the kani's engine.
+        :param max_webpage_len: The maximum length of a webpage to send to the kani at once
+            (default max context len / 3).
+        :param page_concurrency_sem: A semaphore that this tool will acquire when opening a browser page.
+        """
         super().__init__(*args, **kwargs)
         self.http = httpx.AsyncClient(follow_redirects=True)
         self.page: Optional["Page"] = None
         self.long_engine = long_engine
+        self.page_concurrency_sem = page_concurrency_sem
 
         # the max number of tokens before asking for a summary - default 1/3rd ctx len
         if max_webpage_len is None:
@@ -82,6 +97,8 @@ class Browsing(ToolBase):
         """
         if self.page is None and create:
             context = await self.get_browser()
+            if self.page_concurrency_sem:
+                await self.page_concurrency_sem.acquire()
             self.page = await context.new_page()
         return self.page
 
@@ -89,6 +106,8 @@ class Browsing(ToolBase):
         await super().cleanup()
         if self.page is not None:
             await self.page.close()
+            if self.page_concurrency_sem:
+                self.page_concurrency_sem.release()
             self.page = None
 
     async def close(self):
