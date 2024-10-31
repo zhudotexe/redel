@@ -82,7 +82,7 @@ onUnmounted(() => client.close());
 
 .left-container {
   height: 100%;
-  padding: 4rem 4rem 2rem 4rem;
+  padding: 3rem 3rem 2rem 3rem;
   background-color: rgba($beige-light, 0.2);
 }
 
