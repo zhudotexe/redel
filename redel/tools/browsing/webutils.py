@@ -93,6 +93,7 @@ def web_markdownify(html: str, **kwargs):
         "include_links": True,
         "include_formatting": True,
         "include_tables": True,
+        "include_images": True,
         "favor_recall": True,
         "deduplicate": True,
         **kwargs,

@@ -1,6 +1,5 @@
 from contextlib import contextmanager
 from typing import AsyncIterable, TYPE_CHECKING
-from weakref import WeakValueDictionary
 
 from kani import ChatMessage, ChatRole, Kani
 from kani.engines.base import BaseCompletion
@@ -50,7 +49,7 @@ class BaseKani(Kani):
         else:
             self.depth = 0
         self.parent = parent
-        self.children = WeakValueDictionary()
+        self.children = {}
         # app management
         self.id = create_kani_id() if id is None else id
         self.name = self.id if name is None else name

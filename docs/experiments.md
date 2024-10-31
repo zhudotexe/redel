@@ -1,8 +1,7 @@
 # EMNLP Demo Experiments
 
-Of course, the question remains: is using recursive multi-agent systems actually better than just improving a single
-model? To test this, we ran three different benchmarks and compared the performance of various configurations of
-ReDel systems. The benchmarks we ran were:
+To validate our implementation of recursive multi-agent systems, we ran three different benchmarks and compared the
+performance of various configurations of ReDel systems. The benchmarks we ran were:
 
 - FanOutQA, a multi-hop, multi-document information seeking benchmark with open-domain search
 - TravelPlanner, a real-world planning benchmark for language agents
@@ -11,6 +10,10 @@ ReDel systems. The benchmarks we ran were:
 All of our experiment code is open-source on the `demo/emnlp` branch of the ReDel repository:
 https://github.com/zhudotexe/redel/tree/demo/emnlp
 
+For more information on our experiments, see our paper (link coming soon)!
+
+<!--
+see paper for most up-to-date discussion
 ## System Configurations
 
 We tested the following system configurations:
@@ -55,6 +58,7 @@ From these high-level results, we can conclude that:
   everything in serial
 
 We will release a deeper dive into the results in a future paper.
+-->
 
 ## Reproducing Experiments
 

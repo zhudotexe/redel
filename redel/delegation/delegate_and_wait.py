@@ -5,6 +5,7 @@ from typing import Annotated
 from kani import AIParam, ChatRole, ai_function
 from rapidfuzz import fuzz
 
+from redel import events
 from redel.state import RunState
 from ._base import DelegationBase
 
@@ -62,6 +63,16 @@ class DelegateWait(DelegationBase):
                     f" {who!r} and retry."
                 )
             helper = self.helpers[who]
+            # emit a KaniDelegated event
+            self.app.dispatch(
+                events.KaniDelegated(
+                    parent_id=self.kani.id,
+                    child_id=helper.id,
+                    parent_message_idx=len(self.kani.chat_history) - 1,
+                    child_message_idx=len(helper.chat_history),
+                    instructions=instructions,
+                )
+            )
         else:
             helper = await self.create_delegate_kani(instructions)
             self.helpers[helper.name] = helper
