@@ -30,6 +30,7 @@ defineExpose({ scrollChatToBottom });
 
 <template>
   <div class="messages" ref="chatHistory">
+    <slot />
     <!-- complete messages -->
     <div v-for="message in kani.chat_history" class="chat-message">
       <UserMessage v-if="message.role === ChatRole.user" :message="message" class="user" />

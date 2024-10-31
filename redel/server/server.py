@@ -281,6 +281,8 @@ class VizServer:
                 )
             manager = self.interactive_sessions[session_id]
             await manager.connect(websocket)
+
+            # main recv loop
             while True:
                 try:
                     data = await websocket.receive_text()
