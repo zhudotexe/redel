@@ -2,14 +2,18 @@
 import ChatMessages from "@/components/ChatMessages.vue";
 import Tree from "@/components/Tree.vue";
 import { API } from "@/redel/api";
-import { type BaseEvent, type KaniMessage, type KaniState } from "@/redel/models";
+import { type BaseEvent, type KaniMessage, type KaniState, type SessionMeta } from "@/redel/models";
 import { ReDelState } from "@/redel/state";
 import { computed, nextTick, onMounted, provide, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps<{
   saveId: string;
 }>();
 
+const router = useRouter();
+
+const sessionMeta = ref<SessionMeta | null>(null);
 const state = reactive<ReDelState>(new ReDelState());
 const events = ref<BaseEvent[]>([]);
 const replayIdx = ref<number>(0); // the index of the next event to play
@@ -23,6 +27,7 @@ const introspectedKani = computed<KaniState | undefined>(() => {
   return state.kaniMap.get(introspectedKaniId.value);
 });
 
+// ===== replay utils =====
 function setReplayTarget(idx: number) {
   if (idx < 0 || idx > events.value.length) return;
   const previousIdx = replayIdx.value;
@@ -73,15 +78,22 @@ function getPreviousMessageIdx(kani: KaniState): number {
   return replayIdx.value;
 }
 
+// ===== save utils =====
+async function loadSave(fork: boolean = false) {
+  const newSessionState = await API.loadSaveToInteractive(props.saveId, fork);
+  router.push({ name: "interactive", params: { sessionId: newSessionState.id } });
+}
+
 // hooks
 onMounted(async () => {
   // get state, update tree
-  const sessionState = await API.getSaveState(props.saveId);
+  const _sessionState = await API.getSaveState(props.saveId);
+  sessionMeta.value = _sessionState;
   events.value = await API.getSaveEvents(props.saveId);
-  state.loadSessionState(sessionState);
+  state.loadSessionState(_sessionState);
   // the slider doesn't like if the max and value are updated at the same time
   nextTick(() => {
-    replayIdx.value = sessionState.n_events;
+    replayIdx.value = _sessionState.n_events;
   });
   tree.value?.update();
 });
@@ -92,8 +104,24 @@ onMounted(async () => {
   <div class="main">
     <div class="columns is-gapless h-100" v-if="state">
       <!-- root chat -->
-      <div class="column">
-        <div class="left-container chat-container">
+      <div class="column is-flex is-flex-direction-column">
+        <!-- toolbar -->
+        <nav class="level is-mobile toolbar">
+          <!-- Left side -->
+          <div class="level-left">
+            <div class="level-item">
+              <p class="subtitle is-5">{{ sessionMeta?.title }}</p>
+            </div>
+          </div>
+
+          <!-- Right side -->
+          <div class="level-right">
+            <p class="level-item"><a class="button is-success" @click="loadSave(false)">Load</a></p>
+            <p class="level-item"><a class="button is-success" @click="loadSave(true)">Fork</a></p>
+          </div>
+        </nav>
+
+        <div class="left-container chat-container is-flex-grow-1">
           <!-- Chat component, but messagebar replaced by replay controls -->
           <div class="is-flex is-flex-direction-column h-100">
             <div class="is-flex-grow-1"></div>
@@ -190,12 +218,18 @@ onMounted(async () => {
 
 .left-container {
   height: 100%;
-  padding: 4rem 4rem 2rem 4rem;
+  padding: 0 3rem 2rem 3rem;
   background-color: rgba($beige-light, 0.2);
 }
 
 .chat-container {
   min-height: 0;
+}
+
+.toolbar {
+  margin: 0;
+  padding: 0.5rem;
+  border-bottom: 1px outset rgba($beige-light, 0.5);
 }
 
 .right-container {

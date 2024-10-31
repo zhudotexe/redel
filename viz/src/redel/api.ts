@@ -50,6 +50,12 @@ export class API {
     return response.data;
   }
 
+  public static async loadSaveToInteractive(saveId: string, fork: boolean) {
+    const data = { fork };
+    const response = await axios.post<SessionState>(`${API_BASE}/saves/${saveId}/load`, data);
+    return response.data;
+  }
+
   ////////// INTERACTIVE //////////
   public static async listStatesInteractive() {
     const response = await axios.get<SessionState[]>(`${API_BASE}/states`);
