@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from redel.state import KaniState
 
 
+# ===== server -> client =====
 class SessionMeta(BaseModel):
     id: str
     title: str | None
@@ -20,3 +21,8 @@ class SaveMeta(SessionMeta):
 
 class SessionState(SessionMeta):
     state: list[KaniState]
+
+
+# ===== client -> server =====
+class LoadSavePayload(BaseModel):
+    fork: bool = True

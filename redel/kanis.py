@@ -5,6 +5,7 @@ import logging
 
 from kani import AIFunction, ChatMessage
 
+from . import events
 from .base_kani import BaseKani
 from .delegation import DelegationBase
 from .namer import Namer
@@ -87,13 +88,26 @@ class ReDelKani(BaseKani):
             **self.app.delegate_kani_kwargs,
         )
 
+        await self.register_child_kani(kani_inst, instructions)
+        self.app.dispatch(
+            events.KaniDelegated(
+                parent_id=self.id,
+                child_id=kani_inst.id,
+                parent_message_idx=len(self.chat_history) - 1,
+                child_message_idx=len(kani_inst.chat_history),
+                instructions=instructions,
+            )
+        )
+        return kani_inst
+
+    async def register_child_kani(self, kani_inst, instructions: str | None):
         # set up tools
         # delegation
         if self.app.delegation_scheme is None or self.depth == self.app.max_delegation_depth:
             delegation_scheme_inst = None
         else:
             delegation_scheme_inst = self.app.delegation_scheme(app=self.app, kani=kani_inst)
-        # tools, TODO with the retrieved functions to use
+        # tools, TODO with the retrieved functions to use if instructions are given
         tool_insts = []
         for t, config in self.app.tool_configs.items():
             if config.get("always_include", False):
@@ -104,8 +118,8 @@ class ReDelKani(BaseKani):
         if delegation_scheme_inst:
             await delegation_scheme_inst.setup()
         await asyncio.gather(*(t.setup() for t in tool_insts))
+        # bookkeeping
         self.app.on_kani_creation(kani_inst)
-        return kani_inst
 
     # overrides
     async def get_prompt(self) -> list[ChatMessage]:

@@ -6,8 +6,8 @@ Environment Variables:
 - ANTHROPIC_API_KEY (optional)
 
 Configuration:
-- root engine: gpt-4
-- delegate engine: gpt-4
+- root engine: gpt-4o
+- delegate engine: gpt-4o
 - tools:
     - Browsing (always included in delegates)
         - long engine: claude-3-opus (for summarizing long webpages, if ANTHROPIC_API_KEY is set)
@@ -21,11 +21,12 @@ from kani.engines.openai import OpenAIEngine
 from kani.ext.ratelimits import RatelimitedEngine
 
 from redel import AUTOGENERATE_TITLE, ReDel
+from redel.delegation import DelegateOne
 from redel.server import VizServer
 from redel.tools.browsing import Browsing
 
 # Define the engines
-engine = OpenAIEngine(model="gpt-4", temperature=0.8, top_p=0.95)
+engine = OpenAIEngine(model="gpt-4o", temperature=0.8, top_p=0.95)
 if "ANTHROPIC_API_KEY" in os.environ:
     long_engine = RatelimitedEngine(
         AnthropicEngine(model="claude-3-5-sonnet-20240620", temperature=0.7, max_tokens=4096), max_concurrency=1
@@ -37,6 +38,7 @@ else:
 ai = ReDel(
     root_engine=engine,
     delegate_engine=engine,
+    delegation_scheme=DelegateOne,
     title=AUTOGENERATE_TITLE,
     tool_configs={
         Browsing: {

@@ -190,6 +190,7 @@ class ReDel:
                 self.dispatch_task = asyncio.create_task(
                     self._dispatch_task(), name=f"redel-dispatch-{self.session_id}"
                 )
+        return self.root_kani
 
     # === entrypoints ===
     async def chat_from_queue(self, q: asyncio.Queue):
@@ -278,11 +279,17 @@ class ReDel:
                 await asyncio.gather(*(callback(event) for callback in self.listeners), return_exceptions=True)
             except Exception:
                 log.exception("Exception when dispatching event:")
+            finally:
+                self.event_queue.task_done()
 
     def dispatch(self, event: events.BaseEvent):
         """Dispatch an event to all listeners.
         Technically this just adds it to a queue and then an async background task dispatches it."""
         self.event_queue.put_nowait(event)
+
+    async def drain(self):
+        """Wait until all events have finished processing."""
+        await self.event_queue.join()
 
     # --- kani lifecycle ---
     def on_kani_creation(self, ai: BaseKani):
@@ -314,6 +321,8 @@ class ReDel:
 
     async def close(self):
         """Clean up all the app resources."""
+        self.dispatch(events.SessionClose(session_id=self.session_id))
+        await self.drain()
         if self.dispatch_task is not None:
             self.dispatch_task.cancel()
         await asyncio.gather(

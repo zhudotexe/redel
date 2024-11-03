@@ -32,6 +32,17 @@ class KaniSpawn(KaniState, BaseEvent):
     type: Literal["kani_spawn"] = "kani_spawn"
 
 
+class KaniDelegated(BaseEvent):
+    """A kani was just delegated."""
+
+    type: Literal["kani_delegated"] = "kani_delegated"
+    parent_id: str
+    child_id: str
+    parent_message_idx: int
+    child_message_idx: int
+    instructions: str
+
+
 class KaniStateChange(BaseEvent):
     """
     A kani's run state changed.
@@ -87,6 +98,15 @@ class RoundComplete(BaseEvent):
     """The root kani has finished a full round and control should be handed off to the user."""
 
     type: Literal["round_complete"] = "round_complete"
+    session_id: str
+
+
+class SessionClose(BaseEvent):
+    """The ReDel session is closing and clients should be redirected to the home page."""
+
+    __log_event__ = False
+
+    type: Literal["kani_message"] = "session_close"
     session_id: str
 
 

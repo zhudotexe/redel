@@ -1,8 +1,9 @@
 import asyncio
 import logging
+import shutil
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Annotated, Awaitable, Callable, Collection
+from typing import Annotated, Awaitable, Callable, Collection, TYPE_CHECKING
 
 try:
     from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect, WebSocketException
@@ -17,10 +18,14 @@ except ImportError:
 from redel import ReDel
 from redel.config import DEFAULT_LOG_DIR
 from redel.events import Error, SendMessage
+from redel.kanis import ReDelKani, create_root_kani
 from redel.utils import read_jsonl
 from .indexer import find_saves
-from .models import SaveMeta, SessionMeta, SessionState
+from .models import LoadSavePayload, SaveMeta, SessionMeta, SessionState
 from .session_manager import SessionManager
+
+if TYPE_CHECKING:
+    from redel.state import KaniState
 
 VIZ_DIST = Path(__file__).parent / "viz_dist"
 log = logging.getLogger("server")
@@ -33,7 +38,7 @@ class VizServer:
         /,
         *,
         save_dirs: Collection[Path] = (DEFAULT_LOG_DIR,),
-        redel_factory: Callable[[], Awaitable[ReDel]] = None,
+        redel_factory: Callable[[...], Awaitable[ReDel]] = None,
     ):
         """
         :param redel_proto: If passed, interactive sessions will use the same configuration as the given prototype.
@@ -76,11 +81,11 @@ class VizServer:
         # most of the time is spent in IO with the filesystem so we can thread this
         await asyncio.get_event_loop().run_in_executor(None, _index)
 
-    async def create_new_redel(self) -> ReDel:
+    async def create_new_redel(self, **override_kwargs) -> ReDel:
         """Return a new ReDel instance given the server config."""
         if self.redel_proto:
-            return ReDel(**self.redel_proto.get_config())
-        return await self.redel_factory()
+            return ReDel(**(self.redel_proto.get_config() | override_kwargs))
+        return await self.redel_factory(**override_kwargs)
 
     def serve(self, host="127.0.0.1", port=8000, **kwargs):
         """Serve this server at the given IP and port. Blocks until interrupted."""
@@ -133,6 +138,8 @@ class VizServer:
                 raise HTTPException(404, "save not found")
             save = self.saves[save_id]
             try:
+                if manager := self.interactive_sessions.pop(save_id, None):
+                    await manager.close()
                 save.state_fp.unlink(missing_ok=True)
                 save.event_fp.unlink(missing_ok=True)
                 del self.saves[save_id]
@@ -144,7 +151,95 @@ class VizServer:
                 log.warning(f"Could not fully delete save: {e}")
             return save
 
-        # todo: load save
+        @self.fastapi.post("/api/saves/{save_id}/load")
+        async def load_save_to_interactive(save_id: str, payload: LoadSavePayload) -> SessionState:
+            """
+            Load the state into interactive memory, with a fresh new ReDel instance as the config.
+
+            Payload:
+
+                {
+                    "fork": true  // if fork, make a copy into interactive memory
+                }
+            """
+            # load save
+            if save_id not in self.saves:
+                raise HTTPException(404, "save not found")
+            save = self.saves[save_id]
+            state = SessionState.model_validate_json(save.state_fp.read_text())
+
+            # create a new redel instance given the settings, with meta from saves
+            if payload.fork:
+                redel = await self.create_new_redel(title=state.title, clear_existing_log=False)
+                # copy existing AOF over - state file will be written on first interaction
+                try:
+                    redel.logger.log_dir.mkdir(exist_ok=True)
+                    shutil.copy(save.event_fp, redel.logger.aof_path)
+                except FileNotFoundError:
+                    pass
+            else:
+                redel = await self.create_new_redel(
+                    session_id=state.id,
+                    title=state.title,
+                    log_dir=save.state_fp.parent,
+                    clear_existing_log=False,
+                )
+
+            with redel.logger.suppress_logs():
+                # load the root (if it exists)
+                state_map = {s.id: s for s in state.state}
+                root_kani_state = next((s for s in state.state if s.depth == 0), None)
+                if root_kani_state:
+                    root_kani = await create_root_kani(
+                        redel.root_engine,
+                        # create_root_kani args
+                        app=redel,
+                        delegation_scheme=redel.delegation_scheme,
+                        tool_configs=redel.tool_configs,
+                        root_has_tools=redel.root_has_tools,
+                        # BaseKani args
+                        name=root_kani_state.name,
+                        # Kani args
+                        system_prompt=redel.root_system_prompt,
+                        always_included_messages=root_kani_state.always_included_messages,
+                        chat_history=root_kani_state.chat_history,
+                        **redel.root_kani_kwargs,
+                    )
+                    redel.root_kani = root_kani
+
+                    await redel.ensure_init()
+
+                    # DFS load the kani states into the redel instance
+                    async def load_child_states(ai: "ReDelKani", ai_state: "KaniState"):
+                        for child_id in ai_state.children:
+                            child_state = state_map[child_id]  # should always exist
+                            # create and register child instance
+                            child_kani = ReDelKani(
+                                redel.delegate_engine,
+                                # app args
+                                app=redel,
+                                parent=ai,
+                                id=child_state.id,
+                                name=child_state.name,
+                                dispatch_creation=False,
+                                # kani args
+                                system_prompt=redel.delegate_system_prompt,
+                                always_included_messages=child_state.always_included_messages,
+                                chat_history=child_state.chat_history,
+                                **redel.delegate_kani_kwargs,
+                            )
+                            await ai.register_child_kani(child_kani, instructions=None)
+                            await load_child_states(child_kani, child_state)
+
+                    await load_child_states(root_kani, root_kani_state)
+                    await redel.drain()
+
+            # assign it to a sessionmanager and start
+            manager = SessionManager(self, redel)
+            self.interactive_sessions[redel.session_id] = manager
+            self.saves[redel.session_id] = manager.get_save_meta()
+            await manager.start()
+            return manager.get_state()
 
         # ---- interactive ----
         @self.fastapi.get("/api/states")
