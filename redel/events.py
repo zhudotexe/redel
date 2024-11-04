@@ -88,7 +88,7 @@ class StreamDelta(BaseEvent):
 
     __log_event__ = False
 
-    type: Literal["kani_message"] = "stream_delta"
+    type: Literal["stream_delta"] = "stream_delta"
     id: str
     delta: str
     role: ChatRole
@@ -106,8 +106,15 @@ class SessionClose(BaseEvent):
 
     __log_event__ = False
 
-    type: Literal["kani_message"] = "session_close"
+    type: Literal["session_close"] = "session_close"
     session_id: str
+
+
+class SessionMetaUpdate(BaseEvent):
+    """Some part of the session metadata has been updated."""
+
+    type: Literal["session_meta_update"] = "session_meta_update"
+    title: str
 
 
 # user events
