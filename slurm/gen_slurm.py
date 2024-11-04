@@ -18,10 +18,9 @@ HEADER_TEMPLATE = """\
 
 source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
-
-{bench_extras}
 """
 RUN_TEMPLATE = """\
+{bench_extras}
 python bench_{bench}.py \
 --config {config} \
 --large-model {large_model} \
@@ -65,7 +64,10 @@ def main():
 
         for bench in BENCHES:
             # WA needs extra env vars
-            bench_extras = "source slurm/webarena-env.sh" if bench == "webarena" else ""
+            if bench == "webarena":
+                bench_extras = "source slurm/webarena-env.sh\ncurl -X GET ${RESTART_URL}\nsleep 300"
+            else:
+                bench_extras = ""
 
             all_commands = []
 
@@ -82,9 +84,9 @@ def main():
                     mem=mem,
                     gpus=gpus,
                     gpuconstraint=gpuconstraint,
-                    bench_extras=bench_extras,
                 )
                 content = RUN_TEMPLATE.format(
+                    bench_extras=bench_extras,
                     config=config,
                     bench=bench,
                     model_class=model.model_class,
