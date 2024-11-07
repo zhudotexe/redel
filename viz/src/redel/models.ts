@@ -104,6 +104,10 @@ export interface StreamDelta extends BaseEvent {
   role: ChatRole;
 }
 
+export interface SessionMetaUpdate extends BaseEvent {
+  title: string;
+}
+
 // ---- client events ----
 export interface SendMessage extends BaseEvent {
   type: "send_message";

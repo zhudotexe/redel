@@ -45,8 +45,18 @@ onUnmounted(() => client.close());
   <div class="main">
     <div class="columns is-gapless h-100">
       <!-- root chat -->
-      <div class="column">
-        <div class="left-container chat-container">
+      <div class="column is-flex is-flex-direction-column">
+        <!-- toolbar -->
+        <nav class="level is-mobile toolbar">
+          <div class="level-left">
+            <div class="level-item">
+              <p class="subtitle is-5">{{ client.state.meta?.title || "Untitled Session" }}</p>
+            </div>
+          </div>
+        </nav>
+
+        <!-- chat -->
+        <div class="left-container chat-container is-flex-grow-1">
           <Chat class="mt-auto" />
         </div>
       </div>
@@ -78,6 +88,12 @@ onUnmounted(() => client.close());
 
 .main {
   height: 100vh;
+}
+
+.toolbar {
+  margin: 0;
+  padding: 0.5rem;
+  border-bottom: 1px outset rgba($beige-light, 0.5);
 }
 
 .left-container {
