@@ -313,6 +313,7 @@ class ReDel:
             self.title = "..."  # prevent another message from generating a title
             try:
                 self.title = await generate_conversation_title(self.root_kani)
+                self.dispatch(events.SessionMetaUpdate(title=self.title))
             except Exception:
                 log.exception("Could not generate conversation title:")
                 self.title = None

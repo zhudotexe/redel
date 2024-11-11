@@ -2,7 +2,7 @@
 import ChatMessages from "@/components/ChatMessages.vue";
 import Tree from "@/components/Tree.vue";
 import { API } from "@/redel/api";
-import { type BaseEvent, type KaniMessage, type KaniState, type SessionMeta } from "@/redel/models";
+import { type BaseEvent, type KaniMessage, type KaniState } from "@/redel/models";
 import { ReDelState } from "@/redel/state";
 import { computed, nextTick, onMounted, provide, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -13,7 +13,6 @@ const props = defineProps<{
 
 const router = useRouter();
 
-const sessionMeta = ref<SessionMeta | null>(null);
 const state = reactive<ReDelState>(new ReDelState());
 const events = ref<BaseEvent[]>([]);
 const replayIdx = ref<number>(0); // the index of the next event to play
@@ -88,7 +87,6 @@ async function loadSave(fork: boolean = false) {
 onMounted(async () => {
   // get state, update tree
   const _sessionState = await API.getSaveState(props.saveId);
-  sessionMeta.value = _sessionState;
   events.value = await API.getSaveEvents(props.saveId);
   state.loadSessionState(_sessionState);
   // the slider doesn't like if the max and value are updated at the same time
@@ -110,7 +108,7 @@ onMounted(async () => {
           <!-- Left side -->
           <div class="level-left">
             <div class="level-item">
-              <p class="subtitle is-5">{{ sessionMeta?.title }}</p>
+              <p class="subtitle is-5">{{ state.meta?.title || "Untitled Session" }}</p>
             </div>
           </div>
 

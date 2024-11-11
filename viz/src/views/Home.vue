@@ -58,7 +58,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="column is-narrow">
-        <a href="https://arxiv.org/abs/2408.02248" target="_blank">
+        <a href="https://aclanthology.org/2024.emnlp-demo.17/" target="_blank">
           <div class="box hover-darken">
             <div class="has-text-success">
               <span class="icon">

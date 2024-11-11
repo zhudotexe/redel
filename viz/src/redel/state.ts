@@ -8,6 +8,8 @@ import {
   type KaniStateChange,
   type RootMessage,
   RunState,
+  type SessionMeta,
+  type SessionMetaUpdate,
   type SessionState,
   type StreamDelta,
 } from "@/redel/models";
@@ -15,6 +17,7 @@ import {
 export class ReDelState {
   rootMessages: ChatMessage[] = [];
   rootKani?: KaniState;
+  meta?: SessionMeta;
   kaniMap: Map<string, KaniState> = new Map<string, KaniState>();
   streamMap: Map<string, string> = new Map<string, string>();
 
@@ -26,6 +29,7 @@ export class ReDelState {
 
   public loadSessionState(data: SessionState) {
     this.kaniMap.clear();
+    this.meta = data;
     // hydrate the app state
     for (const kani of data.state) {
       this.kaniMap.set(kani.id, kani);
@@ -55,6 +59,9 @@ export class ReDelState {
         break;
       case "stream_delta":
         this.onStreamDelta(data as StreamDelta);
+        break;
+      case "session_meta_update":
+        this.onSessionMetaUpdate(data as SessionMetaUpdate);
         break;
       default:
         console.debug("Unknown event:", data);
@@ -113,6 +120,14 @@ export class ReDelState {
       return;
     }
     this.streamMap.set(data.id, buf + data.delta);
+  }
+
+  onSessionMetaUpdate(data: SessionMetaUpdate) {
+    if (!this.meta) {
+      console.warn("Got SessionMetaUpdate but session meta is undefined!");
+      return;
+    }
+    this.meta.title = data.title;
   }
 
   // ==== event handlers - backward ====
