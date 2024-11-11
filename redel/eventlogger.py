@@ -35,7 +35,7 @@ class EventLogger:
     @cached_property
     def event_file(self):
         # we use a cached property here to only lazily create the log dir if we need it
-        self.log_dir.mkdir(exist_ok=True)
+        self.log_dir.mkdir(exist_ok=True, parents=True)
 
         if self.clear_existing_log:
             return open(self.aof_path, "w", buffering=1, encoding="utf-8")
@@ -60,7 +60,7 @@ class EventLogger:
         """Write the full state of the app to the state file, with a basic checksum against the AOF to check validity"""
         if self._suppress_flag:
             return
-        self.log_dir.mkdir(exist_ok=True)
+        self.log_dir.mkdir(exist_ok=True, parents=True)
         state = [ai.get_save_state().model_dump(mode="json") for ai in self.app.kanis.values()]
         data = {
             "id": self.session_id,
