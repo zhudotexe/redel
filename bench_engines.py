@@ -3,12 +3,6 @@ import dataclasses
 import pathlib
 
 from kani.engines import BaseEngine
-from kani.engines.anthropic import AnthropicEngine
-from kani.engines.openai import OpenAIEngine
-from kani.ext.vllm import VLLMEngine
-from kani.prompts.impl import MISTRAL_V3_PIPELINE
-from kani.prompts.impl.mistral import MistralFunctionCallingAdapter
-from vllm import SamplingParams
 
 from redel import DelegationBase
 from redel.delegation import DelegateOne
@@ -35,47 +29,59 @@ class ExperimentConfig:
     engine_timeout: int
 
 
-def get_engine(model_id: str, context_size: int = None):
+def get_engine(model_class: str, model_id: str, context_size: int = None):
     # ==== OPENAI ====
-    if model_id == "gpt-4o-2024-05-13":
-        return OpenAIEngine(model="gpt-4o-2024-05-13", temperature=0, max_context_size=context_size)
-    if model_id == "gpt-3.5-turbo-0125":
-        return OpenAIEngine(model="gpt-3.5-turbo-0125", temperature=0, max_context_size=context_size)
+    if model_class == "openai":
+        from kani.engines.openai import OpenAIEngine
+
+        if model_id == "gpt-4o-2024-05-13":
+            return OpenAIEngine(model="gpt-4o-2024-05-13", temperature=0, max_context_size=context_size)
+        if model_id == "gpt-3.5-turbo-0125":
+            return OpenAIEngine(model="gpt-3.5-turbo-0125", temperature=0, max_context_size=context_size)
     # ==== MISTRAL ====
-    if model_id == "mistralai/Mistral-Large-Instruct-2407":
-        model = VLLMEngine(
-            model_id="mistralai/Mistral-Large-Instruct-2407",
-            prompt_pipeline=MISTRAL_V3_PIPELINE,
-            max_context_size=context_size,
-            model_load_kwargs={
-                "tensor_parallel_size": 8,
-                "tokenizer_mode": "auto",
-                # for more stability
-                "gpu_memory_utilization": 0.8,
-                "enforce_eager": True,
-                "enable_prefix_caching": True,
-            },
-            sampling_params=SamplingParams(temperature=0.7, max_tokens=2048),
-        )
-        return MistralFunctionCallingAdapter(model)
-    if model_id == "mistralai/Mistral-Small-Instruct-2409":  # todo how to serve 2 models concurrently
-        model = VLLMEngine(
-            model_id="mistralai/Mistral-Small-Instruct-2409",
-            prompt_pipeline=MISTRAL_V3_PIPELINE,
-            max_context_size=context_size,
-            model_load_kwargs={
-                "tensor_parallel_size": 8,
-                "tokenizer_mode": "auto",
-                "enforce_eager": True,
-            },
-            sampling_params=SamplingParams(temperature=0.7, max_tokens=2048),
-        )
-        return MistralFunctionCallingAdapter(model)
+    if model_class == "mistral":
+        from kani.ext.vllm import VLLMEngine
+        from kani.prompts.impl import MISTRAL_V3_PIPELINE
+        from kani.prompts.impl.mistral import MistralFunctionCallingAdapter
+        from vllm import SamplingParams
+
+        if model_id == "mistralai/Mistral-Large-Instruct-2407":
+            model = VLLMEngine(
+                model_id="mistralai/Mistral-Large-Instruct-2407",
+                prompt_pipeline=MISTRAL_V3_PIPELINE,
+                max_context_size=context_size,
+                model_load_kwargs={
+                    "tensor_parallel_size": 8,
+                    "tokenizer_mode": "auto",
+                    # for more stability
+                    "gpu_memory_utilization": 0.8,
+                    "enforce_eager": True,
+                    "enable_prefix_caching": True,
+                },
+                sampling_params=SamplingParams(temperature=0.7, max_tokens=2048),
+            )
+            return MistralFunctionCallingAdapter(model)
+        if model_id == "mistralai/Mistral-Small-Instruct-2409":  # todo how to serve 2 models concurrently
+            model = VLLMEngine(
+                model_id="mistralai/Mistral-Small-Instruct-2409",
+                prompt_pipeline=MISTRAL_V3_PIPELINE,
+                max_context_size=context_size,
+                model_load_kwargs={
+                    "tensor_parallel_size": 8,
+                    "tokenizer_mode": "auto",
+                    "enforce_eager": True,
+                },
+                sampling_params=SamplingParams(temperature=0.7, max_tokens=2048),
+            )
+            return MistralFunctionCallingAdapter(model)
     # ==== CLAUDE ====
-    if model_id == "claude-3-5-sonnet-20241022":
-        return AnthropicEngine(model="claude-3-5-sonnet-20241022", temperature=0, max_context_size=context_size)
-    if model_id == "claude-3-5-haiku-20241022":
-        return AnthropicEngine(model="claude-3-5-haiku-20241022", temperature=0, max_context_size=context_size)
+    if model_class == "claude":
+        from kani.engines.anthropic import AnthropicEngine
+
+        if model_id == "claude-3-5-sonnet-20241022":
+            return AnthropicEngine(model="claude-3-5-sonnet-20241022", temperature=0, max_context_size=context_size)
+        if model_id == "claude-3-5-haiku-20241022":
+            return AnthropicEngine(model="claude-3-5-haiku-20241022", temperature=0, max_context_size=context_size)
     # todo: qwen
     # todo: cohere
     raise ValueError("unknown engine")
@@ -84,29 +90,30 @@ def get_engine(model_id: str, context_size: int = None):
 def get_experiment_config(delegation_scheme=DelegateOne) -> ExperimentConfig:
     args = parser.parse_args()
     experiment_config = args.config
+    model_class = args.model_class
     large_model_id = args.large_model
     small_model_id = args.small_model
     save_dir = args.save_dir
     # - **full**: no root FC, gpt-4o everything
     if experiment_config == "full":
-        root_engine = get_engine(large_model_id)
+        root_engine = get_engine(model_class, large_model_id)
         delegate_engine = root_engine
         root_has_tools = False
     # - **root-fc**: root FC, gpt-4o everything
     elif experiment_config == "root-fc":
-        root_engine = get_engine(large_model_id)
+        root_engine = get_engine(model_class, large_model_id)
         delegate_engine = root_engine
         root_has_tools = True
     # - **baseline**: root FC, no delegation, gpt-4o
     elif experiment_config == "baseline":
-        root_engine = get_engine(large_model_id)
+        root_engine = get_engine(model_class, large_model_id)
         delegate_engine = root_engine
         root_has_tools = True
         delegation_scheme = None
     # - **small-leaf**: no root FC, gpt-4o root, gpt-3.5-turbo leaves
     elif experiment_config == "small-leaf":
-        root_engine = get_engine(large_model_id)
-        delegate_engine = get_engine(small_model_id)
+        root_engine = get_engine(model_class, large_model_id)
+        delegate_engine = get_engine(model_class, small_model_id)
         root_has_tools = False
     #     - **small-all**: no root FC, gpt-3.5-turbo everything
     elif experiment_config == "small-all":
@@ -115,18 +122,18 @@ def get_experiment_config(delegation_scheme=DelegateOne) -> ExperimentConfig:
         root_has_tools = False
     #     - **small-baseline**: root FC, no delegation, gpt-3.5-turbo
     elif experiment_config == "small-baseline":
-        root_engine = get_engine(small_model_id)
+        root_engine = get_engine(model_class, small_model_id)
         delegate_engine = root_engine
         root_has_tools = True
         delegation_scheme = None
     # - **short-context**: no root FC, gpt-4o everything, limit to 8192 ctx
     elif experiment_config == "short-context":
-        root_engine = get_engine(large_model_id, context_size=8192)
+        root_engine = get_engine(model_class, large_model_id, context_size=8192)
         delegate_engine = root_engine
         root_has_tools = False
     #     - **short-baseline**: root FC, no delegation, gpt-4o, 8192 ctx
     elif experiment_config == "short-baseline":
-        root_engine = get_engine(large_model_id, context_size=8192)
+        root_engine = get_engine(model_class, large_model_id, context_size=8192)
         delegate_engine = root_engine
         root_has_tools = True
         delegation_scheme = None
@@ -146,7 +153,7 @@ def get_experiment_config(delegation_scheme=DelegateOne) -> ExperimentConfig:
 
     return ExperimentConfig(
         config=experiment_config,
-        model_class=args.model_class,
+        model_class=model_class,
         root_engine=root_engine,
         delegate_engine=delegate_engine,
         delegation_scheme=delegation_scheme,
