@@ -48,6 +48,7 @@ log = logging.getLogger("bench_webarena")
 START_IDX = 0
 END_IDX = 812
 SKIP = 3  # 0, 812, 3 = 270 trials for small
+TRACE_BASE = Path(__file__).parent / "experiments/webarena/traces"
 
 # ==== redel config ====
 SYSTEM_PROMPT = """\
@@ -224,7 +225,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.WARNING)
     log.setLevel(logging.INFO)
     config = get_experiment_config(delegation_scheme=WebArenaDelegate1Mixin)
-    trace_dir = config.save_dir / "traces"
+    trace_dir = TRACE_BASE / config.model_class / config.config
     config.save_dir.mkdir(parents=True, exist_ok=True)
     trace_dir.mkdir(parents=True, exist_ok=True)
     asyncio.run(run())

@@ -3,6 +3,7 @@ import dataclasses
 import pathlib
 
 from kani.engines import BaseEngine
+from kani.engines.anthropic import AnthropicEngine
 from kani.engines.openai import OpenAIEngine
 from kani.ext.vllm import VLLMEngine
 from kani.prompts.impl import MISTRAL_V3_PIPELINE
@@ -14,6 +15,7 @@ from redel.delegation import DelegateOne
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config", required=True)
+parser.add_argument("--model-class", required=True)
 parser.add_argument("--large-model", required=True)
 parser.add_argument("--small-model", required=True)
 parser.add_argument("--save-dir", type=pathlib.Path, required=True)
@@ -22,6 +24,9 @@ parser.add_argument("--engine-timeout", type=int, default=600)
 
 @dataclasses.dataclass
 class ExperimentConfig:
+    config: str
+    model_class: str
+
     root_engine: BaseEngine
     delegate_engine: BaseEngine
     delegation_scheme: DelegationBase | None
@@ -31,10 +36,12 @@ class ExperimentConfig:
 
 
 def get_engine(model_id: str, context_size: int = None):
+    # ==== OPENAI ====
     if model_id == "gpt-4o-2024-05-13":
         return OpenAIEngine(model="gpt-4o-2024-05-13", temperature=0, max_context_size=context_size)
     if model_id == "gpt-3.5-turbo-0125":
         return OpenAIEngine(model="gpt-3.5-turbo-0125", temperature=0, max_context_size=context_size)
+    # ==== MISTRAL ====
     if model_id == "mistralai/Mistral-Large-Instruct-2407":
         model = VLLMEngine(
             model_id="mistralai/Mistral-Large-Instruct-2407",
@@ -51,7 +58,7 @@ def get_engine(model_id: str, context_size: int = None):
             sampling_params=SamplingParams(temperature=0.7, max_tokens=2048),
         )
         return MistralFunctionCallingAdapter(model)
-    if model_id == "mistralai/Mistral-Small-Instruct-2409":
+    if model_id == "mistralai/Mistral-Small-Instruct-2409":  # todo how to serve 2 models concurrently
         model = VLLMEngine(
             model_id="mistralai/Mistral-Small-Instruct-2409",
             prompt_pipeline=MISTRAL_V3_PIPELINE,
@@ -64,6 +71,13 @@ def get_engine(model_id: str, context_size: int = None):
             sampling_params=SamplingParams(temperature=0.7, max_tokens=2048),
         )
         return MistralFunctionCallingAdapter(model)
+    # ==== CLAUDE ====
+    if model_id == "claude-3-5-sonnet-20241022":
+        return AnthropicEngine(model="claude-3-5-sonnet-20241022", temperature=0, max_context_size=context_size)
+    if model_id == "claude-3-5-haiku-20241022":
+        return AnthropicEngine(model="claude-3-5-haiku-20241022", temperature=0, max_context_size=context_size)
+    # todo: qwen
+    # todo: cohere
     raise ValueError("unknown engine")
 
 
@@ -131,6 +145,8 @@ def get_experiment_config(delegation_scheme=DelegateOne) -> ExperimentConfig:
     print("============================")
 
     return ExperimentConfig(
+        config=experiment_config,
+        model_class=args.model_class,
         root_engine=root_engine,
         delegate_engine=delegate_engine,
         delegation_scheme=delegation_scheme,

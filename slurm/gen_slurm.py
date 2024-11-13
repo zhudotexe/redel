@@ -1,3 +1,4 @@
+import os
 from collections import namedtuple
 
 HEADER_TEMPLATE = """\
@@ -23,6 +24,7 @@ RUN_TEMPLATE = """\
 {bench_extras}
 python bench_{bench}.py \
 --config {config} \
+--model-class {model_class} \
 --large-model {large_model} \
 --small-model {small_model} \
 --save-dir /nlpgpu/data/andrz/redel/experiments/{bench}/{model_class}/{config} \
@@ -51,6 +53,9 @@ MODELS = [
         small="mistralai/Mistral-Small-Instruct-2409",
         size=8,
         extras="--engine-timeout 1800",  # 30 min timeout per trial
+    ),
+    ModelConfig(
+        model_class="claude", large="claude-3-5-sonnet-20241022", small="claude-3-5-haiku-20241022", size=0, extras=""
     ),
 ]
 
@@ -95,6 +100,7 @@ def main():
                     engine_extras=model.extras,
                 )
                 all_commands.append(content)
+                os.makedirs(f"slurm/{model.model_class}", exist_ok=True)
                 with open(f"slurm/{model.model_class}/{bench}-{idx+1}-{config}.sh", "w") as f:
                     f.write(header)
                     f.write(content)
