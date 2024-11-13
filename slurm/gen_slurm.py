@@ -57,6 +57,13 @@ MODELS = [
     ModelConfig(
         model_class="claude", large="claude-3-5-sonnet-20241022", small="claude-3-5-haiku-20241022", size=0, extras=""
     ),
+    ModelConfig(
+        model_class="qwen",
+        large="Qwen/Qwen2.5-72B-Instruct",
+        small="Qwen/Qwen2.5-7B-Instruct",
+        size=8,
+        extras="--engine-timeout 1800",  # 30 min timeout per trial
+    ),
 ]
 
 

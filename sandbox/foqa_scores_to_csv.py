@@ -34,7 +34,7 @@ def print_one(fp):
     print(",".join(map(str, (n_results, acc, perf, r1, r2, rL, bleurt, gptscore))))
 
 
-for fp in glob.glob("experiments/fanoutqa/mistral/**/score.json", recursive=True):
-    setting_match = re.search(r"(mistral/.+)/score\.json", fp)
+for fp in glob.glob("experiments/fanoutqa/claude/**/score.json", recursive=True):
+    setting_match = re.search(r"(claude/.+)/score\.json", fp)
     print(f"{setting_match[1]},", end="")
     print_one(fp)

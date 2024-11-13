@@ -86,7 +86,40 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
             return AnthropicEngine(
                 model="claude-3-5-haiku-20241022", temperature=0, max_context_size=context_size or 150000
             )
-    # todo: qwen
+    # ===== QWEN =====
+    if model_class == "qwen":
+        from utils.qwen import QwenFunctionCallingAdapter
+        from kani.ext.vllm import VLLMEngine
+        from vllm import SamplingParams
+
+        if model_id == "Qwen/Qwen2.5-72B-Instruct":
+            model = VLLMEngine(
+                model_id="Qwen/Qwen2.5-72B-Instruct",
+                max_context_size=context_size,
+                model_load_kwargs={
+                    "tensor_parallel_size": 8,
+                    "tokenizer_mode": "auto",
+                    # for more stability
+                    # "gpu_memory_utilization": 0.8,
+                    # "enforce_eager": True,
+                    "enable_prefix_caching": True,
+                },
+                sampling_params=SamplingParams(temperature=0, max_tokens=2048),
+            )
+            return QwenFunctionCallingAdapter(model)
+        if model_id == "Qwen/Qwen2.5-7B-Instruct":
+            model = VLLMEngine(
+                model_id="Qwen/Qwen2.5-7B-Instruct",
+                max_context_size=context_size,
+                model_load_kwargs={
+                    "tensor_parallel_size": 8,
+                    "tokenizer_mode": "auto",
+                    # for more stability
+                    "enable_prefix_caching": True,
+                },
+                sampling_params=SamplingParams(temperature=0, max_tokens=2048),
+            )
+            return QwenFunctionCallingAdapter(model)
     # todo: cohere
     raise ValueError("unknown engine")
 
@@ -121,7 +154,7 @@ def get_experiment_config(delegation_scheme=DelegateOne) -> ExperimentConfig:
         root_has_tools = False
     #     - **small-all**: no root FC, gpt-3.5-turbo everything
     elif experiment_config == "small-all":
-        root_engine = get_engine(small_model_id)
+        root_engine = get_engine(model_class, small_model_id)
         delegate_engine = root_engine
         root_has_tools = False
     #     - **small-baseline**: root FC, no delegation, gpt-3.5-turbo
