@@ -50,15 +50,15 @@ async def query(q: DevQuestion | TestQuestion):
         clear_existing_log=True,
     )
 
-    out = []
+    out = ""
     async for event in ai.query(q.question):
         if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
             log.info(event.msg)
             if event.msg.text:
-                out.append(event.msg.text)
+                out = event.msg.text
 
     await ai.close()
-    return "\n\n".join(out), ai.logger.log_dir
+    return out, ai.logger.log_dir
 
 
 async def run():
