@@ -79,9 +79,13 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
         from kani.engines.anthropic import AnthropicEngine
 
         if model_id == "claude-3-5-sonnet-20241022":
-            return AnthropicEngine(model="claude-3-5-sonnet-20241022", temperature=0, max_context_size=context_size)
+            return AnthropicEngine(
+                model="claude-3-5-sonnet-20241022", temperature=0, max_context_size=context_size or 150000
+            )
         if model_id == "claude-3-5-haiku-20241022":
-            return AnthropicEngine(model="claude-3-5-haiku-20241022", temperature=0, max_context_size=context_size)
+            return AnthropicEngine(
+                model="claude-3-5-haiku-20241022", temperature=0, max_context_size=context_size or 150000
+            )
     # todo: qwen
     # todo: cohere
     raise ValueError("unknown engine")
