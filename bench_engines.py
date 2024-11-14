@@ -95,7 +95,7 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
         if model_id == "Qwen/Qwen2.5-72B-Instruct":
             model = VLLMEngine(
                 model_id="Qwen/Qwen2.5-72B-Instruct",
-                max_context_size=context_size,
+                max_context_size=context_size or 32768,
                 model_load_kwargs={
                     "tensor_parallel_size": 8,
                     # for more stability
@@ -109,7 +109,7 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
         if model_id == "Qwen/Qwen2.5-7B-Instruct":
             model = VLLMEngine(
                 model_id="Qwen/Qwen2.5-7B-Instruct",
-                max_context_size=context_size,
+                max_context_size=context_size or 32768,
                 model_load_kwargs={
                     "tensor_parallel_size": 8,
                     # for more stability
