@@ -123,11 +123,11 @@ class QwenFunctionCallingAdapter(WrapperEngine):
                 completion_tokens=completion_tokens,
             )
 
+
 model = VLLMEngine(
     model_id="Qwen/Qwen2.5-72B-Instruct",
     model_load_kwargs={
         "tensor_parallel_size": 4,
-        "tokenizer_mode": "auto",
         "enable_prefix_caching": True,
     },
     sampling_params=SamplingParams(temperature=0, max_tokens=2048),
