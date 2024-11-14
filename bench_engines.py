@@ -98,7 +98,6 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
                 max_context_size=context_size,
                 model_load_kwargs={
                     "tensor_parallel_size": 8,
-                    "tokenizer_mode": "auto",
                     # for more stability
                     # "gpu_memory_utilization": 0.8,
                     # "enforce_eager": True,
@@ -113,7 +112,6 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
                 max_context_size=context_size,
                 model_load_kwargs={
                     "tensor_parallel_size": 8,
-                    "tokenizer_mode": "auto",
                     # for more stability
                     "enable_prefix_caching": True,
                 },
