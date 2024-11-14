@@ -103,7 +103,7 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
                     # "enforce_eager": True,
                     "enable_prefix_caching": True,
                 },
-                sampling_params=SamplingParams(temperature=0, max_tokens=2048),
+                sampling_params=SamplingParams(temperature=0, max_tokens=2048, min_tokens=1),
             )
             return QwenFunctionCallingAdapter(model)
         if model_id == "Qwen/Qwen2.5-7B-Instruct":
@@ -115,7 +115,7 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
                     # for more stability
                     "enable_prefix_caching": True,
                 },
-                sampling_params=SamplingParams(temperature=0, max_tokens=2048),
+                sampling_params=SamplingParams(temperature=0, max_tokens=2048, min_tokens=1),
             )
             return QwenFunctionCallingAdapter(model)
     # todo: cohere
