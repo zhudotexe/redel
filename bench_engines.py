@@ -88,28 +88,31 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
             )
     # ===== QWEN =====
     if model_class == "qwen":
-        from kani.engines.huggingface import HuggingEngine
         from utils.qwen import QwenFunctionCallingAdapter
-        from kani.ext.ratelimits import RatelimitedEngine
         from kani.ext.vllm import VLLMEngine
         from vllm import SamplingParams
 
         if model_id == "Qwen/Qwen2.5-72B-Instruct":
-            # model = VLLMEngine(
-            #     model_id="Qwen/Qwen2.5-72B-Instruct",
-            #     max_context_size=context_size or 32768,
-            #     model_load_kwargs={
-            #         "tensor_parallel_size": 8,
-            #         # for more stability
-            #         # "gpu_memory_utilization": 0.8,
-            #         # "enforce_eager": True,
-            #         "enable_prefix_caching": True,
-            #     },
-            #     sampling_params=SamplingParams(temperature=0, max_tokens=2048, min_tokens=1),
-            # )
-            model = RatelimitedEngine(
-                HuggingEngine("Qwen/Qwen2.5-72B-Instruct", max_context_size=context_size or 32768, do_sample=False),
-                max_concurrency=1,
+            model = VLLMEngine(
+                model_id="Qwen/Qwen2.5-72B-Instruct",
+                max_context_size=context_size or 32768,
+                model_load_kwargs={
+                    "tensor_parallel_size": 8,
+                    # for more stability
+                    # "gpu_memory_utilization": 0.8,
+                    # "enforce_eager": True,
+                    "enable_prefix_caching": True,
+                },
+                sampling_params=SamplingParams(
+                    # default from model card
+                    repetition_penalty=1.05,
+                    temperature=0.7,
+                    top_p=0.8,
+                    top_k=20,
+                    # stability
+                    max_tokens=2048,
+                    min_tokens=1,
+                ),
             )
             return QwenFunctionCallingAdapter(model)
         if model_id == "Qwen/Qwen2.5-7B-Instruct":
@@ -121,7 +124,16 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
                     # for more stability
                     "enable_prefix_caching": True,
                 },
-                sampling_params=SamplingParams(temperature=0, max_tokens=2048, min_tokens=1),
+                sampling_params=SamplingParams(
+                    # default from model card
+                    repetition_penalty=1.05,
+                    temperature=0.7,
+                    top_p=0.8,
+                    top_k=20,
+                    # stability
+                    max_tokens=2048,
+                    min_tokens=1,
+                ),
             )
             return QwenFunctionCallingAdapter(model)
     # todo: cohere
