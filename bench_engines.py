@@ -136,6 +136,35 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
                 ),
             )
             return QwenFunctionCallingAdapter(model)
+    # ==== COHERE HF ====
+    if model_class == "cohere-hf":
+        from kani.ext.vllm import CommandRVLLMEngine
+        from vllm import SamplingParams
+
+        if model_id == "CohereForAI/c4ai-command-r-plus-08-2024":
+            return CommandRVLLMEngine(
+                model_id="CohereForAI/c4ai-command-r-plus-08-2024",
+                max_context_size=context_size or 128000,
+                model_load_kwargs={
+                    "tensor_parallel_size": 8,
+                    # for more stability
+                    "gpu_memory_utilization": 0.8,
+                    "enforce_eager": True,
+                    "enable_prefix_caching": True,
+                },
+                sampling_params=SamplingParams(temperature=0.7, max_tokens=2048, min_tokens=1),
+            )
+        if model_id == "CohereForAI/c4ai-command-r-08-2024":
+            return CommandRVLLMEngine(
+                model_id="CohereForAI/c4ai-command-r-08-2024",
+                max_context_size=context_size or 128000,
+                model_load_kwargs={
+                    "tensor_parallel_size": 8,
+                    # for more stability
+                    "enable_prefix_caching": True,
+                },
+                sampling_params=SamplingParams(temperature=0.7, max_tokens=2048, min_tokens=1),
+            )
     # todo: cohere
     raise ValueError("unknown engine")
 

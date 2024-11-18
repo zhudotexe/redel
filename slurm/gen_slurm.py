@@ -64,6 +64,13 @@ MODELS = [
         size=8,
         extras="--engine-timeout 1800",  # 30 min timeout per trial
     ),
+    ModelConfig(
+        model_class="cohere-hf",
+        large="CohereForAI/c4ai-command-r-plus-08-2024",
+        small="CohereForAI/c4ai-command-r-08-2024",
+        size=8,
+        extras="--engine-timeout 1800",  # 30 min timeout per trial
+    ),
 ]
 
 
