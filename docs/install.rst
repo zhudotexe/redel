@@ -3,14 +3,40 @@ Installation
 
 TL;DR: ReDel requires Python 3.10+. You can install ReDel though pip:
 
-.. code-block:: console
+.. tab:: PyPI (Dev)
 
-    $ pip install "redel[all]"
+    .. code-block:: console
 
-.. warning::
-    The default installation without any extras defined is a "thin" configuration - it contains only what's needed to
-    run a ReDel system, without the web interface or bundled tools. This can be useful to avoid dependency pollution,
-    but we recommend installing the ``all`` or ``web`` extra if it's your first time using the library.
+        $ pip install "redel[all] @ git+https://github.com/zhudotexe/redel.git@main"
+        $ playwright install chromium
+
+    .. warning::
+        The default installation without any extras defined is a "thin" configuration - it contains only what's needed
+        to run a ReDel system, without the web interface or bundled tools. This can be useful to avoid dependency
+        pollution, but we recommend installing the ``all`` or ``web`` extra if it's your first time using the library.
+
+.. tab:: PyPI (Stable)
+
+    .. code-block:: console
+
+        $ pip install "redel[all]"
+        $ playwright install chromium
+
+    .. warning::
+        The default installation without any extras defined is a "thin" configuration - it contains only what's needed
+        to run a ReDel system, without the web interface or bundled tools. This can be useful to avoid dependency
+        pollution, but we recommend installing the ``all`` or ``web`` extra if it's your first time using the library.
+
+.. tab:: From Source
+
+    .. code-block:: console
+
+        # clone the ReDel repo
+        $ git clone https://github.com/zhudotexe/redel.git
+        $ cd redel
+        # install python dependencies
+        $ pip install -e ".[all]"
+        $ playwright install chromium
 
 Extras
 ------

@@ -27,11 +27,8 @@ LLMs with tool usage.
 Requires Python 3.10+
 
 ```shell
-# clone the ReDel repo
-$ git clone https://github.com/zhudotexe/redel.git
-$ cd redel
 # install python dependencies
-$ pip install -e ".[all]"
+$ pip install "redel[all] @ git+https://github.com/zhudotexe/redel.git@main"
 # run web visualization of a ReDel system with web browsing
 $ OPENAI_API_KEY="..." python -m redel.server
 ```

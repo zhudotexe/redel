@@ -38,17 +38,40 @@ Want to see what ReDel can do? To get started, we'll set up a ReDel instance wit
 
 You'll need Python 3.10 or higher. First, you'll need to install the library:
 
-.. code-block:: console
+.. tab:: PyPI (Dev)
 
-    # clone the ReDel repo
-    $ git clone https://github.com/zhudotexe/redel.git
-    $ cd redel
-    # install python dependencies
-    $ pip install -e ".[all]"
-    $ playwright install chromium
+    .. code-block:: console
 
-.. note::
-    Although ReDel is also available on PyPI, we recommend cloning from source for now.
+        $ pip install "redel[all] @ git+https://github.com/zhudotexe/redel.git@main"
+        $ playwright install chromium
+
+    .. warning::
+        The default installation without any extras defined is a "thin" configuration - it contains only what's needed
+        to run a ReDel system, without the web interface or bundled tools. This can be useful to avoid dependency
+        pollution, but we recommend installing the ``all`` or ``web`` extra if it's your first time using the library.
+
+.. tab:: PyPI (Stable)
+
+    .. code-block:: console
+
+        $ pip install "redel[all]"
+        $ playwright install chromium
+
+    .. warning::
+        The default installation without any extras defined is a "thin" configuration - it contains only what's needed
+        to run a ReDel system, without the web interface or bundled tools. This can be useful to avoid dependency
+        pollution, but we recommend installing the ``all`` or ``web`` extra if it's your first time using the library.
+
+.. tab:: From Source
+
+    .. code-block:: console
+
+        # clone the ReDel repo
+        $ git clone https://github.com/zhudotexe/redel.git
+        $ cd redel
+        # install python dependencies
+        $ pip install -e ".[all]"
+        $ playwright install chromium
 
 Then, use the following code as a starting point in a new file (e.g. ``server.py``). This snippet defines the LLM engine
 your agents will use, what tools they have available, and serves the system configuration over your local interface.
