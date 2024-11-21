@@ -40,8 +40,15 @@ You'll need Python 3.10 or higher. First, you'll need to install the library:
 
 .. code-block:: console
 
-    $ pip install "redel[all]"
+    # clone the ReDel repo
+    $ git clone https://github.com/zhudotexe/redel.git
+    $ cd redel
+    # install python dependencies
+    $ pip install -e ".[all]"
     $ playwright install chromium
+
+.. note::
+    Although ReDel is also available on PyPI, we recommend cloning from source for now.
 
 Then, use the following code as a starting point in a new file (e.g. ``server.py``). This snippet defines the LLM engine
 your agents will use, what tools they have available, and serves the system configuration over your local interface.
@@ -94,3 +101,4 @@ For more information about ReDel and its concepts, keep reading!
     glossary
     api_reference
     genindex
+    Paper <https://aclanthology.org/2024.emnlp-demo.17/>

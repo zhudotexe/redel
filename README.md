@@ -2,6 +2,8 @@
 
 *A framework for recursive delegation of LLMs*
 
+[Check out the paper!](https://aclanthology.org/2024.emnlp-demo.17/)
+
 ReDel is a toolkit for researchers and developers to build, iterate on, and analyze recursive multi-agent systems.
 
 Built using the [kani](https://github.com/zhudotexe/kani) framework, it offers best-in-class support for modern
@@ -25,8 +27,11 @@ LLMs with tool usage.
 Requires Python 3.10+
 
 ```shell
+# clone the ReDel repo
+$ git clone https://github.com/zhudotexe/redel.git
+$ cd redel
 # install python dependencies
-$ pip install -e "redel[all]"
+$ pip install -e ".[all]"
 # run web visualization of a ReDel system with web browsing
 $ OPENAI_API_KEY="..." python -m redel.server
 ```
@@ -268,14 +273,21 @@ use only. To use ReDel for commercial purposes, please contact us.
 If you use our code or findings in your research, please cite us as:
 
 ```
-@misc{zhu2024redeltoolkit,
-      title={ReDel: A Toolkit for LLM-Powered Recursive Multi-Agent Systems}, 
-      author={Andrew Zhu and Liam Dugan and Chris Callison-Burch},
-      year={2024},
-      eprint={2408.02248},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2408.02248}, 
+@inproceedings{zhu-etal-2024-redel,
+    title = "{R}e{D}el: A Toolkit for {LLM}-Powered Recursive Multi-Agent Systems",
+    author = "Zhu, Andrew  and
+      Dugan, Liam  and
+      Callison-Burch, Chris",
+    editor = "Hernandez Farias, Delia Irazu  and
+      Hope, Tom  and
+      Li, Manling",
+    booktitle = "Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing: System Demonstrations",
+    month = nov,
+    year = "2024",
+    address = "Miami, Florida, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.emnlp-demo.17",
+    pages = "162--171",
 }
 ```
 
