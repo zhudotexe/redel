@@ -1,5 +1,6 @@
 """Read all the FOQA scores and output them as CSV so I don't have to type them all."""
 
+import collections
 import glob
 import json
 import re
@@ -8,9 +9,19 @@ from pathlib import Path
 from redel.utils import read_jsonl
 
 REPO_ROOT = Path(__file__).parents[1]
+SETTINGS = (
+    "full",
+    "root-fc",
+    "baseline",
+    "small-leaf",
+    "small-all",
+    "small-baseline",
+    "short-context",
+    "short-baseline",
+)
 
 
-def print_one(fp):
+def score_one(fp):
     fp = Path(fp)
     with open(fp) as f:
         scores = json.load(f)
@@ -31,10 +42,22 @@ def print_one(fp):
     r1 = f"{r1p:.3f}/{r1r:.3f}/{r1f:.3f}"
     r2 = f"{r2p:.3f}/{r2r:.3f}/{r2f:.3f}"
     rL = f"{rLp:.3f}/{rLr:.3f}/{rLf:.3f}"
-    print(",".join(map(str, (n_results, acc, perf, r1, r2, rL, bleurt, gptscore))))
+    return ",".join(map(str, (n_results, acc, perf, r1, r2, rL, bleurt, gptscore)))
 
 
-for fp in glob.glob("experiments/fanoutqa/claude/**/score.json", recursive=True):
-    setting_match = re.search(r"(claude/.+)/score\.json", fp)
-    print(f"{setting_match[1]},", end="")
-    print_one(fp)
+# model_family -> setting -> csv
+results = collections.defaultdict(lambda: collections.defaultdict(str))
+
+# collect the results
+for fp in glob.glob("experiments/fanoutqa/*/*/score.json", recursive=True):
+    setting_match = re.search(r"experiments/fanoutqa/(.+)/(.+)/score\.json", fp)
+    model_family = setting_match[1]
+    setting = setting_match[2]
+    results[model_family][setting] = score_one(fp)
+    # print(f"{model_family}/{setting},", end="")
+
+# print them
+for model_family, model_results in results.items():
+    print(f"====== {model_family} ======")
+    for setting in SETTINGS:
+        print(f"{model_family}/{setting},{model_results[setting]}")
