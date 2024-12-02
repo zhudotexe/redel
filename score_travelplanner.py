@@ -12,10 +12,8 @@ from pathlib import Path
 
 from redel.utils import read_jsonl
 
-EXPECTED_RESULTS = {
-    "validation": 180,
-    "mistral": 180,
-}
+EXPECTED_RESULTS = 180
+ID_TO_IDX_MAP = Path(__file__).parent / "experiments/travelplanner/id_to_idx.json"
 
 
 async def transform_submission(fp: Path):
@@ -24,7 +22,7 @@ async def transform_submission(fp: Path):
     split = fp.parents[1].name
     transformed = []
     try:
-        with open(fp.parents[1] / "id_to_idx.json") as f:
+        with open(ID_TO_IDX_MAP) as f:
             id_to_idx = json.load(f)
     except FileNotFoundError:
         id_to_idx = {}
@@ -45,7 +43,7 @@ async def transform_submission(fp: Path):
         transformed.append({"idx": idx, "query": query, "plan": plan})
 
     # ensure there are the right number of results, and they're sorted by idx
-    missing_idxs = set(range(EXPECTED_RESULTS[split])).difference({t["idx"] for t in transformed})
+    missing_idxs = set(range(EXPECTED_RESULTS)).difference({t["idx"] for t in transformed})
     if missing_idxs:
         print(f"WARN: Submission is missing indices {missing_idxs}")
         for idx in missing_idxs:
