@@ -57,7 +57,7 @@ async def transform_submission(fp: Path):
             f.write("\n")
     print(f"Written to {result_fp.resolve()}.")
     print("Use this command in TravelPlanning:")
-    print(f"python eval.py --set_type {split} --evaluation_file_path {result_fp.resolve()}")
+    print(f"python eval.py --set_type validation --evaluation_file_path {result_fp.resolve()}")
     return result_fp
 
 

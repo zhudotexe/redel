@@ -95,6 +95,8 @@ class TravelPlannerMixin(ToolBase):
         A flight information retrieval tool.
         Example: flight_search("New York", "London", "2022-10-01") would fetch flights from New York to London on October 1, 2022.
         """
+        departure_city = clean_city_name(departure_city)
+        destination_city = clean_city_name(destination_city)
         results = self.flight_data[self.flight_data["OriginCityName"] == departure_city]
         results = results[results["DestCityName"] == destination_city]
         results = results[results["FlightDate"] == date]
@@ -115,6 +117,8 @@ class TravelPlannerMixin(ToolBase):
         """
         origin = extract_before_parenthesis(origin)
         destination = extract_before_parenthesis(destination)
+        origin = clean_city_name(origin)
+        destination = clean_city_name(destination)
         info = {"origin": origin, "destination": destination, "cost": None, "duration": None, "distance": None}
         response = self.gdm_data[(self.gdm_data["origin"] == origin) & (self.gdm_data["destination"] == destination)]
         if len(response) > 0:
@@ -127,18 +131,18 @@ class TravelPlannerMixin(ToolBase):
                 return "No valid information."
             info["duration"] = response["duration"].values[0]
             info["distance"] = response["distance"].values[0]
-            if "driving" in mode:
+            if mode == GDMTransportationMethod.self_driving:
                 info["cost"] = int(eval(info["distance"].replace("km", "").replace(",", "")) * 0.05)
-            elif mode == "taxi":
+            elif mode == GDMTransportationMethod.taxi:
                 info["cost"] = int(eval(info["distance"].replace("km", "").replace(",", "")))
             if "day" in info["duration"]:
                 return "No valid information."
             return (
-                f"{mode}, from {origin} to {destination}, duration: {info['duration']}, distance: {info['distance']},"
-                f" cost: {info['cost']}"
+                f"{mode.value}, from {origin} to {destination}, duration: {info['duration']}, distance:"
+                f" {info['distance']}, cost: {info['cost']}"
             )
 
-        return f"{mode}, from {origin} to {destination}, no valid information."
+        return f"{mode.value}, from {origin} to {destination}, no valid information."
 
     @ai_function()
     def accommodation_search(
@@ -148,6 +152,7 @@ class TravelPlannerMixin(ToolBase):
         Discover accommodations in your desired city.
         Example: accommodation_search("Rome") would present a list of hotel rooms in Rome.
         """
+        city = clean_city_name(city)
         results = self.accommodation_data[self.accommodation_data["city"] == city]
         if len(results) == 0:
             return "There is no attraction in this city."
@@ -161,6 +166,7 @@ class TravelPlannerMixin(ToolBase):
         Explore dining options in a city of your choice.
         Example: restaurant_search("Tokyo") would show a curated list of restaurants in Tokyo.
         """
+        city = clean_city_name(city)
         results = self.restaurant_data[self.restaurant_data["City"] == city]
         if len(results) == 0:
             return "There is no restaurant in this city."
@@ -174,6 +180,7 @@ class TravelPlannerMixin(ToolBase):
         Find attractions in a city of your choice.
         Example: attraction_search("London") would return attractions in London.
         """
+        city = clean_city_name(city)
         results = self.attraction_data[self.attraction_data["City"] == city]
         # the results should show the index
         results = results.reset_index(drop=True)
@@ -195,3 +202,7 @@ class TravelPlannerMixin(ToolBase):
 def extract_before_parenthesis(s):
     match = re.search(r"^(.*?)\([^)]*\)", s)
     return match.group(1) if match else s
+
+
+def clean_city_name(n):
+    return n.split(",")[0].strip()
