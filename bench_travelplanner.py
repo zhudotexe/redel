@@ -31,8 +31,9 @@ log = logging.getLogger("bench_travelplanner")
 
 # ==== config ====
 root_system_prompt = (
-    "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions."
-    "\nUse your best judgement in finding alternatives if possible. Don't give up - ALWAYS save a plan!"
+    "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up"
+    " questions.\nUse your best judgement in finding alternatives if possible. Don't give up - ALWAYS save a plan with"
+    " the `submit_day_plan` function for each day of the trip!"
 )
 
 
