@@ -1,5 +1,4 @@
 import asyncio
-import contextlib
 import logging
 import tempfile
 from typing import Optional, TYPE_CHECKING
@@ -12,12 +11,6 @@ try:
     import httpx
     import pymupdf
     import pymupdf4llm
-    from playwright.async_api import (
-        BrowserContext,
-        TimeoutError as PlaywrightTimeoutError,
-        async_playwright,
-        Error as PlaywrightError,
-    )
 except ImportError:
     raise ImportError(
         "You are missing required dependencies to use the bundled tools. Please install ReDel using `pip install"
@@ -39,11 +32,6 @@ class Browsing(ToolBase):
 
     Renders webpages in Markdown and has basic support for reading PDFs.
     """
-
-    # app-global browser instance
-    playwright = None
-    browser = None
-    browser_context = None
 
     def __init__(
         self,
@@ -77,51 +65,6 @@ class Browsing(ToolBase):
             "application/json": self.json_content,
             "text/": self.html_content,
         }
-
-    # === resources + app lifecycle ===
-    # noinspection PyMethodMayBeStatic
-    async def get_browser(self, **kwargs) -> BrowserContext:
-        """Get the current active browser context, or launch it on the first call."""
-        if Browsing.playwright is None:
-            Browsing.playwright = await async_playwright().start()
-        if Browsing.browser is None:
-            Browsing.browser = await Browsing.playwright.chromium.launch(**kwargs)
-        if Browsing.browser_context is None:
-            Browsing.browser_context = await Browsing.browser.new_context()
-        return Browsing.browser_context
-
-    async def get_page(self, create=True) -> Optional["Page"]:
-        """Get the current page.
-
-        Returns None if the browser is not on a page unless `create` is True, in which case it creates a new page.
-        """
-        if self.page is None and create:
-            context = await self.get_browser()
-            if self.page_concurrency_sem:
-                await self.page_concurrency_sem.acquire()
-            self.page = await context.new_page()
-        return self.page
-
-    async def cleanup(self):
-        await super().cleanup()
-        if self.page is not None:
-            await self.page.close()
-            if self.page_concurrency_sem:
-                self.page_concurrency_sem.release()
-            self.page = None
-
-    async def close(self):
-        await super().close()
-        try:
-            if (browser := Browsing.browser) is not None:
-                Browsing.browser = None
-                await browser.close()
-            if (pw := Browsing.playwright) is not None:
-                Browsing.playwright = None
-                await pw.stop()
-        except PlaywrightError:
-            # sometimes playwright doesn't like closing in parallel
-            pass
 
     # ==== functions ====
     @ai_function()
@@ -190,21 +133,14 @@ class Browsing(ToolBase):
 
     async def html_content(self, href: str) -> str:
         """Default handler for all other content types."""
-        page = await self.get_page()
-        await page.goto(href)
-        with contextlib.suppress(PlaywrightTimeoutError):
-            await page.wait_for_load_state("networkidle", timeout=10_000)
-        # header
-        title = await page.title()
-        header = f"{title}\n{'=' * len(title)}\n{page.url}\n\n"
-
-        content_html = await page.content()
-        content = web_markdownify(content_html)
+        resp = await self.http.get(href)
+        resp.raise_for_status()
+        await resp.aread()
+        content = web_markdownify(resp.text)
         # summarization
         content = await self.maybe_summarize(content)
         # result
-        result = header + content
-        return result
+        return content
 
     # ==== helpers ====
     async def maybe_summarize(self, content, max_len=None):

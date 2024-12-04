@@ -13,7 +13,6 @@ Configuration:
         - long engine: claude-3-opus (for summarizing long webpages, if ANTHROPIC_API_KEY is set)
 """
 
-import asyncio
 import logging
 import os
 from pathlib import Path
@@ -38,8 +37,6 @@ if "ANTHROPIC_API_KEY" in os.environ:
 else:
     long_engine = None
 
-# only allow 3 chrome tabs at once to save my server
-web_concurrency_sem = asyncio.Semaphore(3)
 
 # Define the configuration for each interactive session
 ai = ReDel(
@@ -49,7 +46,7 @@ ai = ReDel(
     tool_configs={
         Browsing: {
             "always_include": True,
-            "kwargs": {"long_engine": long_engine, "page_concurrency_sem": web_concurrency_sem},
+            "kwargs": {"long_engine": long_engine},
         },
     },
     max_delegation_depth=4,
