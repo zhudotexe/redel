@@ -16,6 +16,7 @@ import asyncio
 import hashlib
 import json
 import logging
+from pathlib import Path
 
 import tqdm
 from datasets import load_dataset
@@ -30,11 +31,12 @@ from redel.utils import read_jsonl
 log = logging.getLogger("bench_travelplanner")
 
 # ==== config ====
-root_system_prompt = (
-    "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up"
-    " questions.\nUse your best judgement in finding alternatives if possible. Don't give up - ALWAYS save a plan with"
-    " the `submit_day_plan` function for each day of the trip!"
+zeroshot_root_system_prompt = (
+    "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions."
 )
+
+oneshot_root_system_prompt = (Path(__file__).parent / "utils/tp_1shot_prompt.txt").read_text().strip()
+root_system_prompt = oneshot_root_system_prompt
 
 
 # ==== main ====

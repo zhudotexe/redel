@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 from redel.utils import read_jsonl
+from utils.tp_nl_to_json import nl_to_tp_json
 
 EXPECTED_RESULTS = 180
 ID_TO_IDX_MAP = Path(__file__).parent / "experiments/travelplanner/id_to_idx.json"
@@ -19,7 +20,8 @@ ID_TO_IDX_MAP = Path(__file__).parent / "experiments/travelplanner/id_to_idx.jso
 async def transform_submission(fp: Path):
     """Read in the answers and generations and transform them all into the correct TP eval format."""
     results = read_jsonl(fp)
-    split = fp.parents[1].name
+    split = fp.parent.name
+    print(f"========== {split} ==========")
     transformed = []
     try:
         with open(ID_TO_IDX_MAP) as f:
@@ -30,6 +32,7 @@ async def transform_submission(fp: Path):
     for result in results:
         idx = result.get("idx", id_to_idx[result["id"]])
         query = result["question"]
+        text_answer = result["answer"] or None
         plan = result["plan"] or None
 
         # some stupid fixes for the eval script
@@ -39,6 +42,9 @@ async def transform_submission(fp: Path):
                 if day["accommodation"] and day["accommodation"] != "-" and not "," in day["accommodation"]:
                     *_, current_city = day["current_city"].split("to ")
                     day["accommodation"] += f", {current_city}"
+        elif text_answer:
+            print(f"No plan output for {idx=}, using 2-step")
+            plan = await nl_to_tp_json(text_answer)
 
         transformed.append({"idx": idx, "query": query, "plan": plan})
 
@@ -58,6 +64,7 @@ async def transform_submission(fp: Path):
     print(f"Written to {result_fp.resolve()}.")
     print("Use this command in TravelPlanning:")
     print(f"python eval.py --set_type validation --evaluation_file_path {result_fp.resolve()}")
+    print()
     return result_fp
 
 
