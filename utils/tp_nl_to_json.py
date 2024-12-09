@@ -5,7 +5,10 @@ Adapted from:
 https://github.com/OSU-NLP-Group/TravelPlanner/blob/main/postprocess/openai_request.py
 https://github.com/OSU-NLP-Group/TravelPlanner/blob/main/postprocess/parsing.py
 """
+
+import hashlib
 import json
+from pathlib import Path
 
 from kani import Kani
 from kani.engines.openai import OpenAIEngine
@@ -36,6 +39,25 @@ prefix = (
 
 
 async def nl_to_tp_json(text):
+    # check for existing cache
+    cache_key = hashlib.sha256(text.encode()).hexdigest()
+    cache_base = Path(__file__).parent / "tp_nl_to_json_cache"
+    cache_base.mkdir(exist_ok=True)
+    fn = cache_base / f"{cache_key}.json"
+    if fn.exists():
+        with open(fn) as f:
+            return json.load(f)
+    # get result, return if null
+    result = await _nl_to_tp_json(text)
+    if not result:
+        result = None
+    # cache new result
+    with open(fn, "w") as f:
+        json.dump(result, f)
+    return result
+
+
+async def _nl_to_tp_json(text):
     engine = OpenAIEngine(model="gpt-4", temperature=0)
     ai = Kani(engine)
     query = f"{prefix}\nText: {text}\nPlease output the corresponding JSON only."
@@ -43,5 +65,11 @@ async def nl_to_tp_json(text):
     try:
         return json.loads(resp)
     except json.JSONDecodeError:
-        json_text = resp[resp.find("["):resp.rfind("]") + 1]
-        return json.loads(json_text)
+        print("Could not decode JSON response, searching for brackets...")
+        print(resp)
+        json_text = resp[resp.find("[") : resp.rfind("]") + 1]
+        try:
+            return json.loads(json_text)
+        except json.JSONDecodeError:
+            print("Could not decode JSON response again, returning null!")
+            return

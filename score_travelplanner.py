@@ -10,11 +10,41 @@ import json
 import sys
 from pathlib import Path
 
-from redel.utils import read_jsonl
+from redel.utils import batched, read_jsonl
 from utils.tp_nl_to_json import nl_to_tp_json
 
 EXPECTED_RESULTS = 180
 ID_TO_IDX_MAP = Path(__file__).parent / "experiments/travelplanner/id_to_idx.json"
+
+
+async def transform_one(result, id_to_idx):
+    idx = result.get("idx", id_to_idx[result["id"]])
+    query = result["question"]
+    text_answer = result["answer"] or None
+    plan = result["plan"] or None
+
+    # some stupid fixes for the eval script
+    if text_answer and not plan:
+        print(f"No plan output for {idx=}, using 2-step")
+        plan = await nl_to_tp_json(text_answer)
+        # fix some gpt weirdness
+        if not plan:
+            plan = None
+        else:
+            if not isinstance(plan, list):
+                plan = [plan]
+            if plan and not plan[0]:
+                plan = None
+
+    if plan:
+        for day in plan:
+            for key in ("accommodation", "breakfast", "lunch", "dinner", "attraction"):
+                # every accommodation needs `, {CITY_NAME}` at the end (just tack on current city if missing)
+                if day.get(key) and day[key] != "-" and "," not in day[key]:
+                    *_, current_city = day["current_city"].split("to ")
+                    day[key] += f", {current_city}"
+
+    return {"idx": idx, "query": query, "plan": plan}
 
 
 async def transform_submission(fp: Path):
@@ -29,24 +59,9 @@ async def transform_submission(fp: Path):
     except FileNotFoundError:
         id_to_idx = {}
 
-    for result in results:
-        idx = result.get("idx", id_to_idx[result["id"]])
-        query = result["question"]
-        text_answer = result["answer"] or None
-        plan = result["plan"] or None
-
-        # some stupid fixes for the eval script
-        if plan:
-            for day in plan:
-                # every accommodation needs `, {CITY_NAME}` at the end (just tack on current city if missing)
-                if day["accommodation"] and day["accommodation"] != "-" and not "," in day["accommodation"]:
-                    *_, current_city = day["current_city"].split("to ")
-                    day["accommodation"] += f", {current_city}"
-        elif text_answer:
-            print(f"No plan output for {idx=}, using 2-step")
-            plan = await nl_to_tp_json(text_answer)
-
-        transformed.append({"idx": idx, "query": query, "plan": plan})
+    for result_batch in batched(results, 20):
+        result_batch_results = await asyncio.gather(*(transform_one(r, id_to_idx) for r in result_batch))
+        transformed.extend(result_batch_results)
 
     # ensure there are the right number of results, and they're sorted by idx
     missing_idxs = set(range(EXPECTED_RESULTS)).difference({t["idx"] for t in transformed})
