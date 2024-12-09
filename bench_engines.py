@@ -88,9 +88,10 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
             )
     # ===== QWEN =====
     if model_class == "qwen":
-        from utils.qwen import QwenFunctionCallingAdapter
         from kani.ext.vllm import VLLMEngine
         from vllm import SamplingParams
+
+        from utils.qwen import QwenFunctionCallingAdapter
 
         if model_id == "Qwen/Qwen2.5-72B-Instruct":
             model = VLLMEngine(
