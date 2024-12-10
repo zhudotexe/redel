@@ -15,5 +15,4 @@
 
 source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
-
 python bench_travelplanner.py --config short-baseline --model-class cohere-hf --large-model CohereForAI/c4ai-command-r-plus-08-2024 --small-model CohereForAI/c4ai-command-r-08-2024 --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/cohere-hf/short-baseline --engine-timeout 1800

@@ -1,0 +1,8 @@
+export SHOPPING="http://127.0.0.1:8082"
+export SHOPPING_ADMIN="http://127.0.0.1:8083/admin"
+export REDDIT="http://127.0.0.1:8080"
+export GITLAB="http://127.0.0.1:9001"
+export MAP="http://127.0.0.1:443"
+export WIKIPEDIA="http://127.0.0.1:8081/wikipedia_en_all_maxi_2022-05/A/User:The_other_Kiwix_guy/Landing"
+export HOMEPAGE="http://127.0.0.1:80"
+export RESTART_URL="http://127.0.0.1:7565/reset"

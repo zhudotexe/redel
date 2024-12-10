@@ -11,11 +11,18 @@
 #SBATCH --gpus=0
 #SBATCH --mail-user=andrz@seas.upenn.edu
 #SBATCH --mail-type=END,FAIL
+#SBATCH --nodelist=nlpgpu05
 
 
 source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
+dockerd-rootless.sh &
+DOCKER_PID=$!
+sleep 15
 source slurm/webarena-env.sh
+bash slurm/webarena-startup.sh
+sleep 600
 curl -X GET ${RESTART_URL}
-sleep 300
-python bench_webarena.py --config small-baseline --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/small-baseline 
+sleep 600
+python bench_webarena.py --config small-baseline --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/small-baseline
+kill $DOCKER_PID
