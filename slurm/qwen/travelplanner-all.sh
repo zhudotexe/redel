@@ -37,3 +37,11 @@ python bench_travelplanner.py --config small-all --model-class qwen --large-mode
 
 
 python bench_travelplanner.py --config small-baseline --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/qwen/small-baseline --engine-timeout 1800
+
+
+
+python bench_travelplanner.py --config short-context --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/qwen/short-context --engine-timeout 1800
+
+
+
+python bench_travelplanner.py --config short-baseline --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/qwen/short-baseline --engine-timeout 1800

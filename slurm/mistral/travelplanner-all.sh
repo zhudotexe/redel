@@ -37,3 +37,11 @@ python bench_travelplanner.py --config small-all --model-class mistral --large-m
 
 
 python bench_travelplanner.py --config small-baseline --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/mistral/small-baseline --engine-timeout 1800
+
+
+
+python bench_travelplanner.py --config short-context --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/mistral/short-context --engine-timeout 1800
+
+
+
+python bench_travelplanner.py --config short-baseline --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/mistral/short-baseline --engine-timeout 1800

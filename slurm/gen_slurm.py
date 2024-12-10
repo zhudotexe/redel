@@ -46,10 +46,10 @@ ModelConfig = namedtuple("ModelConfig", "model_class large small size extras")
 
 MODELS = [
     # model class, large, small, size, extras
-    # ModelConfig(model_class="openai", large="gpt-4o-2024-05-13", small="gpt-3.5-turbo-0125", size=0, extras=""),
+    ModelConfig(model_class="openai", large="gpt-4o-2024-05-13", small="gpt-3.5-turbo-0125", size=0, extras=""),
     ModelConfig(
         model_class="mistral",
-        large="mistralai/Mistral-Large-Instruct-2411",
+        large="mistralai/Mistral-Large-Instruct-2407",
         small="mistralai/Mistral-Small-Instruct-2409",
         size=8,
         extras="--engine-timeout 1800",  # 30 min timeout per trial
@@ -91,10 +91,6 @@ def main():
             all_commands = []
 
             for idx, config in enumerate(CONFIGS):
-                # no short context settings for TP
-                if bench == "travelplanner" and idx > 5:
-                    continue
-
                 header = HEADER_TEMPLATE.format(
                     config=config,
                     bench=bench,

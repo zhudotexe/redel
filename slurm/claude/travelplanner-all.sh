@@ -37,3 +37,11 @@ python bench_travelplanner.py --config small-all --model-class claude --large-mo
 
 
 python bench_travelplanner.py --config small-baseline --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/claude/small-baseline 
+
+
+
+python bench_travelplanner.py --config short-context --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/claude/short-context 
+
+
+
+python bench_travelplanner.py --config short-baseline --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/claude/short-baseline 
