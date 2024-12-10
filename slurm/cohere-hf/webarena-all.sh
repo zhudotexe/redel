@@ -45,4 +45,5 @@ sleep 600
 python bench_webarena.py --config short-context --model-class cohere-hf --large-model CohereForAI/c4ai-command-r-plus-08-2024 --small-model CohereForAI/c4ai-command-r-08-2024 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/cohere-hf/short-context --engine-timeout 1800
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config short-baseline --model-class cohere-hf --large-model CohereForAI/c4ai-command-r-plus-08-2024 --small-model CohereForAI/c4ai-command-r-08-2024 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/cohere-hf/short-baseline --engine-timeout 1800kill $DOCKER_PID
+python bench_webarena.py --config short-baseline --model-class cohere-hf --large-model CohereForAI/c4ai-command-r-plus-08-2024 --small-model CohereForAI/c4ai-command-r-08-2024 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/cohere-hf/short-baseline --engine-timeout 1800
+kill $DOCKER_PID

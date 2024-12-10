@@ -96,6 +96,8 @@ def main():
                     "sleep 600"
                 )
                 footer = "kill $DOCKER_PID"
+                if int(mem[:-1]) < 256:
+                    mem = "256G"
             else:
                 bench_startup = ""
                 bench_extras = ""
@@ -147,6 +149,7 @@ def main():
                 f.write(header)
                 f.write("\n")
                 f.write("\n".join(all_commands))
+                f.write("\n")
                 f.write(footer)
 
 

@@ -7,7 +7,7 @@
 #SBATCH --time=7-0
 #SBATCH --nodes=1
 #SBATCH -c 1
-#SBATCH --mem=32G
+#SBATCH --mem=256G
 #SBATCH --gpus=0
 #SBATCH --mail-user=andrz@seas.upenn.edu
 #SBATCH --mail-type=END,FAIL

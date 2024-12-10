@@ -7,7 +7,7 @@
 #SBATCH --time=7-0
 #SBATCH --nodes=1
 #SBATCH -c 1
-#SBATCH --mem=32G
+#SBATCH --mem=256G
 #SBATCH --gpus=0
 #SBATCH --mail-user=andrz@seas.upenn.edu
 #SBATCH --mail-type=END,FAIL
@@ -45,4 +45,5 @@ sleep 600
 python bench_webarena.py --config short-context --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/short-context
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config short-baseline --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/short-baselinekill $DOCKER_PID
+python bench_webarena.py --config short-baseline --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/short-baseline
+kill $DOCKER_PID
