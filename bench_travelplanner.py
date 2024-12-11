@@ -36,7 +36,7 @@ zeroshot_root_system_prompt = (
 )
 
 oneshot_root_system_prompt = (Path(__file__).parent / "utils/tp_1shot_prompt.txt").read_text().strip()
-root_system_prompt = oneshot_root_system_prompt
+root_system_prompt = zeroshot_root_system_prompt
 
 
 # ==== main ====
