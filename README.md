@@ -223,6 +223,7 @@ See https://github.com/web-arena-x/webarena/blob/main/environment_docker/README.
 
 > [!NOTE]
 > https://github.com/gasse/webarena-setup/tree/main/webarena is a helpful unofficial setup script.
+> The containers are loaded on NLPGPU 04, 05, and 08.
 
 Next, run the following to setup the webarena configuration:
 

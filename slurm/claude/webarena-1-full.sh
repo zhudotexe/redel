@@ -11,7 +11,7 @@
 #SBATCH --gpus=0
 #SBATCH --mail-user=andrz@seas.upenn.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --nodelist=nlpgpu05
+#SBATCH --nodelist=nlpgpu04,nlpgpu05,nlpgpu08
 
 
 source slurm/env.sh
