@@ -221,6 +221,9 @@ Apache-2.0 license, contained in `experiments/webarena/vendor/LICENSE`.
 First, you'll need to set up your own WebArena environment.
 See https://github.com/web-arena-x/webarena/blob/main/environment_docker/README.md for instructions.
 
+> [!NOTE]
+> https://github.com/gasse/webarena-setup/tree/main/webarena is a helpful unofficial setup script.
+
 Next, run the following to setup the webarena configuration:
 
 ```shell

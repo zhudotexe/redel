@@ -15,33 +15,11 @@
 
 source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
-
 python bench_fanoutqa.py --config full --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/mistral/full --engine-timeout 1800
-
-
-
 python bench_fanoutqa.py --config root-fc --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/mistral/root-fc --engine-timeout 1800
-
-
-
 python bench_fanoutqa.py --config baseline --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/mistral/baseline --engine-timeout 1800
-
-
-
 python bench_fanoutqa.py --config small-leaf --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/mistral/small-leaf --engine-timeout 1800
-
-
-
 python bench_fanoutqa.py --config small-all --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/mistral/small-all --engine-timeout 1800
-
-
-
 python bench_fanoutqa.py --config small-baseline --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/mistral/small-baseline --engine-timeout 1800
-
-
-
 python bench_fanoutqa.py --config short-context --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/mistral/short-context --engine-timeout 1800
-
-
-
 python bench_fanoutqa.py --config short-baseline --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/mistral/short-baseline --engine-timeout 1800

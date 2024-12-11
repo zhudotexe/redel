@@ -19,6 +19,7 @@ HEADER_TEMPLATE = """\
 
 source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
+{bench_startup}
 """
 RUN_TEMPLATE = """\
 {bench_extras}
@@ -84,9 +85,23 @@ def main():
         for bench in BENCHES:
             # WA needs extra env vars
             if bench == "webarena":
-                bench_extras = "source slurm/webarena-env.sh\ncurl -X GET ${RESTART_URL}\nsleep 300"
+                gpuconstraint = f"#SBATCH --nodelist=nlpgpu05\n{gpuconstraint}"
+                bench_extras = "curl -X GET ${RESTART_URL}\nsleep 600"
+                bench_startup = (
+                    "dockerd-rootless.sh &\n"
+                    "DOCKER_PID=$!\n"
+                    "sleep 15\n"
+                    "source slurm/webarena-env.sh\n"
+                    "bash slurm/webarena-startup.sh\n"
+                    "sleep 600"
+                )
+                footer = "kill $DOCKER_PID"
+                if int(mem[:-1]) < 256:
+                    mem = "256G"
             else:
+                bench_startup = ""
                 bench_extras = ""
+                footer = ""
 
             all_commands = []
 
@@ -99,7 +114,8 @@ def main():
                     mem=mem,
                     gpus=gpus,
                     gpuconstraint=gpuconstraint,
-                )
+                    bench_startup=bench_startup,
+                ).strip()
                 content = RUN_TEMPLATE.format(
                     bench_extras=bench_extras,
                     config=config,
@@ -108,12 +124,15 @@ def main():
                     large_model=model.large,
                     small_model=model.small,
                     engine_extras=model.extras,
-                )
+                ).strip()
                 all_commands.append(content)
                 os.makedirs(f"slurm/{model.model_class}", exist_ok=True)
                 with open(f"slurm/{model.model_class}/{bench}-{idx+1}-{config}.sh", "w") as f:
                     f.write(header)
+                    f.write("\n")
                     f.write(content)
+                    f.write("\n")
+                    f.write(footer)
 
             # write all file
             header = HEADER_TEMPLATE.format(
@@ -124,11 +143,14 @@ def main():
                 mem=mem,
                 gpus=gpus,
                 gpuconstraint=gpuconstraint,
-                bench_extras=bench_extras,
-            )
+                bench_startup=bench_startup,
+            ).strip()
             with open(f"slurm/{model.model_class}/{bench}-all.sh", "w") as f:
                 f.write(header)
-                f.write("\n\n".join(all_commands))
+                f.write("\n")
+                f.write("\n".join(all_commands))
+                f.write("\n")
+                f.write(footer)
 
 
 if __name__ == "__main__":
