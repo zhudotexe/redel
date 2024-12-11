@@ -1,0 +1,364 @@
+{
+  "id": "1733938389-401852d8-2a23-4b5d-b3a6-165c48881f93",
+  "title": "travelplanner: Could you help design a travel plan for two people leaving from Houston to Pensacola for 3 days, from March 6th to March 8th, 2022? Our budget is set at $1,400 for this trip and we require our accommodations to be visitor-friendly. We would like to have options to dine at Indian, American, Chinese, and Italian restaurants. We also prefer not to self-drive during the trip. (1ac1add32bdc57ed)",
+  "last_modified": 1733938397.5361161,
+  "n_events": 22,
+  "state": [
+    {
+      "id": "20821dfc-46d4-46b2-a2bb-49f755731963",
+      "depth": 0,
+      "parent": null,
+      "children": [
+        "0ba2c29e-df88-4432-93af-89191d021ef3"
+      ],
+      "always_included_messages": [
+        {
+          "role": "system",
+          "content": "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null
+        }
+      ],
+      "chat_history": [
+        {
+          "role": "user",
+          "content": "Could you help design a travel plan for two people leaving from Houston to Pensacola for 3 days, from March 6th to March 8th, 2022? Our budget is set at $1,400 for this trip and we require our accommodations to be visitor-friendly. We would like to have options to dine at Indian, American, Chinese, and Italian restaurants. We also prefer not to self-drive during the trip.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null
+        },
+        {
+          "role": "assistant",
+          "content": null,
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "call_MSutk9RA5N01LQSSf15Cyy94",
+              "type": "function",
+              "function": {
+                "name": "delegate",
+                "arguments": "{\"instructions\":\"Find a flight from Houston to Pensacola on March 6th, 2022, and a return flight on March 8th, 2022, for two people. Ensure the total cost is within the budget.\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null
+        },
+        {
+          "role": "function",
+          "content": "Could you please specify your budget for the flights?",
+          "name": "delegate",
+          "tool_call_id": "call_MSutk9RA5N01LQSSf15Cyy94",
+          "tool_calls": null,
+          "is_tool_call_error": false
+        },
+        {
+          "role": "assistant",
+          "content": "The budget for the flights should be within the total trip budget of $1,400. Please find flights that are reasonably priced to allow for accommodation, dining, and attractions within the remaining budget.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null
+        }
+      ],
+      "state": "stopped",
+      "name": "root",
+      "engine_type": "OpenAIEngine",
+      "engine_repr": "OpenAIEngine(model=gpt-4o-2024-05-13, max_context_size=8192, hyperparams={'temperature': 0})",
+      "functions": [
+        {
+          "name": "delegate",
+          "desc": "Ask a capable helper for help looking up a piece of information or performing an action.\nDo not simply repeat what the user said as instructions.\nYou should use this to break up complex user queries into multiple simpler steps.\nNOTE: Helpers cannot see previous parts of your conversation.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "properties": {
+              "instructions": {
+                "description": "Detailed instructions on what your helper should do to help you.",
+                "title": "Instructions",
+                "type": "string"
+              }
+            },
+            "required": [
+              "instructions"
+            ],
+            "title": "_FunctionSpec",
+            "type": "object"
+          }
+        },
+        {
+          "name": "submit_day_plan",
+          "desc": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "properties": {
+              "day": {
+                "title": "Day",
+                "type": "integer"
+              },
+              "current_city": {
+                "description": "The city for this day. If the plan is to travel between two cities, indicate it as \"from A to B\" (e.g. \"from Ithaca to Charlotte\").",
+                "title": "Current City",
+                "type": "string"
+              },
+              "transportation": {
+                "description": "e.g. \"Flight Number: F3633413, from Ithaca to Charlotte, Departure Time: 05:38, Arrival Time: 07:46\"",
+                "title": "Transportation",
+                "type": "string"
+              },
+              "breakfast": {
+                "description": "The name of a restaurant in the city, e.g. \"Nagaland's Kitchen, Charlotte\"",
+                "title": "Breakfast",
+                "type": "string"
+              },
+              "attraction": {
+                "description": "Use a \";\" to separate different attractions, with each attraction formatted as \"Name, City\". e.g. \"The Charlotte Museum of History, Charlotte;\"",
+                "title": "Attraction",
+                "type": "string"
+              },
+              "lunch": {
+                "description": "e.g. \"Cafe Maple Street, Charlotte\"",
+                "title": "Lunch",
+                "type": "string"
+              },
+              "dinner": {
+                "description": "e.g. \"Bombay Vada Pav, Charlotte\"",
+                "title": "Dinner",
+                "type": "string"
+              },
+              "accommodation": {
+                "description": "e.g. \"Affordable Spacious Refurbished Room in Bushwick!, Charlotte\"",
+                "title": "Accommodation",
+                "type": "string"
+              }
+            },
+            "required": [
+              "day",
+              "current_city",
+              "transportation",
+              "breakfast",
+              "attraction",
+              "lunch",
+              "dinner",
+              "accommodation"
+            ],
+            "title": "_FunctionSpec",
+            "type": "object"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0ba2c29e-df88-4432-93af-89191d021ef3",
+      "depth": 1,
+      "parent": "20821dfc-46d4-46b2-a2bb-49f755731963",
+      "children": [],
+      "always_included_messages": [],
+      "chat_history": [
+        {
+          "role": "user",
+          "content": "Find a flight from Houston to Pensacola on March 6th, 2022, and a return flight on March 8th, 2022, for two people. Ensure the total cost is within the budget.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null
+        },
+        {
+          "role": "assistant",
+          "content": "Could you please specify your budget for the flights?",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [],
+          "is_tool_call_error": null
+        }
+      ],
+      "state": "stopped",
+      "name": "alpha",
+      "engine_type": "OpenAIEngine",
+      "engine_repr": "OpenAIEngine(model=gpt-4o-2024-05-13, max_context_size=8192, hyperparams={'temperature': 0})",
+      "functions": [
+        {
+          "name": "delegate",
+          "desc": "Ask a capable helper for help looking up a piece of information or performing an action.\nDo not simply repeat what the user said as instructions.\nYou should use this to break up complex user queries into multiple simpler steps.\nNOTE: Helpers cannot see previous parts of your conversation.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "properties": {
+              "instructions": {
+                "description": "Detailed instructions on what your helper should do to help you.",
+                "title": "Instructions",
+                "type": "string"
+              }
+            },
+            "required": [
+              "instructions"
+            ],
+            "title": "_FunctionSpec",
+            "type": "object"
+          }
+        },
+        {
+          "name": "accommodation_search",
+          "desc": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking accommodation.",
+                "title": "City",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "_FunctionSpec",
+            "type": "object"
+          }
+        },
+        {
+          "name": "attraction_search",
+          "desc": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking attractions.",
+                "title": "City",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "_FunctionSpec",
+            "type": "object"
+          }
+        },
+        {
+          "name": "city_search",
+          "desc": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "properties": {
+              "state": {
+                "description": "The name of the state where you're seeking cities.",
+                "title": "State",
+                "type": "string"
+              }
+            },
+            "required": [
+              "state"
+            ],
+            "title": "_FunctionSpec",
+            "type": "object"
+          }
+        },
+        {
+          "name": "flight_search",
+          "desc": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "properties": {
+              "departure_city": {
+                "description": "The city you'll be flying out from.",
+                "title": "Departure City",
+                "type": "string"
+              },
+              "destination_city": {
+                "description": "The city you aim to reach.",
+                "title": "Destination City",
+                "type": "string"
+              },
+              "date": {
+                "description": "The date of your travel in YYYY-MM-DD format.",
+                "title": "Date",
+                "type": "string"
+              }
+            },
+            "required": [
+              "departure_city",
+              "destination_city",
+              "date"
+            ],
+            "title": "_FunctionSpec",
+            "type": "object"
+          }
+        },
+        {
+          "name": "google_distance_matrix",
+          "desc": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "properties": {
+              "origin": {
+                "description": "The departure city of your journey.",
+                "title": "Origin",
+                "type": "string"
+              },
+              "destination": {
+                "description": "The destination city of your journey.",
+                "title": "Destination",
+                "type": "string"
+              },
+              "mode": {
+                "title": "GDMTransportationMethod",
+                "enum": [
+                  "self-driving",
+                  "taxi"
+                ],
+                "type": "string",
+                "description": "The method of transportation."
+              }
+            },
+            "required": [
+              "origin",
+              "destination",
+              "mode"
+            ],
+            "title": "_FunctionSpec",
+            "type": "object"
+          }
+        },
+        {
+          "name": "restaurant_search",
+          "desc": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking restaurants.",
+                "title": "City",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "_FunctionSpec",
+            "type": "object"
+          }
+        }
+      ]
+    }
+  ]
+}
