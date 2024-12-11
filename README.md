@@ -195,8 +195,6 @@ This will output a `score.json` file in the output path with the final scores.
 python bench_travelplanner.py <full|root-fc|baseline|small-leaf|small-all|small-baseline>
 ```
 
-Note: This benchmark does not test the `short-ctx` systems since this benchmark doesn't have a long-context requirement.
-
 **Evaluate**
 
 ```shell
