@@ -105,9 +105,9 @@ def wa_ensure_auth(config_file: Path) -> Path:
 async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
     # read the config
     with open(config_file) as f:
-        config = json.load(f)
-        intent = config["intent"]
-        task_id = config["task_id"]
+        wa_config = json.load(f)
+        intent = wa_config["intent"]
+        task_id = wa_config["task_id"]
 
     # setup redel
     ai = ReDel(
@@ -153,7 +153,7 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
     wa_client.maybe_save_trace(str((trace_dir / f"{str(task_id)}.zip").resolve()))
 
     await ai.close()
-    return answer, "\n\n".join(out), score, ai.logger.log_dir, config
+    return answer, "\n\n".join(out), score, ai.logger.log_dir, wa_config
 
 
 async def run():
