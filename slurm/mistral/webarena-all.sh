@@ -22,8 +22,6 @@ sleep 15
 source slurm/webarena-env.sh
 bash slurm/webarena-startup.sh
 sleep 600
-curl -X GET ${RESTART_URL}
-sleep 600
 python bench_webarena.py --config full --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/mistral/full --engine-timeout 1800
 curl -X GET ${RESTART_URL}
 sleep 600
@@ -46,4 +44,6 @@ python bench_webarena.py --config short-context --model-class mistral --large-mo
 curl -X GET ${RESTART_URL}
 sleep 600
 python bench_webarena.py --config short-baseline --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/mistral/short-baseline --engine-timeout 1800
+curl -X GET ${RESTART_URL}
+sleep 600
 kill $DOCKER_PID

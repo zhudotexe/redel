@@ -22,28 +22,28 @@ sleep 15
 source slurm/webarena-env.sh
 bash slurm/webarena-startup.sh
 sleep 600
+python bench_webarena.py --config full --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/full 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config full --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/full
+python bench_webarena.py --config root-fc --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/root-fc 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config root-fc --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/root-fc
+python bench_webarena.py --config baseline --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/baseline 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config baseline --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/baseline
+python bench_webarena.py --config small-leaf --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/small-leaf 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config small-leaf --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/small-leaf
+python bench_webarena.py --config small-all --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/small-all 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config small-all --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/small-all
+python bench_webarena.py --config small-baseline --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/small-baseline 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config small-baseline --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/small-baseline
+python bench_webarena.py --config short-context --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/short-context 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config short-context --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/short-context
+python bench_webarena.py --config short-baseline --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/short-baseline 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config short-baseline --model-class openai --large-model gpt-4o-2024-05-13 --small-model gpt-3.5-turbo-0125 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/openai/short-baseline
 kill $DOCKER_PID

@@ -22,7 +22,6 @@ export VLLM_WORKER_MULTIPROC_METHOD=spawn
 {bench_startup}
 """
 RUN_TEMPLATE = """\
-{bench_extras}
 python bench_{bench}.py \
 --config {config} \
 --model-class {model_class} \
@@ -30,6 +29,7 @@ python bench_{bench}.py \
 --small-model {small_model} \
 --save-dir /nlpgpu/data/andrz/redel/experiments/{bench}/{model_class}/{config} \
 {engine_extras}
+{bench_extras}
 """
 BENCHES = ["fanoutqa", "travelplanner", "webarena"]
 CONFIGS = [

@@ -22,28 +22,28 @@ sleep 15
 source slurm/webarena-env.sh
 bash slurm/webarena-startup.sh
 sleep 600
+python bench_webarena.py --config full --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/full 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config full --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/full
+python bench_webarena.py --config root-fc --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/root-fc 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config root-fc --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/root-fc
+python bench_webarena.py --config baseline --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/baseline 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config baseline --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/baseline
+python bench_webarena.py --config small-leaf --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/small-leaf 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config small-leaf --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/small-leaf
+python bench_webarena.py --config small-all --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/small-all 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config small-all --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/small-all
+python bench_webarena.py --config small-baseline --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/small-baseline 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config small-baseline --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/small-baseline
+python bench_webarena.py --config short-context --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/short-context 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config short-context --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/short-context
+python bench_webarena.py --config short-baseline --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/short-baseline 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config short-baseline --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/short-baseline
 kill $DOCKER_PID

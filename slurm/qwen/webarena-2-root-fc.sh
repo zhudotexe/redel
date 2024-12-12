@@ -22,7 +22,7 @@ sleep 15
 source slurm/webarena-env.sh
 bash slurm/webarena-startup.sh
 sleep 600
+python bench_webarena.py --config root-fc --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/root-fc --engine-timeout 1800
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config root-fc --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/root-fc --engine-timeout 1800
 kill $DOCKER_PID

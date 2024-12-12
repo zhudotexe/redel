@@ -22,7 +22,7 @@ sleep 15
 source slurm/webarena-env.sh
 bash slurm/webarena-startup.sh
 sleep 600
+python bench_webarena.py --config baseline --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/baseline 
 curl -X GET ${RESTART_URL}
 sleep 600
-python bench_webarena.py --config baseline --model-class claude --large-model claude-3-5-sonnet-20241022 --small-model claude-3-5-haiku-20241022 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/claude/baseline
 kill $DOCKER_PID
