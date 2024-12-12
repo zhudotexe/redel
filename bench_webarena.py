@@ -144,8 +144,8 @@ async def run_one_trial(config_file: Path, wa_client: WebArenaClient):
         if isinstance(event, events.RootMessage) and event.msg.role == ChatRole.ASSISTANT:
             if event.msg.text:
                 out.append(event.msg.text)
-    log.info(f"Saved answer: {ai.root_kani.answer}")
     answer = ai.root_kani.get_tool(WebArenaRootMixin).answer or "\n\n".join(out)
+    log.info(f"Saved answer: {answer}")
     wa_client.end(answer)
 
     # score, save trace
