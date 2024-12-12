@@ -139,15 +139,15 @@ def patch_to_support_webarena():
 
     # WebArena runs a subprocess to login to get cookies
     # which spews logs / warnings, so we silence them
-    _subprocess_run = subprocess.run
-
-    def subprocess_run(*args, **kwargs):
-        if any("auto_login.py" in a for a in args[0]):
-            kwargs["stdout"] = subprocess.PIPE
-            kwargs["stderr"] = subprocess.PIPE
-        return _subprocess_run(*args, **kwargs)
-
-    subprocess.run = lambda *args, **kwargs: subprocess_run(*args, **kwargs)
+    # _subprocess_run = subprocess.run
+    #
+    # def subprocess_run(*args, **kwargs):
+    #     if any("auto_login.py" in a for a in args[0]):
+    #         kwargs["stdout"] = subprocess.PIPE
+    #         kwargs["stderr"] = subprocess.PIPE
+    #     return _subprocess_run(*args, **kwargs)
+    #
+    # subprocess.run = lambda *args, **kwargs: subprocess_run(*args, **kwargs)
 
     # WebArena's get_bounding_client_rect method is very slow
     with ignore_webarena_warnings():

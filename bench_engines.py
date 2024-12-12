@@ -38,6 +38,8 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
             return OpenAIEngine(model="gpt-4o-2024-05-13", temperature=0, max_context_size=context_size)
         if model_id == "gpt-3.5-turbo-0125":
             return OpenAIEngine(model="gpt-3.5-turbo-0125", temperature=0, max_context_size=context_size)
+        if model_id == "gpt-4o-mini":
+            return OpenAIEngine(model="gpt-4o-mini", temperature=0, max_context_size=context_size)
     # ==== MISTRAL ====
     if model_class == "mistral":
         from kani.ext.vllm import VLLMEngine
@@ -166,7 +168,6 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
                 },
                 sampling_params=SamplingParams(temperature=0.7, max_tokens=2048, min_tokens=1),
             )
-    # todo: cohere
     raise ValueError("unknown engine")
 
 

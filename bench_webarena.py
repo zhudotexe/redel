@@ -81,14 +81,17 @@ def wa_ensure_auth(config_file: Path) -> Path:
             comb = get_site_comb_from_filepath(cookie_file_name)
             temp_dir = tempfile.mkdtemp()
             # subprocess to renew the cookie
-            subprocess.run([
-                "python",
-                "experiments/webarena/auto_login.py",
-                "--auth_folder",
-                temp_dir,
-                "--site_list",
-                *comb,
-            ])
+            subprocess.run(
+                [
+                    "python",
+                    "experiments/webarena/auto_login.py",
+                    "--auth_folder",
+                    temp_dir,
+                    "--site_list",
+                    *comb,
+                ],
+                check=True,
+            )
             _c["storage_state"] = f"{temp_dir}/{cookie_file_name}"
             assert os.path.exists(_c["storage_state"])
             # write a temp copy of the config file
