@@ -11,7 +11,6 @@
 #SBATCH --gpus=8
 #SBATCH --mail-user=andrz@seas.upenn.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --nodelist=nlpgpu04,nlpgpu05,nlpgpu08
 #SBATCH --constraint=48GBgpu
 
 source slurm/env.sh
@@ -23,27 +22,27 @@ source slurm/webarena-env.sh
 bash slurm/webarena-startup.sh
 sleep 600
 python bench_webarena.py --config full --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/full --engine-timeout 1800
-curl -X GET ${RESTART_URL}
+bash slurm/webarena-startup.sh
 sleep 600
 python bench_webarena.py --config root-fc --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/root-fc --engine-timeout 1800
-curl -X GET ${RESTART_URL}
+bash slurm/webarena-startup.sh
 sleep 600
 python bench_webarena.py --config baseline --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/baseline --engine-timeout 1800
-curl -X GET ${RESTART_URL}
+bash slurm/webarena-startup.sh
 sleep 600
 python bench_webarena.py --config small-leaf --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/small-leaf --engine-timeout 1800
-curl -X GET ${RESTART_URL}
+bash slurm/webarena-startup.sh
 sleep 600
 python bench_webarena.py --config small-all --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/small-all --engine-timeout 1800
-curl -X GET ${RESTART_URL}
+bash slurm/webarena-startup.sh
 sleep 600
 python bench_webarena.py --config small-baseline --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/small-baseline --engine-timeout 1800
-curl -X GET ${RESTART_URL}
+bash slurm/webarena-startup.sh
 sleep 600
 python bench_webarena.py --config short-context --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/short-context --engine-timeout 1800
-curl -X GET ${RESTART_URL}
+bash slurm/webarena-startup.sh
 sleep 600
 python bench_webarena.py --config short-baseline --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/short-baseline --engine-timeout 1800
-curl -X GET ${RESTART_URL}
+bash slurm/webarena-startup.sh
 sleep 600
 kill $DOCKER_PID

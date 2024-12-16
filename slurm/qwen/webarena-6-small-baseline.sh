@@ -11,7 +11,6 @@
 #SBATCH --gpus=8
 #SBATCH --mail-user=andrz@seas.upenn.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --nodelist=nlpgpu04,nlpgpu05,nlpgpu08
 #SBATCH --constraint=48GBgpu
 
 source slurm/env.sh
@@ -23,6 +22,6 @@ source slurm/webarena-env.sh
 bash slurm/webarena-startup.sh
 sleep 600
 python bench_webarena.py --config small-baseline --model-class qwen --large-model Qwen/Qwen2.5-72B-Instruct --small-model Qwen/Qwen2.5-7B-Instruct --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/qwen/small-baseline --engine-timeout 1800
-curl -X GET ${RESTART_URL}
+bash slurm/webarena-startup.sh
 sleep 600
 kill $DOCKER_PID

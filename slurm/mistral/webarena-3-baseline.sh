@@ -11,7 +11,6 @@
 #SBATCH --gpus=8
 #SBATCH --mail-user=andrz@seas.upenn.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --nodelist=nlpgpu04,nlpgpu05,nlpgpu08
 #SBATCH --constraint=48GBgpu
 
 source slurm/env.sh
@@ -23,6 +22,6 @@ source slurm/webarena-env.sh
 bash slurm/webarena-startup.sh
 sleep 600
 python bench_webarena.py --config baseline --model-class mistral --large-model mistralai/Mistral-Large-Instruct-2407 --small-model mistralai/Mistral-Small-Instruct-2409 --save-dir /nlpgpu/data/andrz/redel/experiments/webarena/mistral/baseline --engine-timeout 1800
-curl -X GET ${RESTART_URL}
+bash slurm/webarena-startup.sh
 sleep 600
 kill $DOCKER_PID

@@ -85,8 +85,7 @@ def main():
         for bench in BENCHES:
             # WA needs extra env vars
             if bench == "webarena":
-                gpuconstraint = f"#SBATCH --nodelist=nlpgpu04,nlpgpu05,nlpgpu08\n{gpuconstraint}"
-                bench_extras = "curl -X GET ${RESTART_URL}\nsleep 600"
+                bench_extras = "bash slurm/webarena-startup.sh\nsleep 600"
                 bench_startup = (
                     "dockerd-rootless.sh &\n"
                     "DOCKER_PID=$!\n"
