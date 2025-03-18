@@ -3,7 +3,7 @@ import logging
 import shutil
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Annotated, Awaitable, Callable, Collection, TYPE_CHECKING
+from typing import Annotated, Any, Awaitable, Callable, Collection, TYPE_CHECKING
 
 try:
     from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect, WebSocketException
@@ -63,6 +63,8 @@ class VizServer:
         self.interactive_sessions: dict[str, SessionManager] = {}
 
         # webserver
+        self._startup_hooks = []  # for running async setup code before .serve takes control of async loop
+        self._shutdown_hooks = []
         self.fastapi = FastAPI(lifespan=self._lifespan)
         self.setup_app()
 
@@ -87,17 +89,30 @@ class VizServer:
             return ReDel(**(self.redel_proto.get_config() | override_kwargs))
         return await self.redel_factory(**override_kwargs)
 
-    def serve(self, host="127.0.0.1", port=8000, **kwargs):
+    def serve(
+        self,
+        host="127.0.0.1",
+        port=8000,
+        startup_hooks: list[Callable[["VizServer"], Any]] = None,
+        shutdown_hooks: list[Callable[["VizServer"], Any]] = None,
+        **kwargs,
+    ):
         """Serve this server at the given IP and port. Blocks until interrupted."""
         import uvicorn
 
+        if startup_hooks:
+            self._startup_hooks = startup_hooks
+        if shutdown_hooks:
+            self._shutdown_hooks = shutdown_hooks
         uvicorn.run(self.fastapi, host=host, port=port, **kwargs)
 
     # ==== fastapi ====
     @asynccontextmanager
     async def _lifespan(self, _: FastAPI):
         _ = asyncio.create_task(self.reindex_saves())
+        await asyncio.gather(*(hook(self) for hook in self._startup_hooks))
         yield
+        await asyncio.gather(*(hook(self) for hook in self._shutdown_hooks))
         await asyncio.gather(*(session.close() for session in self.interactive_sessions.values()))
 
     def setup_app(self):
