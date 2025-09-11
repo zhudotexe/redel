@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Markdown from "@/components/Markdown.vue";
 import AssistantFunctionCall from "@/components/messages/AssistantFunctionCall.vue";
+import MessageContent from "@/components/messages/MessageContent.vue";
 import type { ChatMessage } from "@/redel/models";
 
 const props = defineProps<{
@@ -16,9 +16,7 @@ const props = defineProps<{
       </p>
     </figure>
     <div class="media-content">
-      <div class="content allow-wrap-anywhere" v-if="message.content">
-        <Markdown :content="props.message.content!" />
-      </div>
+      <MessageContent v-if="message.content" :content="props.message.content!" />
       <!-- function call -->
       <div v-if="message.tool_calls">
         <AssistantFunctionCall :function-call="tc.function" v-for="tc in message.tool_calls" />

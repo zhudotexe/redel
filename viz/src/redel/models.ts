@@ -26,7 +26,7 @@ export interface ToolCall {
 
 export interface ChatMessage {
   role: ChatRole;
-  content: string | null;
+  content: string | object[] | null;
   name: string | null;
   tool_call_id: string | null;
   tool_calls: ToolCall[] | null;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Markdown from "@/components/Markdown.vue";
+import MessageContent from "@/components/messages/MessageContent.vue";
 import type { ChatMessage } from "@/redel/models";
 
 const props = defineProps<{
@@ -15,9 +15,7 @@ const props = defineProps<{
       </p>
     </figure>
     <div class="media-content">
-      <div class="content allow-wrap-anywhere">
-        <Markdown :content="props.message.content!" />
-      </div>
+      <MessageContent v-if="message.content" :content="props.message.content!" />
     </div>
   </div>
 </template>

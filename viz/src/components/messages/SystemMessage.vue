@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Markdown from "@/components/Markdown.vue";
+import MessageContent from "@/components/messages/MessageContent.vue";
 import type { ChatMessage } from "@/redel/models";
 
 const props = defineProps<{
@@ -10,9 +10,7 @@ const props = defineProps<{
 <template>
   <div class="system-message">
     <div class="box has-text-centered mx-4 p-2">
-      <div class="content allow-wrap-anywhere">
-        <Markdown :content="props.message.content!" />
-      </div>
+      <MessageContent v-if="message.content" :content="props.message.content!" />
     </div>
   </div>
 </template>
