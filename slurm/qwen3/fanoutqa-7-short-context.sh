@@ -15,4 +15,4 @@
 
 source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
-python bench_fanoutqa.py --config short-context --model-class qwen3 --large-model Qwen/Qwen3-235B-A22B-Thinking-2507 --small-model Qwen/Qwen3-4B-Thinking-2507 --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/qwen3/short-context --engine-timeout 1800
+python bench_fanoutqa.py --config short-context --model-class qwen3 --large-model Qwen/Qwen3-30B-A3B-Thinking-2507 --small-model Qwen/Qwen3-4B-Thinking-2507 --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/qwen3/short-context --engine-timeout 1800

@@ -15,4 +15,4 @@
 
 source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
-python bench_travelplanner.py --config small-leaf --model-class qwen3 --large-model Qwen/Qwen3-235B-A22B-Thinking-2507 --small-model Qwen/Qwen3-4B-Thinking-2507 --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/qwen3/small-leaf --engine-timeout 1800
+python bench_travelplanner.py --config small-leaf --model-class qwen3 --large-model Qwen/Qwen3-30B-A3B-Thinking-2507 --small-model Qwen/Qwen3-4B-Thinking-2507 --save-dir /nlpgpu/data/andrz/redel/experiments/travelplanner/qwen3/small-leaf --engine-timeout 1800

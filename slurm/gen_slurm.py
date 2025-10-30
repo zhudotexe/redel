@@ -85,7 +85,7 @@ MODELS = [
     # oct25
     ModelConfig(
         model_class="qwen3",
-        large="Qwen/Qwen3-235B-A22B-Thinking-2507",
+        large="Qwen/Qwen3-30B-A3B-Thinking-2507",
         small="Qwen/Qwen3-4B-Thinking-2507",
         size=8,
         extras="--engine-timeout 1800",  # 30 min timeout per trial
