@@ -108,11 +108,11 @@ class ReDelKani(BaseKani):
         return kani_inst
 
     # overrides
-    async def get_prompt(self) -> list[ChatMessage]:
+    async def get_prompt(self, *args, **kwargs) -> list[ChatMessage]:
         # if we have a system prompt, update it with any time/name templates
         if self.system_prompt is not None:
             self.always_included_messages[0] = ChatMessage.system(get_system_prompt(self))
-        return await super().get_prompt()
+        return await super().get_prompt(*args, **kwargs)
 
     async def cleanup(self):
         if self.delegator:
