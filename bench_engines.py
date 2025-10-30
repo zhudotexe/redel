@@ -168,6 +168,44 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
                 },
                 sampling_params=SamplingParams(temperature=0.7, max_tokens=2048, min_tokens=1),
             )
+    # ===== GPTOSS =====
+    if model_class == "gpt-oss":
+        from kani.ext.vllm import VLLMServerEngine
+        from kani.model_specific.gpt_oss import GPTOSSParser
+
+        model = VLLMServerEngine(
+            model_id=model_id,
+            max_context_size=context_size or 131072,
+            vllm_args={
+                "tensor_parallel_size": 8,
+                "enable_prefix_caching": True,
+            },
+            temperature=0.7,
+            max_tokens=8192,
+            min_tokens=1,
+        )
+        return GPTOSSParser(model)
+    # ===== QWEN3 =====
+    if model_class == "qwen3":
+        from kani.ext.vllm import VLLMServerEngine
+        from kani.model_specific.qwen3 import Qwen3ThinkingParser
+
+        model = VLLMServerEngine(
+            model_id=model_id,
+            max_context_size=context_size or 262144,
+            vllm_args={
+                "tensor_parallel_size": 8,
+                "enable_prefix_caching": True,
+            },
+            # suggested from model card
+            temperature=0.6,
+            top_p=0.95,
+            top_k=20,
+            min_p=0,
+            max_tokens=8192,
+            min_tokens=1,
+        )
+        return Qwen3ThinkingParser(model)
     raise ValueError("unknown engine")
 
 

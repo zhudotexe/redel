@@ -1,5 +1,6 @@
+import dataclasses
 import os
-from collections import namedtuple
+from dataclasses import dataclass
 
 HEADER_TEMPLATE = """\
 #!/bin/bash
@@ -43,7 +44,16 @@ CONFIGS = [
     "short-baseline",
 ]
 
-ModelConfig = namedtuple("ModelConfig", "model_class large small size extras")
+
+@dataclasses.dataclass
+class ModelConfig:
+    model_class: str
+    large: str
+    small: str
+    size: int
+    extras: str
+    benches: list[str] = dataclasses.field(default_factory=lambda: BENCHES)
+
 
 MODELS = [
     # model class, large, small, size, extras
@@ -72,6 +82,23 @@ MODELS = [
         size=8,
         extras="--engine-timeout 1800",  # 30 min timeout per trial
     ),
+    # oct25
+    ModelConfig(
+        model_class="qwen3",
+        large="Qwen/Qwen3-235B-A22B-Thinking-2507",
+        small="Qwen/Qwen3-4B-Thinking-2507",
+        size=8,
+        extras="--engine-timeout 1800",  # 30 min timeout per trial
+        benches=["fanoutqa", "travelplanner"],
+    ),
+    ModelConfig(
+        model_class="gpt-oss",
+        large="openai/gpt-oss-120b",
+        small="openai/gpt-oss-20b",
+        size=8,
+        extras="--engine-timeout 1800",  # 30 min timeout per trial
+        benches=["fanoutqa", "travelplanner"],
+    ),
 ]
 
 
@@ -82,7 +109,7 @@ def main():
         gpus = model.size
         gpuconstraint = "#SBATCH --constraint=48GBgpu" if model.size else ""
 
-        for bench in BENCHES:
+        for bench in model.benches:
             # WA needs extra env vars
             if bench == "webarena":
                 bench_extras = "bash slurm/webarena-startup.sh\nsleep 600"
@@ -126,7 +153,7 @@ def main():
                 ).strip()
                 all_commands.append(content)
                 os.makedirs(f"slurm/{model.model_class}", exist_ok=True)
-                with open(f"slurm/{model.model_class}/{bench}-{idx+1}-{config}.sh", "w") as f:
+                with open(f"slurm/{model.model_class}/{bench}-{idx + 1}-{config}.sh", "w") as f:
                     f.write(header)
                     f.write("\n")
                     f.write(content)

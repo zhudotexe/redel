@@ -75,7 +75,7 @@ class FanOutQAMixin(ToolBase):
         # if the content fits in the context, return that
         wiki_content = fanoutqa.wiki_content(found_article)
         full_content = prompt.format(f"<content>\n{wiki_content}\n</content>\n")
-        if (retrieved_tokens := self.kani.message_token_len(ChatMessage.user(full_content))) <= self.max_search_tokens:
+        if (retrieved_tokens := len(full_content)) <= self.max_search_tokens:
             self.app.dispatch(
                 FOQARetrievalType(
                     id=self.kani.id,
@@ -96,14 +96,14 @@ class FanOutQAMixin(ToolBase):
         for doc in corpus.best(user_query):
             formatted = f"<fragment>\n{doc.content}\n</fragment>\n"
             content = prompt.format("".join(retrieved_docs) + formatted)
-            doc_len = self.kani.engine.message_len(ChatMessage.user(content))
+            doc_len = len(content)
             if doc_len > self.max_search_tokens:
                 break
             retrieved_docs.append(formatted)
 
         # return
         out = prompt.format("".join(retrieved_docs))
-        retrieved_tokens = self.kani.engine.message_len(ChatMessage.user(out))
+        retrieved_tokens = len(out)
         self.app.dispatch(
             FOQARetrievalType(
                 id=self.kani.id,
