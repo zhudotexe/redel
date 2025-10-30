@@ -184,6 +184,7 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
             max_tokens=8192,
             min_tokens=1,
         )
+        model.model = model_id
         return GPTOSSParser(model)
     # ===== QWEN3 =====
     if model_class == "qwen3":
@@ -205,6 +206,7 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
             max_tokens=8192,
             min_tokens=1,
         )
+        model.model = model_id
         return Qwen3ThinkingParser(model)
     raise ValueError("unknown engine")
 
