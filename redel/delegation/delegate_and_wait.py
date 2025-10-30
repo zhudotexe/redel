@@ -72,8 +72,8 @@ class DelegateWait(DelegationBase):
                 async for stream in helper.full_round_stream(instructions):
                     msg = await stream.message()
                     log.info(f"{helper.name}-{helper.depth}: {msg}")
-                    if msg.role == ChatRole.ASSISTANT and msg.content:
-                        result.append(msg.content)
+                    if msg.role == ChatRole.ASSISTANT and msg.text:
+                        result.append(msg.text)
                 await helper.cleanup()
                 return "\n".join(result), helper.name
             except Exception as e:

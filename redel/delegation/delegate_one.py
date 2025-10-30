@@ -42,7 +42,7 @@ class DelegateOne(DelegationBase):
             async for stream in helper.full_round_stream(instructions, max_function_rounds=5):  # TODO temp
                 msg = await stream.message()
                 log.info(msg)
-                if msg.role == ChatRole.ASSISTANT and msg.content:
-                    result.append(msg.content)
+                if msg.role == ChatRole.ASSISTANT and msg.text:
+                    result.append(msg.text)
             await helper.cleanup()
             return "\n".join(result)
