@@ -182,7 +182,6 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
             },
             temperature=0.7,
             max_tokens=8192,
-            min_tokens=1,
         )
         model.model = model_id
         return GPTOSSParser(model)
@@ -198,13 +197,9 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
                 "tensor_parallel_size": 8,
                 "enable_prefix_caching": True,
             },
-            # suggested from model card
             temperature=0.6,
             top_p=0.95,
-            top_k=20,
-            min_p=0,
             max_tokens=8192,
-            min_tokens=1,
         )
         model.model = model_id
         return Qwen3ThinkingParser(model)
