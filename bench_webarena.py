@@ -222,6 +222,9 @@ async def run():
     results_file.close()
     wa_send.send({"cmd": "stop"})
     wa_process.join()
+    await config.root_engine.close()
+    if config.delegate_engine is not config.root_engine:
+        await config.delegate_engine.close()
 
 
 if __name__ == "__main__":

@@ -115,6 +115,9 @@ async def main():
     log.setLevel(logging.INFO)
     config.save_dir.mkdir(parents=True, exist_ok=True)
     await run()
+    await config.root_engine.close()
+    if config.delegate_engine is not config.root_engine:
+        await config.delegate_engine.close()
 
 
 if __name__ == "__main__":
