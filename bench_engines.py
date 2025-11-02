@@ -29,7 +29,13 @@ class ExperimentConfig:
     engine_timeout: int
 
 
-def get_engine(model_class: str, model_id: str, context_size: int = None):
+def get_engine(
+    model_class: str,
+    model_id: str,
+    *,
+    context_size: int = None,  # limit the ctx size
+    gpu_proportion: float = 0.95,  # the gpu proportion to use (for vllm parallel engines)
+):
     # ==== OPENAI ====
     if model_class == "openai":
         from kani.engines.openai import OpenAIEngine
@@ -179,6 +185,7 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
             vllm_args={
                 "tensor_parallel_size": 8,
                 "enable_prefix_caching": True,
+                "gpu_memory_utilization": gpu_proportion,
             },
             temperature=0.7,
             max_tokens=8192,
@@ -196,6 +203,7 @@ def get_engine(model_class: str, model_id: str, context_size: int = None):
             vllm_args={
                 "tensor_parallel_size": 8,
                 "enable_prefix_caching": True,
+                "gpu_memory_utilization": gpu_proportion,
             },
             temperature=0.6,
             top_p=0.95,
@@ -231,8 +239,8 @@ def get_experiment_config(delegation_scheme=DelegateOne) -> ExperimentConfig:
         delegation_scheme = None
     # - **small-leaf**: no root FC, gpt-4o root, gpt-3.5-turbo leaves
     elif experiment_config == "small-leaf":
-        root_engine = get_engine(model_class, large_model_id)
-        delegate_engine = get_engine(model_class, small_model_id)
+        root_engine = get_engine(model_class, large_model_id, gpu_proportion=0.7)
+        delegate_engine = get_engine(model_class, small_model_id, gpu_proportion=0.25)
         root_has_tools = False
     #     - **small-all**: no root FC, gpt-3.5-turbo everything
     elif experiment_config == "small-all":
