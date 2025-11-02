@@ -34,7 +34,7 @@ def get_engine(
     model_id: str,
     *,
     context_size: int = None,  # limit the ctx size
-    gpu_proportion: float = 0.95,  # the gpu proportion to use (for vllm parallel engines)
+    gpu_proportion: float = 0.9,  # the gpu proportion to use (for vllm parallel engines)
 ):
     # ==== OPENAI ====
     if model_class == "openai":
@@ -240,7 +240,7 @@ def get_experiment_config(delegation_scheme=DelegateOne) -> ExperimentConfig:
     # - **small-leaf**: no root FC, gpt-4o root, gpt-3.5-turbo leaves
     elif experiment_config == "small-leaf":
         root_engine = get_engine(model_class, large_model_id, gpu_proportion=0.7)
-        delegate_engine = get_engine(model_class, small_model_id, gpu_proportion=0.25)
+        delegate_engine = get_engine(model_class, small_model_id, gpu_proportion=0.2)
         root_has_tools = False
     #     - **small-all**: no root FC, gpt-3.5-turbo everything
     elif experiment_config == "small-all":
