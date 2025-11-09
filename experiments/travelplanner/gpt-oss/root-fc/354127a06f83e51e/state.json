@@ -1,0 +1,719 @@
+{
+  "id": "1762286618-6804d9dc-8729-4b2f-9660-e42061163ef2",
+  "title": "travelplanner: Please create a travel plan departing from Minneapolis and heading to Seattle for 3 days, from March 29th to March 31st, 2022, with a budget of $1,800. (354127a06f83e51e)",
+  "last_modified": 1762286658.2433968,
+  "n_events": 74,
+  "state": [
+    {
+      "id": "fa16ecef-d350-4b95-baa2-d801512b0658",
+      "depth": 0,
+      "parent": null,
+      "children": [],
+      "always_included_messages": [
+        {
+          "role": "system",
+          "content": "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        }
+      ],
+      "chat_history": [
+        {
+          "role": "user",
+          "content": "Please create a travel plan departing from Minneapolis and heading to Seattle for 3 days, from March 29th to March 31st, 2022, with a budget of $1,800.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need to create travel plan. Need to fetch flights from Minneapolis to Seattle on March 29 2022, maybe also return? The trip is 3 days March 29-31, presumably depart March 29, stay 2 nights, return March 31? Not specified return flight. Probably just travel to Seattle, stay 3 days, then back? Budget $1800.\n\nWe need to gather flight info, accommodations, attractions, restaurants.\n\nWe'll need to call flight_search, accommodation_search, attraction_search, restaurant_search. Then calculate cost? Not required but ensure within budget.\n\nWe'll need to submit_day_plan for each day (3 days). Need fields: day, city, current_city? The spec: day number, city for this day, current_city (maybe same), transportation details, breakfast, attraction, lunch, dinner, accommodation.\n\nWe need to fill with plausible options.\n\nFirst, flight from Minneapolis (MSP) to Seattle (SEA) on March 29. Also flight back on March 31? Might include return flight as transportation on day 3.\n\nLet's search flights.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "fcf68554-ee8f-4b7f-a3fa-470854ed7f79",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\n  \"departure_city\": \"Minneapolis\",\n  \"destination_city\": \"Seattle\",\n  \"date\": \"2022-03-29\"\n}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3526653    453   08:51   10:11 3 hours 20 minutes 2022-03-29    Minneapolis      Seattle    1399.0\n     F3527324    430   15:52   17:22 3 hours 30 minutes 2022-03-29    Minneapolis      Seattle    1399.0\n     F3527439    686   11:00   12:29 3 hours 29 minutes 2022-03-29    Minneapolis      Seattle    1399.0\n     F3528018    618   18:52   20:16 3 hours 24 minutes 2022-03-29    Minneapolis      Seattle    1399.0\n     F3531077    517   06:22   07:48 3 hours 26 minutes 2022-03-29    Minneapolis      Seattle    1399.0\n     F3753369    592   06:47   08:29 3 hours 42 minutes 2022-03-29    Minneapolis      Seattle    1399.0\n     F3753441    595   14:44   16:22 3 hours 38 minutes 2022-03-29    Minneapolis      Seattle    1399.0",
+          "name": "flight_search",
+          "tool_call_id": "fcf68554-ee8f-4b7f-a3fa-470854ed7f79",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now flight back March 31 from Seattle to Minneapolis.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "31e6b2ef-56ab-406d-b5c5-5d6fb1ecaa13",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Seattle\", \"destination_city\": \"Minneapolis\", \"date\": \"2022-03-31\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3502722    364   08:47   14:03 3 hours 16 minutes 2022-03-31        Seattle  Minneapolis    1399.0\n     F3509967    372   00:44   06:19 3 hours 35 minutes 2022-03-31        Seattle  Minneapolis    1399.0\n     F3514340    306   13:45   19:01 3 hours 16 minutes 2022-03-31        Seattle  Minneapolis    1399.0\n     F3529314    378   06:21   11:31 3 hours 10 minutes 2022-03-31        Seattle  Minneapolis    1399.0\n     F3533663    450   11:40   16:58 3 hours 18 minutes 2022-03-31        Seattle  Minneapolis    1399.0\n     F3754662    698   18:51   00:04 3 hours 13 minutes 2022-03-31        Seattle  Minneapolis    1399.0\n     F3754738    563   09:07   14:16  3 hours 9 minutes 2022-03-31        Seattle  Minneapolis    1399.0",
+          "name": "flight_search",
+          "tool_call_id": "31e6b2ef-56ab-406d-b5c5-5d6fb1ecaa13",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now accommodations in Seattle for March 29-30 nights.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "c0ac5449-a40c-4b14-b533-ceed0baf5907",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\": \"Seattle\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                          NAME  price       room type                                     house_rules  minimum nights  maximum occupancy  review rate number    city\n    Shared Apartment by Times Square Manhattan 1050.0     Shared room              No visitors & No pets & No smoking             1.0                  1                 4.0 Seattle\n     Large quiet private studio in East Harlem  181.0 Entire home/apt                            No children under 10             7.0                  2                 3.0 Seattle\n             Nolita 1br near Little Italy/SoHo  380.0 Entire home/apt                           No visitors & No pets            20.0                  2                 1.0 Seattle\n                  private spacious LES bedroom  325.0    Private room                            No parties & No pets             2.0                  1                 4.0 Seattle\n            Peaceful, cozy studio in Chinatown  576.0 Entire home/apt    No pets & No children under 10 & No visitors            20.0                  2                 1.0 Seattle\n     Small Private Room in quiet Manhattan Apt  105.0    Private room                                     No visitors             4.0                  1                 5.0 Seattle\n Cozy Room Amazingly Located in Williamsburg !  448.0    Private room                                      No smoking             3.0                  2                 4.0 Seattle\n   NYC HUB HOME: Train @ 900ft; midtown 30min! 1184.0 Entire home/apt                            No parties & No pets             2.0                  7                 4.0 Seattle\n  New tidy  room attached by PRIVATE FULL BATH   73.0    Private room                         No parties & No smoking             3.0                  2                 5.0 Seattle\n     Sun Drenched Artist Loft in Williamsburg!  607.0 Entire home/apt No children under 10 & No visitors & No parties             4.0                  2                 5.0 Seattle\n**Cozy Room In Hip Ultra Location LES/NOLITA**  537.0    Private room                                     No visitors             2.0                  2                 5.0 Seattle\n                                 Comfort Haven  910.0    Private room           No smoking & No visitors & No parties             1.0                  2                 3.0 Seattle",
+          "name": "accommodation_search",
+          "tool_call_id": "c0ac5449-a40c-4b14-b533-ceed0baf5907",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "These seem weird (NYC related). Might be irrelevant but we need a reasonable Seattle accommodation. Choose \"Large quiet private studio in East Harlem\" price 181? That's low. But ok.\n\nNow attractions Seattle.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "981b555e-5fe6-4320-abd4-3ee324757d0e",
+              "type": "function",
+              "function": {
+                "name": "attraction_search",
+                "arguments": "{\"city\": \"Seattle\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                  Name  Latitude   Longitude                                          Address          Phone                                                                  Website    City\n                      Seattle Aquarium 47.607400 -122.342956 1483 Alaskan Way Pier 59, Seattle, WA 98101, USA (206) 386-4300                                         https://www.seattleaquarium.org/ Seattle\n               The Seattle Great Wheel 47.606134 -122.342525          1301 Alaskan Wy, Seattle, WA 98101, USA (206) 623-8607                                            http://seattlegreatwheel.com/ Seattle\n              Chihuly Garden and Glass 47.620560 -122.350448          305 Harrison St, Seattle, WA 98109, USA (206) 753-4940                                   https://www.chihulygardenandglass.com/ Seattle\n                Olympic Sculpture Park 47.616603 -122.355317         2901 Western Ave, Seattle, WA 98121, USA (206) 654-3100           https://www.seattleartmuseum.org/visit/olympic-sculpture-park/ Seattle\n                          The Gum Wall 47.608361 -122.340338          1428 Post Alley, Seattle, WA 98101, USA (206) 587-2414                               https://unexpectedproductions.org/gumwall/ Seattle\n                        Seattle Center 47.620598 -122.350505          305 Harrison St, Seattle, WA 98109, USA (206) 684-7200                                           https://www.seattlecenter.com/ Seattle\n                 Museum of Pop Culture 47.621482 -122.348124            325 5th Ave N, Seattle, WA 98109, USA (206) 770-2700                                                   https://www.mopop.org/ Seattle\n                   Beneath the Streets 47.602850 -122.334093            102 Cherry St, Seattle, WA 98104, USA (206) 624-1237                                      http://www.beneath-the-streets.com/ Seattle\n                    Seattle Art Museum 47.607525 -122.337960             1300 1st Ave, Seattle, WA 98101, USA (206) 654-3100                                        https://www.seattleartmuseum.org/ Seattle\n                            Kerry Park 47.629469 -122.359922        211 W Highland Dr, Seattle, WA 98119, USA (206) 684-4075                       http://www.seattle.gov/parks/find/parks/kerry-park Seattle\n                          Space Needle 47.620506 -122.349277             400 Broad St, Seattle, WA 98109, USA (206) 905-2100                                             https://www.spaceneedle.com/ Seattle\n                           Smith Tower 47.601853 -122.331858              506 2nd Ave, Seattle, WA 98104, USA (206) 624-0414                                               http://www.smithtower.com/ Seattle\n                     Pike Place Market 47.608965 -122.340582               85 Pike St, Seattle, WA 98101, USA (206) 682-7453                                         https://www.pikeplacemarket.org/ Seattle\n                               Pier 55 47.604747 -122.339716          1101 Alaskan Wy, Seattle, WA 98101, USA (206) 623-1445                        https://www.argosycruises.com/parking-directions/ Seattle\n      Original Selfie Museum | Seattle 47.607803 -122.339772              92 Union St, Seattle, WA 98101, USA (206) 487-4500                                        https://originalselfiemuseum.com/ Seattle\n             Washington Park Arboretum 47.636416 -122.295815      2300 Arboretum Dr E, Seattle, WA 98112, USA (206) 543-8800                 https://botanicgardens.uw.edu/washington-park-arboretum/ Seattle\nSky View Observatory - Columbia Center 47.604364 -122.331011              700 4th Ave, Seattle, WA 98104, USA (206) 386-5564                                           http://skyviewobservatory.com/ Seattle\n                        Discovery Park 47.661320 -122.417141                           Seattle, WA 98199, USA (206) 386-4236                    https://www.seattle.gov/parks/allparks/discovery-park Seattle\n                  The Museum of Flight 47.518538 -122.296854                           Seattle, WA 98108, USA (206) 764-5700                                          https://www.museumofflight.org/ Seattle\n                International Fountain 47.622523 -122.352032          305 Harrison St, Seattle, WA 98109, USA (206) 684-7200 https://www.seattlecenter.com/explore/attractions/international-fountain Seattle",
+          "name": "attraction_search",
+          "tool_call_id": "981b555e-5fe6-4320-abd4-3ee324757d0e",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now restaurants Seattle.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "0f8781ec-290f-4425-84cb-78240a170069",
+              "type": "function",
+              "function": {
+                "name": "restaurant_search",
+                "arguments": "{\"city\": \"Seattle\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                Name  Average Cost                                          Cuisines  Aggregate Rating    City\n                  Ting's Red Lantern            24 Italian, Bakery, BBQ, Fast Food, Chinese, Seafood               4.2 Seattle\n      Ceviche Tapas Bar & Restaurant            86                            Tea, Chinese, Desserts               4.4 Seattle\n                      Mother Ringlet            63                 Tea, Cafe, Mediterranean, Seafood               2.5 Seattle\n                      Caf\u6106 Burger BC            43                 Tea, French, Bakery, BBQ, Seafood               3.7 Seattle\n                       The Godinho's            96           Tea, Pizza, American, BBQ, Cafe, Indian               3.8 Seattle\n                  Teddy Choco Studio            70                         Mexican, Bakery, Desserts               0.0 Seattle\n                 Goli Vada Pav No. 1            31                              Tea, Bakery, Seafood               3.4 Seattle\n                  Delhi Darbar Dhaba            69                        Cafe, Pizza, Mediterranean               3.2 Seattle\n                           Tawa King            74              Desserts, Tea, Cafe, Bakery, Chinese               0.0 Seattle\n                             Giani's            74                   Tea, Seafood, Desserts, Italian               3.6 Seattle\n                   Sarpal Restaurant            42                               Cafe, BBQ, Desserts               3.1 Seattle\n                            Depaul's            83                            BBQ, Desserts, Seafood               3.7 Seattle\n                Amul Sweets & Bakery            36                 Desserts, Tea, Pizza, BBQ, Indian               0.0 Seattle\n                         Hot Chimney            19            Tea, Pizza, Mexican, Bakery, Fast Food               2.5 Seattle\nCelebration Multi Cuisine Restaurant            65                         Pizza, American, Desserts               2.7 Seattle\n                            The Test            18                                Tea, Pizza, Bakery               2.9 Seattle\n                     Tandoori Zaaika            96                            Pizza, Indian, Seafood               3.0 Seattle\n                        Munch Nation            55       Desserts, BBQ, Cafe, Mediterranean, Seafood               3.8 Seattle\n                           Wow! Momo            28     Desserts, BBQ, Fast Food, Cafe, Mediterranean               3.2 Seattle\n                     Cafe Coffee Day            79              Pizza, Bakery, BBQ, Chinese, Seafood               3.0 Seattle\n                             Foodizm            68                      Cafe, Pizza, Bakery, Italian               0.0 Seattle\n                           Keventers            53                            Tea, Bakery, Fast Food               0.0 Seattle\n                         Durga Dhaba            95                Seafood, American, Cafe, Fast Food               2.9 Seattle\n                            FrenZone            44                                    Tea, Cafe, BBQ               3.9 Seattle\n                         Desi Kukkad            71                             Bakery, American, BBQ               0.0 Seattle\n                   The Golden Dragon            15                       BBQ, Mediterranean, Seafood               3.5 Seattle\n                           Deli Chic            91                                    Pizza, Seafood               0.0 Seattle\n                        Food Brigade            90                    Chinese, Pizza, BBQ, Fast Food               3.2 Seattle\n                     The Sassy Spoon            29                   Bakery, Mediterranean, Desserts               4.1 Seattle\n                            wagamama            21                     Tea, Pizza, Desserts, Seafood               3.7 Seattle",
+          "name": "restaurant_search",
+          "tool_call_id": "0f8781ec-290f-4425-84cb-78240a170069",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "These restaurants list seems random but we pick some with good rating.\n\nNow we need to construct day plans.\n\nDay 1: March 29, travel from Minneapolis to Seattle. Flight: choose cheapest or decent: price 430 (F3527324) dep 15:52 arrival 17:22. Use that. Transportation string: \"Flight Number: F3527324, from Minneapolis to Seattle, Departure Time: 15:52, Arrival Time: 17:22\". Breakfast maybe at home? Could be \"Home\". Use \"-\". Lunch maybe at Seattle after arrival: pick \"Pike Place Market\" food stall? But need restaurant name. Choose \"The Sassy Spoon\" (rating 4.1). Dinner: \"The Godinho's\". Accommodation: choose \"Large quiet private studio in East Harlem\" price 181 (though location irrelevant). Use that as accommodation.\n\nAttractions: after arrival: maybe \"Space Needle, Seattle; Pike Place Market, Seattle\". Use semicolon.\n\nDay 2: March 30 full day Seattle. Breakfast: maybe \"Cafe Coffee Day\". Attractions: \"Chihuly Garden and Glass, Seattle; Museum of Pop Culture, Seattle; Olympic Sculpture Park, Seattle\". Lunch: \"Ting's Red Lantern\". Dinner: \"Munch Nation\". Accommodation same.\n\nDay 3: March 31 travel back. Breakfast: maybe \"The Sassy Spoon\". Transportation: flight back. Choose cheapest: price 306 (F3514340) dep 13:45 arr 19:01. Use that. Lunch: maybe airport? Use \"-\". Dinner: after returning home, \"-\". Accommodation: \"-\". Attractions: maybe \"Kerry Park, Seattle\" before flight.\n\nNow need to ensure budget: Flights total: 430 + 306 = 736. Accommodation 2 nights at 181 each = 362. Restaurants: assume average cost per meal: use average cost from list: The Sassy Spoon 29, The Godinho's 96, Munch Nation 55, etc. Rough total maybe 200. Total approx 736+362+200=1298 within $1800.\n\nNow we need to call submit_day_plan for each day.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "89497a59-6ce1-4221-8bcc-aa704319c986",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\n  \"day\": 1,\n  \"city\": \"Seattle\",\n  \"current_city\": \"Minneapolis\",\n  \"transportation\": \"Flight Number: F3527324, from Minneapolis to Seattle, Departure Time: 15:52, Arrival Time: 17:22\",\n  \"breakfast\": \"-\",\n  \"attraction\": \"Space Needle, Seattle; Pike Place Market, Seattle;\",\n  \"lunch\": \"The Sassy Spoon, Seattle\",\n  \"dinner\": \"The Godinho's, Seattle\",\n  \"accommodation\": \"Large quiet private studio in East Harlem, Seattle\"\n}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "1 validation error for TravelPlannerRootMixin.submit_day_plan\ncity\n  Unexpected keyword argument [type=unexpected_keyword_argument, input_value='Seattle', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/unexpected_keyword_argument",
+          "name": "submit_day_plan",
+          "tool_call_id": "89497a59-6ce1-4221-8bcc-aa704319c986",
+          "tool_calls": null,
+          "is_tool_call_error": true,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "The schema for submit_day_plan expects fields: day, city, current_city? Actually description: type submit_day_plan = (_: { day: number, city: string, current_city: string, transportation: string, breakfast: string, attraction: string, lunch: string, dinner: string, accommodation: string, }) => any;\n\nBut error says unexpected keyword argument 'city'. Perhaps the field name is 'city' not allowed? Let's check spec: \"day: number, city: string, current_city: string\". Wait error says unexpected keyword argument 'city'. Maybe the correct field is 'city' not allowed? Let's re-read: \"If a field does not apply for a given day, use \"-\" to indicate this. You MUST call this function to save the plan for each query.\" The schema maybe expects 'city' as the location for the day? But error indicates not. Could be that field name is 'location' instead of 'city'? Let's inspect earlier: \"type submit_day_plan = (_: { day: number, // The city for this day. If the plan is to travel between two cities, indicate it as \"from A to B\" (e.g. \"from Ithaca to Charlotte\"). current_city: string, // e.g. \"Flight Number: F3633413, from Ithaca to Charlotte, Departure Time: 05:38, Arrival Time: 07:46\" transportation: string, // The name of a restaurant in the city, e.g. \"Nagaland's Kitchen, Charlotte\" breakfast: string, // Use a \";\" to separate different attractions, with each attraction formatted as \"Name, City\". e.g. \"The Charlotte Museum of History, Charlotte;\" attraction: string, // e.g. \"Cafe Maple Street, Charlotte\" lunch: string, // e.g. \"Bombay Vada Pav, Charlotte\" dinner: string, // e.g. \"Affordable Spacious Refurbished Room in Bushwick!, Charlotte\" accommodation: string, }) => any;\"\n\nActually looks mismatched: after \"city\" comment, the next comment says about current_city but then transportation comment seems mismatched. Possibly the fields are: day, city, transportation, breakfast, attraction, lunch, dinner, accommodation. No 'current_city'. The spec seems messed.\n\nThe error says unexpected keyword argument 'city', meaning the struct likely expects 'city' not allowed. Let's infer correct fields: maybe they are: day, location, transportation, breakfast, attraction, lunch, dinner, accommodation. Let's try to call with fields: day, location, transportation, breakfast, attraction, lunch, dinner, accommodation.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "7f01e590-9f35-43aa-9cec-1ef9a626044c",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\":1,\"location\":\"Seattle\",\"transportation\":\"Flight Number: F3527324, from Minneapolis to Seattle, Departure Time: 15:52, Arrival Time: 17:22\",\"breakfast\":\"-\",\"attraction\":\"Space Needle, Seattle; Pike Place Market, Seattle;\",\"lunch\":\"The Sassy Spoon, Seattle\",\"dinner\":\"The Godinho's, Seattle\",\"accommodation\":\"Large quiet private studio in East Harlem, Seattle\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "2 validation errors for TravelPlannerRootMixin.submit_day_plan\ncurrent_city\n  Missing required argument [type=missing_argument, input_value=ArgsKwargs((), {'day': 1,... East Harlem, Seattle'}), input_type=ArgsKwargs]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing_argument\nlocation\n  Unexpected keyword argument [type=unexpected_keyword_argument, input_value='Seattle', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/unexpected_keyword_argument",
+          "name": "submit_day_plan",
+          "tool_call_id": "7f01e590-9f35-43aa-9cec-1ef9a626044c",
+          "tool_calls": null,
+          "is_tool_call_error": true,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "So required fields: day, city, current_city, transportation, breakfast, attraction, lunch, dinner, accommodation. 'city' is required, but earlier error said unexpected. Possibly the field is named 'city' but we gave it and got unexpected; maybe it's 'city' but we gave extra? Wait earlier error: unexpected 'city' when we passed both city and current_city. It said unexpected keyword argument 'city'. That suggests the schema does not have 'city' field but maybe 'current_city' is the city? Let's examine spec again. The bullet list: \"type submit_day_plan = (_: { day: number, // The city for this day. If the plan is to travel between two cities, indicate it as \"from A to B\" (e.g. \"from Ithaca to Charlotte\"). current_city: string, // e.g. \"Flight Number: F3633413, from Ithaca to Charlotte, Departure Time: 05:38, Arrival Time: 07:46\" transportation: string, // The name of a restaurant in the city, e.g. \"Nagaland's Kitchen, Charlotte\" breakfast: string, // Use a \";\" to separate different attractions, with each attraction formatted as \"Name, City\". e.g. \"The Charlotte Museum of History, Charlotte;\" attraction: string, // e.g. \"Cafe Maple Street, Charlotte\" lunch: string, // e.g. \"Bombay Vada Pav, Charlotte\" dinner: string, // e.g. \"Affordable Spacious Refurbished Room in Bushwick!, Charlotte\" accommodation: string, }) => any;\"\n\nSeems comments misaligned: 'city' field is first (but not shown). Then 'current_city' is second. But error said missing current_city, meaning it's required. So fields are: day, city, current_city, transportation, breakfast, attraction, lunch, dinner, accommodation.\n\nThus we need to provide 'city' and 'current_city'.\n\n'city' is the city for that day (or travel). 'current_city' maybe the location you are currently in? Actually comment says \"e.g. Flight Number...\". That seems transportation details. Wait comment for current_city is wrong; maybe they swapped. But error expects current_city.\n\nThus we provide both: city = \"Seattle\", current_city = \"Minneapolis\" for day 1? Or maybe current_city is the city you are traveling from? We'll set current_city = \"Minneapolis\". Transportation string includes flight. That should satisfy.\n\nLet's call again.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "787d2ce0-13f3-4900-85f7-fd0de7698b31",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 1, \"city\": \"Seattle\", \"current_city\": \"Minneapolis\", \"transportation\": \"Flight Number: F3527324, from Minneapolis to Seattle, Departure Time: 15:52, Arrival Time: 17:22\", \"breakfast\": \"-\", \"attraction\": \"Space Needle, Seattle; Pike Place Market, Seattle;\", \"lunch\": \"The Sassy Spoon, Seattle\", \"dinner\": \"The Godinho's, Seattle\", \"accommodation\": \"Large quiet private studio in East Harlem, Seattle\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "1 validation error for TravelPlannerRootMixin.submit_day_plan\ncity\n  Unexpected keyword argument [type=unexpected_keyword_argument, input_value='Seattle', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/unexpected_keyword_argument",
+          "name": "submit_day_plan",
+          "tool_call_id": "787d2ce0-13f3-4900-85f7-fd0de7698b31",
+          "tool_calls": null,
+          "is_tool_call_error": true,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now 'city' is unexpected, but earlier missing current_city. Perhaps field is named 'location' not 'city' and there is no 'city' field. Let's try to look at error: missing current_city earlier when we omitted it. So fields are: day, location?, current_city? Actually earlier missing current_city triggered when we omitted it, so it's required. The unexpected 'city' suggests the field name is not 'city' but something else, perhaps 'location' (as earlier). Let's try with fields: day, location, current_city, transportation, breakfast, attraction, lunch, dinner, accommodation.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "426de8ca-8f1d-4dd9-9e13-df9dde19a9fd",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 1, \"location\": \"Seattle\", \"current_city\": \"Minneapolis\", \"transportation\": \"Flight Number: F3527324, from Minneapolis to Seattle, Departure Time: 15:52, Arrival Time: 17:22\", \"breakfast\": \"-\", \"attraction\": \"Space Needle, Seattle; Pike Place Market, Seattle;\", \"lunch\": \"The Sassy Spoon, Seattle\", \"dinner\": \"The Godinho's, Seattle\", \"accommodation\": \"Large quiet private studio in East Harlem, Seattle\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "1 validation error for TravelPlannerRootMixin.submit_day_plan\nlocation\n  Unexpected keyword argument [type=unexpected_keyword_argument, input_value='Seattle', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/unexpected_keyword_argument",
+          "name": "submit_day_plan",
+          "tool_call_id": "426de8ca-8f1d-4dd9-9e13-df9dde19a9fd",
+          "tool_calls": null,
+          "is_tool_call_error": true,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now location unexpected. So maybe the field name is 'city' but we need to pass something else for current_city? The error earlier said missing current_city, but when we passed city it said unexpected. Could be that the schema expects 'city' and 'transportation' only, without current_city? But earlier missing current_city indicates it's required.\n\nLet's try to call with fields: day, city, transportation, breakfast, attraction, lunch, dinner, accommodation (no current_city). The missing error earlier might have been from previous attempt where we omitted city? Actually earlier we passed city and got unexpected. Let's re-express: maybe field names are: day, destination_city, origin_city? Not sure.\n\nLet's attempt to see schema by calling with only day and transportation to see error.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "db90aa95-b0c9-48b1-b86c-dda84520df3e",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 1}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "7 validation errors for TravelPlannerRootMixin.submit_day_plan\ncurrent_city\n  Missing required argument [type=missing_argument, input_value=ArgsKwargs((), {'day': 1}), input_type=ArgsKwargs]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing_argument\ntransportation\n  Missing required argument [type=missing_argument, input_value=ArgsKwargs((), {'day': 1}), input_type=ArgsKwargs]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing_argument\nbreakfast\n  Missing required argument [type=missing_argument, input_value=ArgsKwargs((), {'day': 1}), input_type=ArgsKwargs]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing_argument\nattraction\n  Missing required argument [type=missing_argument, input_value=ArgsKwargs((), {'day': 1}), input_type=ArgsKwargs]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing_argument\nlunch\n  Missing required argument [type=missing_argument, input_value=ArgsKwargs((), {'day': 1}), input_type=ArgsKwargs]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing_argument\ndinner\n  Missing required argument [type=missing_argument, input_value=ArgsKwargs((), {'day': 1}), input_type=ArgsKwargs]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing_argument\naccommodation\n  Missing required argument [type=missing_argument, input_value=ArgsKwargs((), {'day': 1}), input_type=ArgsKwargs]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing_argument",
+          "name": "submit_day_plan",
+          "tool_call_id": "db90aa95-b0c9-48b1-b86c-dda84520df3e",
+          "tool_calls": null,
+          "is_tool_call_error": true,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "So required fields: current_city, transportation, breakfast, attraction, lunch, dinner, accommodation. No city field. So we must provide current_city only, which perhaps is the city for the day. So we set current_city to \"Seattle\" for day 1. No separate city field. So we will use current_city as location.\n\nThus call with day, current_city, transportation, breakfast, attraction, lunch, dinner, accommodation.\n\nLet's do Day 1.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "99ab2e18-5174-4978-9140-a66b0b1288d2",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 1, \"current_city\": \"Seattle\", \"transportation\": \"Flight Number: F3527324, from Minneapolis to Seattle, Departure Time: 15:52, Arrival Time: 17:22\", \"breakfast\": \"-\", \"attraction\": \"Space Needle, Seattle; Pike Place Market, Seattle;\", \"lunch\": \"The Sassy Spoon, Seattle\", \"dinner\": \"The Godinho's, Seattle\", \"accommodation\": \"Large quiet private studio in East Harlem, Seattle\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 1.",
+          "name": "submit_day_plan",
+          "tool_call_id": "99ab2e18-5174-4978-9140-a66b0b1288d2",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Great. Now day 2.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "Create day 2 plan: current_city \"Seattle\". Transportation \"-\". Breakfast \"Cafe Coffee Day, Seattle\". Attraction list. Lunch \"Ting's Red Lantern, Seattle\". Dinner \"Munch Nation, Seattle\". Accommodation same.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "94082029-6fc5-4830-aa6c-029a8146ff47",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 2, \"current_city\": \"Seattle\", \"transportation\": \"-\", \"breakfast\": \"Cafe Coffee Day, Seattle\", \"attraction\": \"Chihuly Garden and Glass, Seattle; Museum of Pop Culture, Seattle; Olympic Sculpture Park, Seattle;\", \"lunch\": \"Ting's Red Lantern, Seattle\", \"dinner\": \"Munch Nation, Seattle\", \"accommodation\": \"Large quiet private studio in East Harlem, Seattle\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 2.",
+          "name": "submit_day_plan",
+          "tool_call_id": "94082029-6fc5-4830-aa6c-029a8146ff47",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now day 3: travel back. current_city maybe \"Seattle\" before leaving. Transportation flight back. Breakfast maybe \"The Sassy Spoon\". Attraction maybe \"Kerry Park\". Lunch \"-\" (airport). Dinner \"-\" (home). Accommodation \"-\".\n\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "91687162-1050-45cc-8f30-d828fa3aa76d",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 3, \"current_city\": \"Seattle\", \"transportation\": \"Flight Number: F3514340, from Seattle to Minneapolis, Departure Time: 13:45, Arrival Time: 19:01\", \"breakfast\": \"The Sassy Spoon, Seattle\", \"attraction\": \"Kerry Park, Seattle;\", \"lunch\": \"-\", \"dinner\": \"-\", \"accommodation\": \"-\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 3.",
+          "name": "submit_day_plan",
+          "tool_call_id": "91687162-1050-45cc-8f30-d828fa3aa76d",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            "Your 3\u2011day Seattle trip (March\u202f29\u201131\u202f2022) has been saved within the budget of **$1,800**.\n\n**Day\u202f1 \u2013 March\u202f29**  \n- **Current city:** Seattle  \n- **Transportation:** Flight Number: F3527324, from Minneapolis to Seattle, Departure\u202f15:52, Arrival\u202f17:22  \n- **Breakfast:** \u2013 (travel)  \n- **Attractions:** Space Needle, Seattle; Pike Place Market, Seattle  \n- **Lunch:** The Sassy Spoon, Seattle  \n- **Dinner:** The Godinho's, Seattle  \n- **Accommodation:** Large quiet private studio in East Harlem, Seattle  \n\n**Day\u202f2 \u2013 March\u202f30**  \n- **Current city:** Seattle  \n- **Transportation:** \u2013 (local)  \n- **Breakfast:** Cafe Coffee Day, Seattle  \n- **Attractions:** Chihuly Garden and Glass, Seattle; Museum of Pop Culture, Seattle; Olympic Sculpture Park, Seattle  \n- **Lunch:** Ting's Red Lantern, Seattle  \n- **Dinner:** Munch Nation, Seattle  \n- **Accommodation:** Large quiet private studio in East Harlem, Seattle  \n\n**Day\u202f3 \u2013 March\u202f31**  \n- **Current city:** Seattle  \n- **Transportation:** Flight Number: F3514340, from Seattle to Minneapolis, Departure\u202f13:45, Arrival\u202f19:01  \n- **Breakfast:** The Sassy Spoon, Seattle  \n- **Attractions:** Kerry Park, Seattle  \n- **Lunch:** \u2013  \n- **Dinner:** \u2013  \n- **Accommodation:** \u2013  \n\nAll details have been stored via the travel\u2011plan API. Have a wonderful trip!"
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [],
+          "is_tool_call_error": null,
+          "extra": {}
+        }
+      ],
+      "state": "stopped",
+      "name": "root",
+      "engine_type": "GPTOSSParser",
+      "engine_repr": "GPTOSSParser(engine=VLLMServerEngine(model_id='openai/gpt-oss-120b', hyperparams={'temperature': 0.7, 'max_tokens': 8192}, server=<kani.ext.vllm.vllm_server.VLLMServer object at 0x7fe90bb88490>, client=<openai.AsyncOpenAI object at 0x7fe88ff2c110>, tokenizer=PreTrainedTokenizerFast(name_or_path='openai/gpt-oss-120b', vocab_size=199998, model_max_length=1000000000000000019884624838656, is_fast=True, padding_side='right', truncation_side='right', special_tokens={'bos_token': '<|startoftext|>', 'eos_token': '<|return|>', 'pad_token': '<|endoftext|>'}, clean_up_tokenization_spaces=False, added_tokens_decoder={\n\t199998: AddedToken(\"<|startoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t199999: AddedToken(\"<|endoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200000: AddedToken(\"<|reserved_200000|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200001: AddedToken(\"<|reserved_200001|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200002: AddedToken(\"<|return|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200003: AddedToken(\"<|constrain|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200004: AddedToken(\"<|reserved_200004|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200005: AddedToken(\"<|channel|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200006: AddedToken(\"<|start|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200007: AddedToken(\"<|end|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200008: AddedToken(\"<|message|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200009: AddedToken(\"<|reserved_200009|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200010: AddedToken(\"<|reserved_200010|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200011: AddedToken(\"<|reserved_200011|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200012: AddedToken(\"<|call|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200013: AddedToken(\"<|reserved_200013|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200014: AddedToken(\"<|reserved_200014|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200015: AddedToken(\"<|reserved_200015|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200016: AddedToken(\"<|reserved_200016|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200017: AddedToken(\"<|reserved_200017|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200018: AddedToken(\"<|endofprompt|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n}\n), max_context_size=131072, pipeline=ChatTemplatePromptPipeline([ConversationDict(role_to_str={<ChatRole.SYSTEM: 'system'>: 'system', <ChatRole.USER: 'user'>: 'user', <ChatRole.ASSISTANT: 'assistant'>: 'assistant', <ChatRole.FUNCTION: 'function'>: 'tool'}, content_transform=<function hf_content_transform at 0x7fe88fefad40>, additional_keys=<function _gptoss_chat_template_keys at 0x7fe88fef84a0>)]), model='openai/gpt-oss-120b'))",
+      "functions": [
+        {
+          "name": "delegate",
+          "desc": "Ask a capable helper for help looking up a piece of information or performing an action.\nDo not simply repeat what the user said as instructions.\nYou should use this to break up complex user queries into multiple simpler steps.\nNOTE: Helpers cannot see previous parts of your conversation.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Ask a capable helper for help looking up a piece of information or performing an action.\nDo not simply repeat what the user said as instructions.\nYou should use this to break up complex user queries into multiple simpler steps.\nNOTE: Helpers cannot see previous parts of your conversation.",
+            "properties": {
+              "instructions": {
+                "description": "Detailed instructions on what your helper should do to help you.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "instructions"
+            ],
+            "title": "delegate",
+            "type": "object"
+          }
+        },
+        {
+          "name": "accommodation_search",
+          "desc": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking accommodation.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "accommodation_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "attraction_search",
+          "desc": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking attractions.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "attraction_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "city_search",
+          "desc": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+            "properties": {
+              "state": {
+                "description": "The name of the state where you're seeking cities.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "state"
+            ],
+            "title": "city_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "flight_search",
+          "desc": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+            "properties": {
+              "departure_city": {
+                "description": "The city you'll be flying out from.",
+                "type": "string"
+              },
+              "destination_city": {
+                "description": "The city you aim to reach.",
+                "type": "string"
+              },
+              "date": {
+                "description": "The date of your travel in YYYY-MM-DD format.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "departure_city",
+              "destination_city",
+              "date"
+            ],
+            "title": "flight_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "google_distance_matrix",
+          "desc": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+            "properties": {
+              "origin": {
+                "description": "The departure city of your journey.",
+                "type": "string"
+              },
+              "destination": {
+                "description": "The destination city of your journey.",
+                "type": "string"
+              },
+              "mode": {
+                "title": "GDMTransportationMethod",
+                "enum": [
+                  "self-driving",
+                  "taxi"
+                ],
+                "type": "string",
+                "description": "The method of transportation."
+              }
+            },
+            "required": [
+              "origin",
+              "destination",
+              "mode"
+            ],
+            "title": "google_distance_matrix",
+            "type": "object"
+          }
+        },
+        {
+          "name": "restaurant_search",
+          "desc": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking restaurants.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "restaurant_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "submit_day_plan",
+          "desc": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+            "properties": {
+              "day": {
+                "type": "integer"
+              },
+              "current_city": {
+                "description": "The city for this day. If the plan is to travel between two cities, indicate it as \"from A to B\" (e.g. \"from Ithaca to Charlotte\").",
+                "type": "string"
+              },
+              "transportation": {
+                "description": "e.g. \"Flight Number: F3633413, from Ithaca to Charlotte, Departure Time: 05:38, Arrival Time: 07:46\"",
+                "type": "string"
+              },
+              "breakfast": {
+                "description": "The name of a restaurant in the city, e.g. \"Nagaland's Kitchen, Charlotte\"",
+                "type": "string"
+              },
+              "attraction": {
+                "description": "Use a \";\" to separate different attractions, with each attraction formatted as \"Name, City\". e.g. \"The Charlotte Museum of History, Charlotte;\"",
+                "type": "string"
+              },
+              "lunch": {
+                "description": "e.g. \"Cafe Maple Street, Charlotte\"",
+                "type": "string"
+              },
+              "dinner": {
+                "description": "e.g. \"Bombay Vada Pav, Charlotte\"",
+                "type": "string"
+              },
+              "accommodation": {
+                "description": "e.g. \"Affordable Spacious Refurbished Room in Bushwick!, Charlotte\"",
+                "type": "string"
+              }
+            },
+            "required": [
+              "day",
+              "current_city",
+              "transportation",
+              "breakfast",
+              "attraction",
+              "lunch",
+              "dinner",
+              "accommodation"
+            ],
+            "title": "submit_day_plan",
+            "type": "object"
+          }
+        }
+      ]
+    }
+  ]
+}

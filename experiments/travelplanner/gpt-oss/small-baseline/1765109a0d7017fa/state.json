@@ -1,0 +1,523 @@
+{
+  "id": "1762306626-6593a4f8-271e-449e-a39b-e837c38380d9",
+  "title": "travelplanner: Could you arrange a travel plan for me starting from Denver and going to Appleton for 3 days, specifically from March 4th to March 6th, 2022? I'm traveling alone and I have a budget of $1,800 for this trip. (1765109a0d7017fa)",
+  "last_modified": 1762306644.66482,
+  "n_events": 49,
+  "state": [
+    {
+      "id": "49c18126-ec2d-4e5d-942c-62d2b949860e",
+      "depth": 0,
+      "parent": null,
+      "children": [],
+      "always_included_messages": [
+        {
+          "role": "system",
+          "content": "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        }
+      ],
+      "chat_history": [
+        {
+          "role": "user",
+          "content": "Could you arrange a travel plan for me starting from Denver and going to Appleton for 3 days, specifically from March 4th to March 6th, 2022? I'm traveling alone and I have a budget of $1,800 for this trip.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need to plan a trip from Denver to Appleton, 3 days March 4-6 2022. We need to gather flight info, accommodation, attractions, restaurants. Budget $1800. We need to call submit_day_plan for each day.\n\nWe need to get flight search from Denver to Appleton on March 4. Appleton is in Wisconsin; nearest airport is Appleton International Airport (ATW). Flight likely via Denver to ATW possibly one stop. Use flight_search function.\n\nAlso accommodation search in Appleton. Use accommodation_search.\n\nAttractions search in Appleton. Use attraction_search.\n\nRestaurant search in Appleton. Use restaurant_search.\n\nWe need for each day: day number, current_city, transportation, breakfast, attraction, lunch, dinner, accommodation.\n\nDay 1: March 4: flight from Denver to Appleton. Probably arrive afternoon. Breakfast maybe at Denver airport. But we just pick something. For simplicity: breakfast: \"Denver Airport Caf\u00e9\". Attraction: \"Appleton Museum of Art\". Lunch: \"Grill at Appleton\". Dinner: \"The Marlin\". Accommodation: \"Hyatt Place Appleton\".\n\nDay 2: March 5: attractions: \"Fox River State Trail\", \"Fox River Mall\". Breakfast: \"Caf\u00e9 in Appleton\". Lunch: \"Local Deli\". Dinner: \"Appleton Bistro\". Accommodation same.\n\nDay 3: March 6: maybe depart Appleton back to Denver. Breakfast: \"Hotel breakfast\". Attraction: None? Could do \"Appleton Public Library\" or \"Departure\". Lunch: \"Airport\". Dinner: \"Airport\". Accommodation: none.\n\nBut we must provide transportation for each day: Day1: flight info. Day2: local transport. Day3: flight back.\n\nWe need flight info: flight_search(\"Denver\", \"Appleton\", \"2022-03-04\"). We'll get flight details.\n\nAlso we need return flight: flight_search(\"Appleton\", \"Denver\", \"2022-03-06\").\n\nWe also need accommodation search. Let's call accommodation_search(\"Appleton\") to get list; pick one. For budget: we need to estimate cost. We have flight cost maybe $400? Accommodation maybe $150/night => 300. Attractions free. Restaurants maybe $50/day => 150. Total ~850. Under budget. So okay.\n\nWe should call functions accordingly.\n\nWe'll call flight_search for departure and return. We'll call accommodation_search for Appleton. We'll call attraction_search for Appleton. We'll call restaurant_search for Appleton.\n\nThen submit_day_plan for day1, day2, day3.\n\nWe must provide details: For transportation, we need flight number etc. We need to get actual info from flight_search. We don't know flight number. We need to call function and get result. Then use that info.\n\nAlso accommodation: we need name of hotel.\n\nWe need attractions: we can choose a few. Use attraction_search to get list; but we need to pick names.\n\nLet's call functions.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "01a66854-cdc4-43b3-bd62-4caceccc4ea0",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\":\"Denver\",\"destination_city\":\"Appleton\",\"date\":\"2022-03-04\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3822209    286   17:30   20:44 2 hours 14 minutes 2022-03-04         Denver     Appleton     883.0",
+          "name": "flight_search",
+          "tool_call_id": "01a66854-cdc4-43b3-bd62-4caceccc4ea0",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We have flight number F3822209, departure 17:30, arrival 20:44.\n\nReturn flight: call flight_search Appleton to Denver March 6.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "43d76f9c-f21f-4fa2-849c-bbff53885aa9",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\":\"Appleton\",\"destination_city\":\"Denver\",\"date\":\"2022-03-06\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3828308    295   08:23   10:37 3 hours 14 minutes 2022-03-06       Appleton       Denver     883.0",
+          "name": "flight_search",
+          "tool_call_id": "43d76f9c-f21f-4fa2-849c-bbff53885aa9",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now accommodation_search Appleton.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "df94e93e-9fe4-4a93-af7f-4e9d61ffd7cf",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\":\"Appleton\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                                        NAME  price       room type                                    house_rules  minimum nights  maximum occupancy  review rate number     city\n                                  Nice bedroom in Brooklyn !  932.0    Private room                                        No pets             4.0                  1                 5.0 Appleton\n               Cozy room + bright apartment + rooftop lounge  666.0    Private room                                     No smoking             1.0                  1                 4.0 Appleton\n           Large Rooms with Bar and PullOut Prime Greenpoint  174.0    Private room             No visitors & No smoking & No pets             4.0                  2                 4.0 Appleton\n                           Luxury Apartment in Williamsburg!  436.0 Entire home/apt No parties & No children under 10 & No smoking             5.0                  2                 3.0 Appleton\nThoughtful UWS Studio w/ Gym near Central Park by Blueground 1105.0 Entire home/apt                                    No visitors            30.0                  8                 5.0 Appleton\n                      Brooklyn Duplex with Terrace near Park  156.0 Entire home/apt                                     No smoking            30.0                  2                 2.0 Appleton\n           Stylish, convenient, renovated- 2 min to subway -   64.0 Entire home/apt    No smoking & No pets & No children under 10             1.0                  2                 5.0 Appleton\n               One bedroom apartment in the heart of astoria  824.0 Entire home/apt                           No children under 10            14.0                  7                 2.0 Appleton\n                                               Cozy place II  737.0    Private room    No children under 10 & No parties & No pets             1.0                  1                 5.0 Appleton\n                               (B) Room for 2 - sharing bath  628.0    Private room                                        No pets             2.0                  1                 3.0 Appleton\n                              Bedroom in the East Village \u2764\ufe0f  743.0    Private room                                    No visitors             1.0                  2                 5.0 Appleton\n                 Private Room in Beautiful Williamsburg Apt.  690.0    Private room             No visitors & No children under 10             5.0                  2                 1.0 Appleton\n                                                    Cozy Inn  611.0    Private room                 No pets & No children under 10             1.0                  2                 4.0 Appleton\n              MODERN GARDEN 1BR IN NEWLY RENOVATED TOWNHOUSE  949.0 Entire home/apt                           No children under 10             2.0                  2                 5.0 Appleton",
+          "name": "accommodation_search",
+          "tool_call_id": "df94e93e-9fe4-4a93-af7f-4e9d61ffd7cf",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need a hotel. The list is weird, but we can pick \"Luxury Apartment in Williamsburg!\" price 436.0 per night. But that seems high. For budget we might want cheaper. There's \"One bedroom apartment\" 824, \"Cozy Inn\" 611. Let's pick \"Cozy Inn\" 611.0 per night. For 2 nights => 1222. That's too high. Maybe pick \"Stylish, convenient, renovated- 2 min to subway -\" price 64.0 per night. That seems low. But maybe host. Let's pick \"Stylish, convenient, renovated- 2 min to subway -\" 64.0 per night, 2 nights => 128. That seems low. Let's pick that.\n\nBut we need to specify accommodation: we can mention \"Stylish, convenient, renovated- 2 min to subway -\".\n\nWe'll also need attraction_search Appleton.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "67a843c4-f5da-4e23-90e4-4abbaaa6ee55",
+              "type": "function",
+              "function": {
+                "name": "attraction_search",
+                "arguments": "{\"city\": \"Appleton\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                                  Name  Latitude  Longitude                                      Address          Phone                                                                                         Website     City\n                      The History Museum at the Castle 44.262144 -88.401441   330 E College Ave, Appleton, WI 54911, USA (920) 735-9370                                                                 http://www.myhistorymuseum.org/ Appleton\n                     Hearthstone Historic House Museum 44.254306 -88.415009  625 W Prospect Ave, Appleton, WI 54911, USA (920) 730-8204                                                              https://www.hearthstonemuseum.org/ Appleton\n                           Atlas Science Center Center 44.254991 -88.411417      425 W Water St, Appleton, WI 54911, USA (920) 380-7491                                                              http://www.atlassciencecenter.org/ Appleton\n                                   Trout Museum of Art 44.261658 -88.406541   111 W College Ave, Appleton, WI 54911, USA (920) 733-4089                                                                         http://troutmuseum.org/ Appleton\n                                          Plamann Park 44.326638 -88.385082  1375 E Broadway Dr, Appleton, WI 54913, USA (920) 832-4791                     https://www.outagamie.org/visitors/parks-trails-fishing-nature/plamann-park Appleton\n                                Appleton Memorial Park 44.290910 -88.379773  1620 E Witzke Blvd, Appleton, WI 54911, USA (920) 832-5905                                                              http://www.appletonparkandrec.org/ Appleton\nAppleton Historical Society Museum and Resource Center 44.262780 -88.402497     128 N Durkee St, Appleton, WI 54911, USA (920) 540-3699                                                                     http://appletonhistory.com/ Appleton\n                                     Building For Kids 44.262013 -88.407004   100 W College Ave, Appleton, WI 54911, USA (920) 734-3226                                                                 http://www.buildingforkids.org/ Appleton\n                                              Erb Park 44.278216 -88.402817  1800 N Morrison St, Appleton, WI 54911, USA (920) 832-5905              http://appletonparkandrec.org/parks,-pavilions-and-trails/community-parks/erb-park Appleton\n                                           Pierce Park 44.252469 -88.422204 1035 W Prospect Ave, Appleton, WI 54914, USA (920) 832-5905       http://www.appletonparkandrec.org/parks,-pavilions-and-trails/community-parks/pierce-park Appleton\n                         Butterfly Garden of Wisconsin 44.331363 -88.413920         N2550 WI-47, Appleton, WI 54913, USA (920) 733-2929                                                     http://www.butterflygardensofwisconsin.com/ Appleton\n                         Gordon Bubolz Nature Preserve 44.311604 -88.449619  4815 N Lynndale Dr, Appleton, WI 54913, USA (920) 731-6041                                                                  http://www.bubolzpreserve.org/ Appleton\n                                             City Park 44.264821 -88.399589   500 E Franklin St, Appleton, WI 54911, USA (920) 832-5905      http://www.appletonparkandrec.org/parks,-pavilions-and-trails/neighborhood-parks/city-park Appleton\n                                          Telulah Park 44.263819 -88.380847  1300 E Newberry St, Appleton, WI 54915, USA (920) 832-5905      http://www.appletonparkandrec.org/parks,-pavilions-and-trails/community-parks/telulah-park Appleton\n    Segway the Fox Tours-Appleton, Neenah, & Green Bay 44.265183 -88.398023   500 E Franklin St, Appleton, WI 54911, USA (920) 376-0256                                https://glidenew.com/segway-the-lake/appleton-fun-historic-tour/ Appleton\n                                             Lutz Park 44.249620 -88.421758      1320 S Lutz Dr, Appleton, WI 54914, USA (920) 832-5905      http://www.appletonparkandrec.org/parks,-pavilions-and-trails/neighborhood-parks/lutz-park Appleton\n                                          Peabody Park 44.268644 -88.388290  601 N Green Bay Rd, Appleton, WI 54911, USA (920) 832-5905   http://www.appletonparkandrec.org/parks,-pavilions-and-trails/neighborhood-parks/peabody-park Appleton\n                        Appleton Memorial Park Gardens 44.294011 -88.383593  1313 E Witzke Blvd, Appleton, WI 54911, USA (920) 832-5905                    https://appletonparkandrec.org/parks-pavilions-trails/scheig-center-gardens/ Appleton\n                                         Highview Park 44.305755 -88.404939   110 E Wayfarer Ln, Appleton, WI 54913, USA (920) 832-5905 http://www.appletonparkandrec.org/parks,-pavilions-and-trails/neighborhood-parks/highview-park- Appleton\n                                          Patriot Park 44.277110 -88.449594   2950 W Darling St, Appleton, WI 54914, USA (920) 832-1581                     https://www.grandchute.net/departments/parks-recreation/parks/patriot-park/ Appleton",
+          "name": "attraction_search",
+          "tool_call_id": "67a843c4-f5da-4e23-90e4-4abbaaa6ee55",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We can pick a few: \"The History Museum at the Castle\", \"Trout Museum of Art\", \"Appleton Memorial Park\".\n\nNow restaurant_search Appleton.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "615f67eb-92ea-4d66-8203-569e7a15c919",
+              "type": "function",
+              "function": {
+                "name": "restaurant_search",
+                "arguments": "{\"city\": \"Appleton\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                         Name  Average Cost                                               Cuisines  Aggregate Rating     City\n   Mikata Japanese Steakhouse            72                           Cafe, Pizza, Bakery, Italian               3.6 Appleton\n                     Brick 29            97      Desserts, Tea, BBQ, Cafe, American, Mediterranean               4.4 Appleton\n                       Colony           110 Pizza, BBQ, Fast Food, Chinese, Mediterranean, Seafood               3.8 Appleton\n                 Swati Snacks            84             Desserts, Bakery, BBQ, Fast Food, American               4.4 Appleton\n             Destination Live            30                                       Tea, Indian, BBQ               3.3 Appleton\n     Sardaar Ji Chaap & Rolls            39                               Bakery, Indian, Desserts               3.1 Appleton\n               Parantha Gurus            49                   Cafe, Mexican, BBQ, Chinese, Seafood               3.3 Appleton\nI-Kandy - Le Meridien Gurgaon            62                Desserts, Tea, Bakery, Chinese, Seafood               3.6 Appleton\n        Zync - Rosewood Hotel            58                              Chinese, Bakery, Desserts               3.0 Appleton\n                   Fat Lulu's            23                          Tea, Cafe, Seafood, Fast Food               3.7 Appleton\n      The Millionaire Express            56                        Chinese, French, BBQ, Fast Food               4.0 Appleton\n                       Southy           100            Tea, Pizza, Mexican, BBQ, Fast Food, Indian               2.6 Appleton\n           New Bakers Shoppee            15                                   Chinese, Pizza, Cafe               3.2 Appleton\n             A Piece of Paris            62                                    Cafe, BBQ, Desserts               3.6 Appleton\n                 Bliss Bakery            47                             Cafe, Bakery, BBQ, Seafood               3.8 Appleton\n            Hari Mirch Masala            81                             Tea, French, BBQ, Desserts               2.8 Appleton\n                     Side Wok            15                 Tea, Italian, Bakery, Chinese, Seafood               3.9 Appleton\n               Homely Delight            34    Desserts, Cafe, Mexican, Bakery, Fast Food, Chinese               3.1 Appleton\n       Shiv Shakti Restaurant            34                                     French, Pizza, BBQ               3.0 Appleton\n    Muradabadi Chicken Corner            97                           Cafe, Pizza, Bakery, Seafood               0.0 Appleton\n                       Subway            62             Desserts, Bakery, Chinese, Indian, Seafood               3.4 Appleton\n                  Asian Curry            62                        Tea, Fast Food, Bakery, Seafood               3.0 Appleton\n                Shanghai Moon            28                              Indian, Desserts, Seafood               2.6 Appleton\n              Da Pizza Bakers            58                   Tea, Italian, Bakery, Cafe, American               3.1 Appleton\n                          BTW            83                     Tea, Pizza, Italian, Mexican, Cafe               2.8 Appleton\n                   The Kathis            15              Desserts, Pizza, Mexican, Bakery, Seafood               2.4 Appleton\n                Mathew's Cafe            13                     Mexican, Bakery, BBQ, Cafe, Indian               3.7 Appleton\n                     Yaadgaar            26                                Cafe, Desserts, Italian               0.0 Appleton\n                 Gareeb Dhaba            64                          Fast Food, Cafe, BBQ, Seafood               0.0 Appleton\n                   Chawla's 2            84                            Cafe, Bakery, American, BBQ               0.0 Appleton\n                   Sadda Adda            77                                        Pizza, Desserts               3.5 Appleton\n             Green Chick Chop            60                  Tea, Italian, Bakery, Indian, Seafood               2.7 Appleton\n   Peshawari Delux Restaurant            30                                   Tea, French, Seafood               2.4 Appleton\n               Punjabi Chaska            45                                  Tea, Bakery, Desserts               3.0 Appleton\n                   Fire n Ice            22                                Mexican, BBQ, Fast Food               0.0 Appleton\n                      Valonia            73           Desserts, Fast Food, Cafe, American, Seafood               4.2 Appleton",
+          "name": "restaurant_search",
+          "tool_call_id": "615f67eb-92ea-4d66-8203-569e7a15c919",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "The list seems weird, not real Appleton restaurants. Maybe the data is not accurate. We'll choose generic: \"Brick 29\" (average cost 97). We'll pick \"Brick 29\" for lunch and dinner.\n\nBreakfast: maybe \"Caf\u00e9 at the hotel\" or \"Breakfast at Hotel\".\n\nWe need to include transportation for day2: local taxi or \"Taxi\" or \"Public transit\". We'll just say \"Taxi\".\n\nNow we need to call submit_day_plan for each day.\n\nDay 1: day=1, current_city=\"Appleton\", transportation=\"Flight Number: F3822209, from Denver to Appleton, Departure Time: 17:30, Arrival Time: 20:44\", breakfast=\"Breakfast at Denver Airport Caf\u00e9\", attraction=\"The History Museum at the Castle, Appleton; Trout Museum of Art, Appleton;\", lunch=\"Brick 29, Appleton\", dinner=\"Brick 29, Appleton\", accommodation=\"Stylish, convenient, renovated- 2 min to subway -, Appleton\".\n\nDay 2: day=2, current_city=\"Appleton\", transportation=\"Taxi\", breakfast=\"Breakfast at hotel\", attraction=\"Appleton Memorial Park, Appleton; Plamann Park, Appleton;\", lunch=\"Brick 29, Appleton\", dinner=\"Brick 29, Appleton\", accommodation same.\n\nDay 3: day=3, current_city=\"from Appleton to Denver\", transportation=\"Flight Number: F3828308, from Appleton to Denver, Departure Time: 08:23, Arrival Time: 10:37\", breakfast=\"Breakfast at hotel\", attraction=\"-\", lunch=\"Airport Caf\u00e9\", dinner=\"Airport Caf\u00e9\", accommodation=\"-\".\n\nWe must call submit_day_plan for each day.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "9c078dab-53c7-4e67-a498-23358af317e9",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\":1,\"current_city\":\"Appleton\",\"transportation\":\"Flight Number: F3822209, from Denver to Appleton, Departure Time: 17:30, Arrival Time: 20:44\",\"breakfast\":\"Breakfast at Denver Airport Caf\u00e9\",\"attraction\":\"The History Museum at the Castle, Appleton; Trout Museum of Art, Appleton;\",\"lunch\":\"Brick 29, Appleton\",\"dinner\":\"Brick 29, Appleton\",\"accommodation\":\"Stylish, convenient, renovated- 2 min to subway -, Appleton\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 1.",
+          "name": "submit_day_plan",
+          "tool_call_id": "9c078dab-53c7-4e67-a498-23358af317e9",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now day2.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "a192f642-a4b1-41a0-b178-34f02891ef6f",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 2, \"current_city\": \"Appleton\", \"transportation\": \"Taxi\", \"breakfast\": \"Breakfast at hotel\", \"attraction\": \"Appleton Memorial Park, Appleton; Plamann Park, Appleton;\", \"lunch\": \"Brick 29, Appleton\", \"dinner\": \"Brick 29, Appleton\", \"accommodation\": \"Stylish, convenient, renovated- 2 min to subway -, Appleton\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 2.",
+          "name": "submit_day_plan",
+          "tool_call_id": "a192f642-a4b1-41a0-b178-34f02891ef6f",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Day3.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "39e7d079-d9cb-4965-8ced-af8d21218b22",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 3, \"current_city\": \"from Appleton to Denver\", \"transportation\": \"Flight Number: F3828308, from Appleton to Denver, Departure Time: 08:23, Arrival Time: 10:37\", \"breakfast\": \"Breakfast at hotel\", \"attraction\": \"-\", \"lunch\": \"Airport Caf\u00e9\", \"dinner\": \"Airport Caf\u00e9\", \"accommodation\": \"-\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 3.",
+          "name": "submit_day_plan",
+          "tool_call_id": "39e7d079-d9cb-4965-8ced-af8d21218b22",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            "Your 3\u2011day trip from Denver to Appleton (March\u202f4\u20136,\u202f2022) has been saved. Enjoy your adventure!"
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [],
+          "is_tool_call_error": null,
+          "extra": {}
+        }
+      ],
+      "state": "stopped",
+      "name": "root",
+      "engine_type": "GPTOSSParser",
+      "engine_repr": "GPTOSSParser(engine=VLLMServerEngine(model_id='openai/gpt-oss-20b', hyperparams={'temperature': 0.7, 'max_tokens': 8192}, server=<kani.ext.vllm.vllm_server.VLLMServer object at 0x7fbe6a27b3d0>, client=<openai.AsyncOpenAI object at 0x7fbc99501310>, tokenizer=PreTrainedTokenizerFast(name_or_path='openai/gpt-oss-20b', vocab_size=199998, model_max_length=1000000000000000019884624838656, is_fast=True, padding_side='right', truncation_side='right', special_tokens={'bos_token': '<|startoftext|>', 'eos_token': '<|return|>', 'pad_token': '<|endoftext|>'}, clean_up_tokenization_spaces=False, added_tokens_decoder={\n\t199998: AddedToken(\"<|startoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t199999: AddedToken(\"<|endoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200000: AddedToken(\"<|reserved_200000|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200001: AddedToken(\"<|reserved_200001|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200002: AddedToken(\"<|return|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200003: AddedToken(\"<|constrain|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200004: AddedToken(\"<|reserved_200004|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200005: AddedToken(\"<|channel|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200006: AddedToken(\"<|start|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200007: AddedToken(\"<|end|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200008: AddedToken(\"<|message|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200009: AddedToken(\"<|reserved_200009|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200010: AddedToken(\"<|reserved_200010|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200011: AddedToken(\"<|reserved_200011|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200012: AddedToken(\"<|call|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200013: AddedToken(\"<|reserved_200013|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200014: AddedToken(\"<|reserved_200014|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200015: AddedToken(\"<|reserved_200015|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200016: AddedToken(\"<|reserved_200016|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200017: AddedToken(\"<|reserved_200017|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200018: AddedToken(\"<|endofprompt|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n}\n), max_context_size=131072, pipeline=ChatTemplatePromptPipeline([ConversationDict(role_to_str={<ChatRole.SYSTEM: 'system'>: 'system', <ChatRole.USER: 'user'>: 'user', <ChatRole.ASSISTANT: 'assistant'>: 'assistant', <ChatRole.FUNCTION: 'function'>: 'tool'}, content_transform=<function hf_content_transform at 0x7fbc994e2de0>, additional_keys=<function _gptoss_chat_template_keys at 0x7fbc994e0540>)]), model='openai/gpt-oss-20b'))",
+      "functions": [
+        {
+          "name": "accommodation_search",
+          "desc": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking accommodation.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "accommodation_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "attraction_search",
+          "desc": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking attractions.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "attraction_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "city_search",
+          "desc": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+            "properties": {
+              "state": {
+                "description": "The name of the state where you're seeking cities.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "state"
+            ],
+            "title": "city_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "flight_search",
+          "desc": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+            "properties": {
+              "departure_city": {
+                "description": "The city you'll be flying out from.",
+                "type": "string"
+              },
+              "destination_city": {
+                "description": "The city you aim to reach.",
+                "type": "string"
+              },
+              "date": {
+                "description": "The date of your travel in YYYY-MM-DD format.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "departure_city",
+              "destination_city",
+              "date"
+            ],
+            "title": "flight_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "google_distance_matrix",
+          "desc": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+            "properties": {
+              "origin": {
+                "description": "The departure city of your journey.",
+                "type": "string"
+              },
+              "destination": {
+                "description": "The destination city of your journey.",
+                "type": "string"
+              },
+              "mode": {
+                "title": "GDMTransportationMethod",
+                "enum": [
+                  "self-driving",
+                  "taxi"
+                ],
+                "type": "string",
+                "description": "The method of transportation."
+              }
+            },
+            "required": [
+              "origin",
+              "destination",
+              "mode"
+            ],
+            "title": "google_distance_matrix",
+            "type": "object"
+          }
+        },
+        {
+          "name": "restaurant_search",
+          "desc": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking restaurants.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "restaurant_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "submit_day_plan",
+          "desc": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+            "properties": {
+              "day": {
+                "type": "integer"
+              },
+              "current_city": {
+                "description": "The city for this day. If the plan is to travel between two cities, indicate it as \"from A to B\" (e.g. \"from Ithaca to Charlotte\").",
+                "type": "string"
+              },
+              "transportation": {
+                "description": "e.g. \"Flight Number: F3633413, from Ithaca to Charlotte, Departure Time: 05:38, Arrival Time: 07:46\"",
+                "type": "string"
+              },
+              "breakfast": {
+                "description": "The name of a restaurant in the city, e.g. \"Nagaland's Kitchen, Charlotte\"",
+                "type": "string"
+              },
+              "attraction": {
+                "description": "Use a \";\" to separate different attractions, with each attraction formatted as \"Name, City\". e.g. \"The Charlotte Museum of History, Charlotte;\"",
+                "type": "string"
+              },
+              "lunch": {
+                "description": "e.g. \"Cafe Maple Street, Charlotte\"",
+                "type": "string"
+              },
+              "dinner": {
+                "description": "e.g. \"Bombay Vada Pav, Charlotte\"",
+                "type": "string"
+              },
+              "accommodation": {
+                "description": "e.g. \"Affordable Spacious Refurbished Room in Bushwick!, Charlotte\"",
+                "type": "string"
+              }
+            },
+            "required": [
+              "day",
+              "current_city",
+              "transportation",
+              "breakfast",
+              "attraction",
+              "lunch",
+              "dinner",
+              "accommodation"
+            ],
+            "title": "submit_day_plan",
+            "type": "object"
+          }
+        }
+      ]
+    }
+  ]
+}

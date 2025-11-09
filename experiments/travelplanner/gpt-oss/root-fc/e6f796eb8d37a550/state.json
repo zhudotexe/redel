@@ -1,0 +1,441 @@
+{
+  "id": "1762293200-096f3ab2-071b-458e-849e-1c8acb19b2ac",
+  "title": "travelplanner: Could you create a 5-day travel itinerary for two people, leaving from Chicago and visiting 2 cities in North Carolina from March 5th to March 9th, 2022? Our budget is $3,600. We require non-shared accommodations that are pet-friendly because we will be bringing our pets. We'll not be flying and will presumably drive to the destination. (e6f796eb8d37a550)",
+  "last_modified": 1762293214.097102,
+  "n_events": 27,
+  "state": [
+    {
+      "id": "d141c543-d56d-408e-a964-0b7751aa7915",
+      "depth": 0,
+      "parent": null,
+      "children": [],
+      "always_included_messages": [
+        {
+          "role": "system",
+          "content": "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        }
+      ],
+      "chat_history": [
+        {
+          "role": "user",
+          "content": "Could you create a 5-day travel itinerary for two people, leaving from Chicago and visiting 2 cities in North Carolina from March 5th to March 9th, 2022? Our budget is $3,600. We require non-shared accommodations that are pet-friendly because we will be bringing our pets. We'll not be flying and will presumably drive to the destination.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need to create a 5-day itinerary, leaving from Chicago, visiting 2 cities in North Carolina, March 5-9 2022. Budget $3600. Non-shared pet-friendly accommodations. No flights, drive.\n\nWe need to get accommodations in two NC cities, also maybe in Chicago for start? Probably need accommodation for each night in the NC cities (maybe one city first few nights, then second). Also need attractions in each city, restaurants, etc. Need to estimate driving distance from Chicago to NC (maybe Charlotte, Asheville). Use google_distance_matrix to get distance, time, cost for self-driving.\n\nWe need to fetch accommodations that are pet-friendly. Use accommodation_search(city). Then pick one that is non-shared (hotel/condo). Also need attractions and restaurants.\n\nWe need to call submit_day_plan for each day (5 days). Provide day, city, transportation (driving details), breakfast, attraction, lunch, dinner, accommodation.\n\nWe need to calculate driving days: From Chicago to first NC city probably takes about 12-14 hours (~800 miles). Could split over two days? But 5 days total includes travel days. Perhaps Day 1: drive from Chicago to first city (arrive evening). Day 2-3: explore first city. Day 4: drive to second city. Day 5: explore second city and return? But returning to Chicago would be extra. Probably they just stay until March 9 then return later. We'll focus on itinerary staying in NC for 5 days, travel included.\n\nWe need to estimate cost: fuel cost maybe $0.15 per mile, distance total ~1600 miles round trip = $240. Accommodation budget: $3600 - $240 = $3360, ~ $672 per night for two people, plenty.\n\nWe'll need to fetch accommodations for each city. Let's pick Charlotte and Asheville (both pet-friendly). Use accommodation_search.\n\nAlso need attractions: Charlotte attractions, Asheville attractions.\n\nRestaurants: need breakfast, lunch, dinner suggestions.\n\nWe need to get distance from Chicago to Charlotte, and Charlotte to Asheville, and maybe Asheville to Chicago for return? But not needed for itinerary.\n\nWe need to call google_distance_matrix for Chicago to Charlotte (self-driving), Charlotte to Asheville, Asheville to Chicago maybe.\n\nLet's do calls.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "59174d25-12d4-4782-b4a8-5137f7466f0e",
+              "type": "function",
+              "function": {
+                "name": "google_distance_matrix",
+                "arguments": "{\n  \"origin\": \"Chicago, IL\",\n  \"destination\": \"Charlotte, NC\",\n  \"mode\": \"self-driving\"\n}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "self-driving, from Chicago to Charlotte, duration: 11 hours 36 mins, distance: 1,215 km, cost: 60",
+          "name": "google_distance_matrix",
+          "tool_call_id": "59174d25-12d4-4782-b4a8-5137f7466f0e",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now Charlotte to Asheville.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "a5f101bf-406b-450e-8203-6cbf016dd9af",
+              "type": "function",
+              "function": {
+                "name": "google_distance_matrix",
+                "arguments": "{\"origin\": \"Charlotte, NC\", \"destination\": \"Asheville, NC\", \"mode\": \"self-driving\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "self-driving, from Charlotte to Asheville, duration: 2 hours 7 mins, distance: 209 km, cost: 10",
+          "name": "google_distance_matrix",
+          "tool_call_id": "a5f101bf-406b-450e-8203-6cbf016dd9af",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now Asheville to Chicago for return maybe.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "6f0ef26f-cbe6-444e-9f3e-c17b92650663",
+              "type": "function",
+              "function": {
+                "name": "google_distance_matrix",
+                "arguments": "{\"origin\":\"Asheville, NC\",\"destination\":\"Chicago, IL\",\"mode\":\"self-driving\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "self-driving, from Asheville to Chicago, duration: 9 hours 54 mins, distance: 1,051 km, cost: 52",
+          "name": "google_distance_matrix",
+          "tool_call_id": "6f0ef26f-cbe6-444e-9f3e-c17b92650663",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now need accommodations pet-friendly in Charlotte and Asheville.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "86f8424d-d3c3-4e35-a2c9-71cc05d16887",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\":\"Charlotte, NC\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                              NAME  price       room type                                  house_rules  minimum nights  maximum occupancy  review rate number      city\n                              Cute Greenpoint room  335.0    Private room               No children under 10 & No pets             3.0                  1                 2.0 Charlotte\n            Elegant Studio Apt in Prospect Heights  640.0 Entire home/apt                                   No parties             2.0                  5                 5.0 Charlotte\n                  Two Bedrooms with Dedicated Bath  615.0    Private room                        No visitors & No pets             3.0                  2                 4.0 Charlotte\n               Lower East Side 1bedroom apt in NYC  861.0 Entire home/apt            No parties & No children under 10             3.0                  6                 3.0 Charlotte\n             Luxury 2 bdr/2 bath prime Williamburg  218.0 Entire home/apt  No children under 10 & No smoking & No pets             1.0                  3                 5.0 Charlotte\n                Nice apartment 4 Springbreak in NY  391.0    Private room                        No pets & No visitors             3.0                  2                 4.0 Charlotte\n   Spacious with amazing views 1 bedroom apartment  660.0 Entire home/apt                        No pets & No visitors             7.0                  5                 2.0 Charlotte\nStunning 5 BR Townhouse with Chef's Kitchen #10288  664.0 Entire home/apt                                      No pets             3.0                  2                 4.0 Charlotte\nDesigner 2 Bedroom Loft**Greenwich Village**4BEDS*  660.0 Entire home/apt                      No smoking & No parties             5.0                  6                 2.0 Charlotte\n                  1 Bedroom in 2 bedroom Apartment  286.0    Private room                                      No pets            30.0                  2                 2.0 Charlotte\nHome Away From Home. Sunny, Spacious 1BR Apartment 1008.0 Entire home/apt                                      No pets            90.0                  9                 1.0 Charlotte\n       Beautiful Williamsburg 1.5 BR-9 min to NYC! 1108.0 Entire home/apt                         No pets & No smoking             2.0                  6                 1.0 Charlotte\n            Awesome Room in the Heart of Bushwick!  404.0    Private room No visitors & No pets & No children under 10             7.0                  1                 4.0 Charlotte\n Affordable Spacious Refurbished Room in Bushwick!  274.0    Private room                                  No visitors             2.0                  1                 1.0 Charlotte",
+          "name": "accommodation_search",
+          "tool_call_id": "86f8424d-d3c3-4e35-a2c9-71cc05d16887",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need pet-friendly. Many have \"No pets\". Need ones that allow pets. The list seems mostly no pets. Let's search again maybe more results.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "Maybe need to specify pet-friendly. The tool may not filter. Could search for \"pet-friendly\" in name. But we can choose \"Luxury 2 bdr/2 bath prime Williamburg\" says No pets. Not good. Need pet-friendly. Could there be any? Let's search again maybe different query.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            "We might need to refine search: maybe include \"pet-friendly\" in query? However function only takes city. Could we filter manually? The list shows many \"No pets\". None allow pets. Might need to broaden search for pet-friendly accommodations via other sources, but limited.\n\nWe could still choose an accommodation that is \"Entire home/apt\" which often allows pets? But house_rules says No pets. However maybe some entries allow pets. Let's scan again: \"Cute Greenpoint room\" No pets, \"Elegant Studio Apt\" No pets? It says No parties. No mention of pets, maybe allowed. House_rules column: \"No parties\". No mention of pets, so likely pet allowed. That might be acceptable. So pick \"Elegant Studio Apt in Prospect Heights\" price 640, entire home/apt, no mention of pets, so pet-friendly.\n\nSimilarly for Asheville.",
+            "Now search Asheville."
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "1dbecb1f-7e50-414f-bd45-7bca6cac506f",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\": \"Asheville, NC\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                             NAME  price       room type                                  house_rules  minimum nights  maximum occupancy  review rate number      city\n   Beautiful 2BR Apt, 1 Min Walk to Major Subway!  182.0 Entire home/apt No pets & No children under 10 & No visitors            30.0                  3                 4.0 Asheville\n                                  Beautiful place 1181.0 Entire home/apt                                      No pets             1.0                  2                 2.0 Asheville\n     Fully equipped apartment on perfect location 1091.0 Entire home/apt                                  No visitors             7.0                  7                 5.0 Asheville\n                                Little Italy/Soho  579.0 Entire home/apt        No visitors & No parties & No smoking             2.0                  5                 4.0 Asheville\n              *Beautiful Private Room near Subway  551.0    Private room                                   No parties             2.0                  1                 4.0 Asheville\n           Cozy Bedroom in the heart of Manhattan 1183.0    Private room                     No smoking & No visitors             3.0                  1                 2.0 Asheville\n                            Cute, airy attic room  522.0    Private room                                      No pets             1.0                  1                 3.0 Asheville\n    Huge 2 Bedroom, Great Location, Express Metro  745.0 Entire home/apt                                  No visitors             4.0                  4                 5.0 Asheville\n              Quaint&Cozy 1BR-Gem in East Village   65.0    Private room                                      No pets             8.0                  2                 4.0 Asheville\n                                        Nice room 1167.0    Private room            No children under 10 & No parties             2.0                  2                 5.0 Asheville\n  FANTASTIC Large 1 Bedroom near Columbus Circle.  403.0 Entire home/apt                                      No pets             2.0                  4                 2.0 Asheville\n        Sunny one bedroom in the Friends Building  472.0 Entire home/apt                                  No visitors             1.0                  4                 5.0 Asheville\n1 BED and FUTON -SUNNY ROOM  - PRIME WILLIAMSBURG  972.0    Private room                      No parties & No smoking             2.0                  1                 5.0 Asheville\nBeautiful Spacious 1 Bed in Hip Harlem Neighborhd   63.0 Entire home/apt                     No visitors & No parties             3.0                  3                 1.0 Asheville\n                               Private Bedroom #2  689.0    Private room                                   No parties             1.0                  2                 2.0 Asheville",
+          "name": "accommodation_search",
+          "tool_call_id": "1dbecb1f-7e50-414f-bd45-7bca6cac506f",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        }
+      ],
+      "state": "stopped",
+      "name": "root",
+      "engine_type": "GPTOSSParser",
+      "engine_repr": "GPTOSSParser(engine=VLLMServerEngine(model_id='openai/gpt-oss-120b', hyperparams={'temperature': 0.7, 'max_tokens': 8192}, server=<kani.ext.vllm.vllm_server.VLLMServer object at 0x7fe90bb88490>, client=<openai.AsyncOpenAI object at 0x7fe88ff2c110>, tokenizer=PreTrainedTokenizerFast(name_or_path='openai/gpt-oss-120b', vocab_size=199998, model_max_length=1000000000000000019884624838656, is_fast=True, padding_side='right', truncation_side='right', special_tokens={'bos_token': '<|startoftext|>', 'eos_token': '<|return|>', 'pad_token': '<|endoftext|>'}, clean_up_tokenization_spaces=False, added_tokens_decoder={\n\t199998: AddedToken(\"<|startoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t199999: AddedToken(\"<|endoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200000: AddedToken(\"<|reserved_200000|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200001: AddedToken(\"<|reserved_200001|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200002: AddedToken(\"<|return|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200003: AddedToken(\"<|constrain|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200004: AddedToken(\"<|reserved_200004|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200005: AddedToken(\"<|channel|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200006: AddedToken(\"<|start|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200007: AddedToken(\"<|end|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200008: AddedToken(\"<|message|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200009: AddedToken(\"<|reserved_200009|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200010: AddedToken(\"<|reserved_200010|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200011: AddedToken(\"<|reserved_200011|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200012: AddedToken(\"<|call|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200013: AddedToken(\"<|reserved_200013|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200014: AddedToken(\"<|reserved_200014|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200015: AddedToken(\"<|reserved_200015|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200016: AddedToken(\"<|reserved_200016|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200017: AddedToken(\"<|reserved_200017|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200018: AddedToken(\"<|endofprompt|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n}\n), max_context_size=131072, pipeline=ChatTemplatePromptPipeline([ConversationDict(role_to_str={<ChatRole.SYSTEM: 'system'>: 'system', <ChatRole.USER: 'user'>: 'user', <ChatRole.ASSISTANT: 'assistant'>: 'assistant', <ChatRole.FUNCTION: 'function'>: 'tool'}, content_transform=<function hf_content_transform at 0x7fe88fefad40>, additional_keys=<function _gptoss_chat_template_keys at 0x7fe88fef84a0>)]), model='openai/gpt-oss-120b'))",
+      "functions": [
+        {
+          "name": "delegate",
+          "desc": "Ask a capable helper for help looking up a piece of information or performing an action.\nDo not simply repeat what the user said as instructions.\nYou should use this to break up complex user queries into multiple simpler steps.\nNOTE: Helpers cannot see previous parts of your conversation.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Ask a capable helper for help looking up a piece of information or performing an action.\nDo not simply repeat what the user said as instructions.\nYou should use this to break up complex user queries into multiple simpler steps.\nNOTE: Helpers cannot see previous parts of your conversation.",
+            "properties": {
+              "instructions": {
+                "description": "Detailed instructions on what your helper should do to help you.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "instructions"
+            ],
+            "title": "delegate",
+            "type": "object"
+          }
+        },
+        {
+          "name": "accommodation_search",
+          "desc": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking accommodation.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "accommodation_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "attraction_search",
+          "desc": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking attractions.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "attraction_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "city_search",
+          "desc": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+            "properties": {
+              "state": {
+                "description": "The name of the state where you're seeking cities.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "state"
+            ],
+            "title": "city_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "flight_search",
+          "desc": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+            "properties": {
+              "departure_city": {
+                "description": "The city you'll be flying out from.",
+                "type": "string"
+              },
+              "destination_city": {
+                "description": "The city you aim to reach.",
+                "type": "string"
+              },
+              "date": {
+                "description": "The date of your travel in YYYY-MM-DD format.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "departure_city",
+              "destination_city",
+              "date"
+            ],
+            "title": "flight_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "google_distance_matrix",
+          "desc": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+            "properties": {
+              "origin": {
+                "description": "The departure city of your journey.",
+                "type": "string"
+              },
+              "destination": {
+                "description": "The destination city of your journey.",
+                "type": "string"
+              },
+              "mode": {
+                "title": "GDMTransportationMethod",
+                "enum": [
+                  "self-driving",
+                  "taxi"
+                ],
+                "type": "string",
+                "description": "The method of transportation."
+              }
+            },
+            "required": [
+              "origin",
+              "destination",
+              "mode"
+            ],
+            "title": "google_distance_matrix",
+            "type": "object"
+          }
+        },
+        {
+          "name": "restaurant_search",
+          "desc": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking restaurants.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "restaurant_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "submit_day_plan",
+          "desc": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+            "properties": {
+              "day": {
+                "type": "integer"
+              },
+              "current_city": {
+                "description": "The city for this day. If the plan is to travel between two cities, indicate it as \"from A to B\" (e.g. \"from Ithaca to Charlotte\").",
+                "type": "string"
+              },
+              "transportation": {
+                "description": "e.g. \"Flight Number: F3633413, from Ithaca to Charlotte, Departure Time: 05:38, Arrival Time: 07:46\"",
+                "type": "string"
+              },
+              "breakfast": {
+                "description": "The name of a restaurant in the city, e.g. \"Nagaland's Kitchen, Charlotte\"",
+                "type": "string"
+              },
+              "attraction": {
+                "description": "Use a \";\" to separate different attractions, with each attraction formatted as \"Name, City\". e.g. \"The Charlotte Museum of History, Charlotte;\"",
+                "type": "string"
+              },
+              "lunch": {
+                "description": "e.g. \"Cafe Maple Street, Charlotte\"",
+                "type": "string"
+              },
+              "dinner": {
+                "description": "e.g. \"Bombay Vada Pav, Charlotte\"",
+                "type": "string"
+              },
+              "accommodation": {
+                "description": "e.g. \"Affordable Spacious Refurbished Room in Bushwick!, Charlotte\"",
+                "type": "string"
+              }
+            },
+            "required": [
+              "day",
+              "current_city",
+              "transportation",
+              "breakfast",
+              "attraction",
+              "lunch",
+              "dinner",
+              "accommodation"
+            ],
+            "title": "submit_day_plan",
+            "type": "object"
+          }
+        }
+      ]
+    }
+  ]
+}

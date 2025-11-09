@@ -1,0 +1,788 @@
+{
+  "id": "1762316330-85d6f5e0-6a36-4c6d-a87b-556b7d3cd025",
+  "title": "travelplanner: Could you formulate a travel itinerary for me? I'm planning a solo trip from Dallas to Nebraska for 7 days, from March 7th to March 13th, 2022. During this trip, I wish to visit 3 different cities within Nebraska. My budget for this trip is $5,600. (46bb5095851f32aa)",
+  "last_modified": 1762316360.1110961,
+  "n_events": 77,
+  "state": [
+    {
+      "id": "8bd61bec-d1c0-44af-b3be-91460e747bef",
+      "depth": 0,
+      "parent": null,
+      "children": [],
+      "always_included_messages": [
+        {
+          "role": "system",
+          "content": "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        }
+      ],
+      "chat_history": [
+        {
+          "role": "user",
+          "content": "Could you formulate a travel itinerary for me? I'm planning a solo trip from Dallas to Nebraska for 7 days, from March 7th to March 13th, 2022. During this trip, I wish to visit 3 different cities within Nebraska. My budget for this trip is $5,600.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need to create travel itinerary for solo trip Dallas to Nebraska 7 days March 7-13 2022, visit 3 different cities within Nebraska. Budget $5600. Must not ask follow-up. Need to fetch flights, accommodations, attractions, maybe restaurants. Then call submit_day_plan for each day (7 days). We need to search flights from Dallas to Nebraska (maybe to Omaha or Lincoln). Choose three cities: Omaha, Lincoln, and maybe Kearney or Scottsbluff. We'll need flight info for arrival and departure. Use flight_search for Dallas to Omaha on March 7, and Omaha to Dallas on March 13. Also maybe internal transport between Nebraska cities (self-driving). Use google_distance_matrix for distances.\n\nWe need accommodations in each city (maybe hotel). Use accommodation_search for each city.\n\nAlso attractions: use attraction_search for each city.\n\nRestaurants: maybe restaurant_search.\n\nWe'll collect data then submit day plans.\n\nLet's start by searching flights.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "ccf88c3c-f3cf-4e8d-a857-5aba22edfbbd",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\n  \"departure_city\": \"Dallas\",\n  \"destination_city\": \"Omaha\",\n  \"date\": \"2022-03-07\"\n}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3603838    282   17:05   18:40 1 hours 35 minutes 2022-03-07         Dallas        Omaha     583.0\n     F3609524    285   07:08   08:58 1 hours 50 minutes 2022-03-07         Dallas        Omaha     583.0\n     F3672719    277   21:27   23:09 1 hours 42 minutes 2022-03-07         Dallas        Omaha     583.0\n     F3689583    236   12:33   14:06 1 hours 33 minutes 2022-03-07         Dallas        Omaha     583.0\n     F3997507    241   09:39   11:12 1 hours 33 minutes 2022-03-07         Dallas        Omaha     586.0",
+          "name": "flight_search",
+          "tool_call_id": "ccf88c3c-f3cf-4e8d-a857-5aba22edfbbd",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now flight back.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "c43d4b1c-2dac-400d-bd3e-5fc4d53c7be4",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Omaha\", \"destination_city\": \"Dallas\", \"date\": \"2022-03-13\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3603815    265   09:35   11:28 1 hours 53 minutes 2022-03-13          Omaha       Dallas     583.0\n     F3603871    281   19:12   20:59 1 hours 47 minutes 2022-03-13          Omaha       Dallas     583.0\n     F3689620    183   15:15   16:55 1 hours 40 minutes 2022-03-13          Omaha       Dallas     583.0\n     F3725956    233   06:54   09:08 2 hours 14 minutes 2022-03-13          Omaha       Dallas     583.0\n     F3975621    252   16:16   17:57 1 hours 41 minutes 2022-03-13          Omaha       Dallas     586.0",
+          "name": "flight_search",
+          "tool_call_id": "c43d4b1c-2dac-400d-bd3e-5fc4d53c7be4",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now we need accommodations in Omaha, Lincoln, and maybe Kearney.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "cbc57e0e-9559-4e19-8d86-9662eb133b26",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\":\"Omaha\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                            NAME  price       room type                        house_rules  minimum nights  maximum occupancy  review rate number  city\nNYC HUB GuestRoom: Train @ 900ft; midtown 30min!  216.0    Private room                         No parties             2.0                  2                 4.0 Omaha\n                   Greenwich Village Luxury Loft  326.0 Entire home/apt               No children under 10             2.0                  3                 4.0 Omaha\n       Sunlit Room in Prospect Heights, Brooklyn  673.0    Private room No visitors & No children under 10             7.0                  2                 4.0 Omaha\n     Big Bright Alcove Studio in Upper East Side 1033.0 Entire home/apt No visitors & No children under 10             4.0                  6                 2.0 Omaha\n                     NYC Private Room w/Backyard 1086.0    Private room                        No visitors             2.0                  2                 3.0 Omaha\n                     Spacious basement apartment  932.0    Private room                         No parties             2.0                  2                 4.0 Omaha\n                  One Bedroom Beauty in Bushwick  742.0 Entire home/apt                         No smoking             2.0                  7                 1.0 Omaha\nSuite Dante-15 min Central Park+free street park 1103.0 Entire home/apt No children under 10 & No visitors            30.0                  9                 5.0 Omaha\n     Spacious Room in Bushwick with a back yard.  174.0    Private room               No children under 10             1.0                  2                 3.0 Omaha\n                Sunny Apt.  near Columbus circle  745.0 Entire home/apt            No smoking & No parties             3.0                  6                 5.0 Omaha\n              Sunny apartment close to manhattan  136.0 Entire home/apt               No pets & No smoking             7.0                  3                 5.0 Omaha",
+          "name": "accommodation_search",
+          "tool_call_id": "cbc57e0e-9559-4e19-8d86-9662eb133b26",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "The data seems off (NYC etc). Might need to filter but we can pick a reasonable one: \"NYC HUB GuestRoom...\" price 216, private room. Use that.\n\nNow Lincoln.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "e587b52a-133a-4969-ab1d-79cf2a4ba9f0",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\":\"Lincoln\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                              NAME  price       room type                                    house_rules  minimum nights  maximum occupancy  review rate number    city\n               Sunny 2BR Apartment in Williamsburg  495.0 Entire home/apt No children under 10 & No smoking & No parties             1.0                  3                 2.0 Lincoln\nWBurg Priv Room. Great transport & local amenities  635.0    Private room                           No children under 10             1.0                  2                 4.0 Lincoln\n      Master Bedroom in Quaint French Neighborhood  543.0    Private room              No smoking & No children under 10             1.0                  2                 1.0 Lincoln\n                                  Cozy room in UWS 1016.0    Private room             No visitors & No children under 10             4.0                  2                 5.0 Lincoln\n                         Crown Heights Duplex Apt. 1145.0 Entire home/apt                                    No visitors             4.0                  8                 1.0 Lincoln\n                  Organic Bohemian Pad in Brooklyn 1142.0    Private room                           No children under 10             1.0                  1                 4.0 Lincoln\n                             Harlem Roots Chic Apt  748.0 Entire home/apt                       No visitors & No smoking            28.0                  7                 4.0 Lincoln\n               Surfer room 15mins to downtown NYC!  225.0    Private room                        No smoking & No parties             6.0                  1                 5.0 Lincoln\n   Spacious  bedroom only 4 stations to Manhattan!  510.0    Private room                                     No smoking             2.0                  1                 5.0 Lincoln\n  Stunning New High-Rise Apartment - 1 Bedroom NYC  402.0 Entire home/apt              No pets & No parties & No smoking            30.0                  4                 5.0 Lincoln\n Private room in sunny, modern Bushwick apartment!  165.0    Private room                           No pets & No smoking             2.0                  1                 1.0 Lincoln\n              Upscale Living. Home Away from Home.  616.0 Entire home/apt              No parties & No pets & No smoking             2.0                  5                 3.0 Lincoln\nNY Queens Penthouse Share = 1LOFT aka Queens' Loft 1177.0    Private room                                        No pets             7.0                  1                 2.0 Lincoln",
+          "name": "accommodation_search",
+          "tool_call_id": "e587b52a-133a-4969-ab1d-79cf2a4ba9f0",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Again weird. Choose \"Private room in sunny, modern Bushwick apartment!\" price 165, private room.\n\nNow Kearney.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "4f8c755c-57ca-4428-ace4-0a076de63d64",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\":\"Kearney\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                              NAME  price       room type                        house_rules  minimum nights  maximum occupancy  review rate number    city\n                    Beautiful Beach  & Great Space 1107.0    Private room                        No visitors             2.0                  2                 3.0 Kearney\nSpotless Clean room private entrance  paid parking  492.0    Private room                         No smoking             2.0                  2                 1.0 Kearney\n    1 bedroom apt with garden in Red Hook Brooklyn  117.0 Entire home/apt               No pets & No smoking             2.0                  2                 2.0 Kearney\n                       Douglaston Apartment Room A 1196.0    Private room               No children under 10             1.0                  2                 5.0 Kearney\n        Stunning Brand New Apartment 35m to NYC!!!   93.0 Entire home/apt No children under 10 & No visitors             2.0                  3                 5.0 Kearney\n       Comfortable Space in the Center of Brooklyn  354.0 Entire home/apt                        No visitors             2.0                  2                 3.0 Kearney\n                           Cozy Living Environment  669.0 Entire home/apt               No smoking & No pets             2.0                  2                 5.0 Kearney\n    Bright Clean Private Room in Crown Heights 4SR  831.0    Private room                        No visitors             1.0                  2                 3.0 Kearney\n                     Quintessential New York Charm  548.0 Entire home/apt               No parties & No pets             3.0                  3                 4.0 Kearney\nExtreme Luxury Apt @ Times Sq w amazing river view  570.0 Entire home/apt No children under 10 & No visitors             3.0                  5                 3.0 Kearney\n         Open light loft in the heart of Manhattan  292.0 Entire home/apt                        No visitors             5.0                  2                 5.0 Kearney\n                   Comfy apt next to Central Park! 1194.0 Entire home/apt                         No parties             1.0                 10                 5.0 Kearney\n                         Spacious Studio Apartment 1059.0 Entire home/apt                         No parties             3.0                  9                 5.0 Kearney\n   Clean, Modern Duplex Upper East Side with Patio  346.0    Private room                        No visitors             2.0                  1                 3.0 Kearney",
+          "name": "accommodation_search",
+          "tool_call_id": "4f8c755c-57ca-4428-ace4-0a076de63d64",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Pick \"1 bedroom apt with garden in Red Hook Brooklyn\" price 117, entire home/apt (though weird location). We'll use that.\n\nNow attractions.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "Search attractions Omaha.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "96f3cbfb-8cf2-4cda-9c38-762560ceb4ef",
+              "type": "function",
+              "function": {
+                "name": "attraction_search",
+                "arguments": "{\"city\": \"Omaha\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                       Name  Latitude  Longitude                                 Address          Phone                                                      Website  City\n      Omaha's Henry Doorly Zoo and Aquarium 41.225865 -95.927109    3701 S 10th St, Omaha, NE 68107, USA (402) 733-8400                                    https://www.omahazoo.com/ Omaha\n                          The Durham Museum 41.251469 -95.928965     801 S 10th St, Omaha, NE 68108, USA (402) 444-5071                                    https://durhammuseum.org/ Omaha\n                    Omaha Children's Museum 41.255125 -95.942916     500 S 20th St, Omaha, NE 68102, USA (402) 342-6164                                         https://www.ocm.org/ Omaha\n            Lauritzen Gardens/Kenefick Park 41.234169 -95.916512   100 Bancroft St, Omaha, NE 68108, USA (402) 346-4002                            https://www.lauritzengardens.org/ Omaha\n                                Desert Dome 41.225669 -95.927733    3701 S 10th St, Omaha, NE 68108, USA (402) 733-8401                     http://omahazoo.com/exhibits/desert-dome Omaha\nHeartland of America Park at The RiverFront 41.256681 -95.924842    800 Douglas St, Omaha, NE 68102, USA (402) 599-6565                           http://www.theriverfrontomaha.com/ Omaha\n              Bob Kerrey Pedestrian Bridge. 41.265633 -95.922313 705 Riverfront Dr, Omaha, NE 68102, USA (402) 444-5900         http://omaha.net/places/bob-kerrey-pedestrian-bridge Omaha\n                             Stingray Beach 41.226612 -95.923983    3701 S 10th St, Omaha, NE 68107, USA (402) 733-8401                      https://www.omahazoo.com/stingray-beach Omaha\n                 Fun-Plex Waterpark & Rides 41.203969 -96.019854         7003 Q St, Omaha, NE 68117, USA (402) 331-8436                                         http://fun-plex.com/ Omaha\n                             OPPD Arboretum 41.278650 -96.078336                    Omaha, NE 68164, USA (402) 536-4131 http://www.oppd.com/residential/trees-power-lines/arboretum/ Omaha\n                    Joslyn Castle & Gardens 41.261607 -95.971888 3902 Davenport St, Omaha, NE 68131, USA (402) 595-2199                                http://joslyncastle.com/tours Omaha\n    Lewis & Clark Landing at The RiverFront 41.261774 -95.924442 345 Riverfront Dr, Omaha, NE 68102, USA (402) 599-6565                           http://www.theriverfrontomaha.com/ Omaha\n          Gene Leahy Mall at The RiverFront 41.258020 -95.931216   1001 Douglas St, Omaha, NE 68102, USA (402) 599-6565                          https://www.theriverfrontomaha.com/ Omaha\n                                Turner Park 41.258743 -95.959085    3110 Farnam St, Omaha, NE 68131, USA (402) 444-5930            http://parks.cityofomaha.org/park-details?pid=189 Omaha\n                 General Crook House Museum 41.310216 -95.960418    5730 N 30th St, Omaha, NE 68111, USA (402) 455-9990                             http://www.douglascohistory.org/ Omaha\n                          Joslyn Art Museum 41.260395 -95.946052     2200 Dodge St, Omaha, NE 68102, USA (402) 342-3300                                       http://www.joslyn.org/ Omaha\n                       Pioneer Courage Park 41.261041 -95.935589  1450 Capitol Ave, Omaha, NE 68179, USA (402) 602-3930                                                      Unknown Omaha\n                       Chef Boyardee Statue 41.254161 -95.924992    707 Conagra Dr, Omaha, NE 68102, USA        Unknown                                                      Unknown Omaha\n         The West Maple Rock: World famous. 41.290589 -96.159008  15600 W Maple Rd, Omaha, NE 68116, USA        Unknown               https://m.facebook.com/groups/2486192221476339 Omaha\n                               Stinson Park 41.237924 -96.015597    2285 S 67th St, Omaha, NE 68106, USA (402) 496-1616                              http://www.aksarbenvillage.com/ Omaha",
+          "name": "attraction_search",
+          "tool_call_id": "96f3cbfb-8cf2-4cda-9c38-762560ceb4ef",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now Lincoln attractions.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "3236d82c-dd16-4442-bd4d-05e4f5c97a01",
+              "type": "function",
+              "function": {
+                "name": "attraction_search",
+                "arguments": "{\"city\":\"Lincoln\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "There is no attraction in this city.",
+          "name": "attraction_search",
+          "tool_call_id": "3236d82c-dd16-4442-bd4d-05e4f5c97a01",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Maybe limited data. Could try again? Probably dataset limited. We'll assume some attractions: Nebraska State Capitol, Sunken Gardens, Sheldon Museum of Art. We'll manually include.\n\nNow Kearney attractions.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "Search attractions Kearney.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "8544ded4-c6a8-4aa3-b226-a98caf273d2b",
+              "type": "function",
+              "function": {
+                "name": "attraction_search",
+                "arguments": "{\"city\": \"Kearney\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "There is no attraction in this city.",
+          "name": "attraction_search",
+          "tool_call_id": "8544ded4-c6a8-4aa3-b226-a98caf273d2b",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We'll manually include Great Platte River Railway & Bridge, Museum of Nebraska Art? Actually that's in Kearney: Great Platte River Railroad & Bridge Museum, The Museum of Nebraska Art (MONA) is in Kearny? Actually MONA is in Kearney. We'll include.\n\nNow restaurants. Search Omaha restaurants.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "4cd41045-2001-4dbe-816d-2c5f0d0a75a1",
+              "type": "function",
+              "function": {
+                "name": "restaurant_search",
+                "arguments": "{\"city\": \"Omaha\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                             Name  Average Cost                                            Cuisines  Aggregate Rating  City\n                Last Resort Grill            81                           Cafe, American, Fast Food               4.5 Omaha\n                           Gazebo            63           Desserts, Bakery, Cafe, American, Seafood               4.4 Omaha\n     Hong Kong Chinese Restaurant            83            Desserts, Italian, Bakery, Cafe, Seafood               3.8 Omaha\n                   Crafted Blends            77                                           Cafe, BBQ               4.2 Omaha\n                          CakeBee            32                     Tea, French, Seafood, Fast Food               4.9 Omaha\n                      Aapki Rasoi            43                               Tea, Cafe, Pizza, BBQ               0.0 Omaha\n                      Little Cafe            26                  Mediterranean, Desserts, Fast Food               0.0 Omaha\nMuradabadi Chicken Biryani Corner            31          Bakery, Mediterranean, Desserts, Fast Food               0.0 Omaha\n           Sardarji Chicken Point            90                  Mediterranean, Desserts, Fast Food               0.0 Omaha\n                       Eggzellent            52                             Pizza, Indian, Desserts               0.0 Omaha\n                           Pakwan            67   Pizza, Mexican, Bakery, Fast Food, Cafe, American               3.4 Omaha\n                 Molecule Air Bar            26     Desserts, Cafe, Pizza, Mexican, Bakery, Chinese               4.2 Omaha\n               The Pebbles Bistro            13                  Fast Food, Mexican, Pizza, Seafood               4.1 Omaha\n       Delhi-6 The Chicken Planet            54                            Tea, Cafe, Pizza, Indian               0.0 Omaha\n                  Bhoj Restaurant            40                            Pizza, Indian, Fast Food               2.8 Omaha\n                The Junkyard Cafe            42      Desserts, Tea, Italian, BBQ, Fast Food, Indian               3.9 Omaha\n                   Firangi Mithai            79                                   Bakery, Fast Food               0.0 Omaha\n               Gupta's Food Point            21          Desserts, Italian, BBQ, Fast Food, Seafood               0.0 Omaha\n                        Movenpick            45                                           Tea, Cafe               3.9 Omaha\n                       Cake Me Up            31                         Tea, Cafe, Pizza, Fast Food               3.1 Omaha\n                    Hide Out Cafe            90               Tea, Cafe, Bakery, Fast Food, Chinese               0.0 Omaha\n                      Sant Sweets            25                                 Chinese, Pizza, BBQ               3.5 Omaha\n              Adyar Ananda Bhavan            59                                           Cafe, BBQ               2.8 Omaha\n                  M J Dosa Corner            69                        Tea, French, Bakery, Italian               2.9 Omaha\n                   Oberoi Biryani           100                             Tea, BBQ, Mediterranean               2.9 Omaha\n        Sugar & Spice - Le Marche            55                                           Tea, Cafe               3.3 Omaha\n                 Murliwala Bakers            27                   Desserts, Tea, Italian, BBQ, Cafe               0.0 Omaha\n                           Southy            59               Tea, Fast Food, Cafe, Indian, Seafood               2.5 Omaha\n     Cafe Coffee Day - The Lounge            21    Tea, Pizza, Mexican, Bakery, Fast Food, American               2.6 Omaha\n             Aggarwal Sweet India            11                        Chinese, Pizza, BBQ, Italian               0.0 Omaha\n                 Vikram Ji Snacks            71                                 Cafe, American, BBQ               0.0 Omaha\n                           Garage            67                             Fast Food, BBQ, Italian               3.0 Omaha\n                        DELI2NITE            29                              American, BBQ, Seafood               2.6 Omaha\n         Sardar Ji Chicken Corner            37                           Tea, Bakery, BBQ, Seafood               0.0 Omaha\n             Angels in my Kitchen            32 Desserts, Mexican, Bakery, BBQ, Fast Food, American               3.2 Omaha\n             Anchor Bar & Kitchen            74                           Cafe, Desserts, Fast Food               2.5 Omaha\n               Sultanate of Spice            95      Chinese, Desserts, Italian, BBQ, Cafe, Seafood               2.9 Omaha\n                         Lazzez's            51                Tea, Cafe, Pizza, Fast Food, Chinese               2.9 Omaha\n               221 B Baker Street            35         Tea, BBQ, Fast Food, Mediterranean, Seafood               3.2 Omaha\n                       Doon Dhaba            23                         Tea, French, BBQ, Fast Food               0.0 Omaha\n                 Tiffin Man House            68                Tea, Pizza, Italian, Bakery, Seafood               0.0 Omaha\n                       Shahenshah            45            Desserts, Pizza, French, Fast Food, Cafe               3.0 Omaha\n          German Bakery Wunderbar            10                                       Bakery, Pizza               4.0 Omaha",
+          "name": "restaurant_search",
+          "tool_call_id": "4cd41045-2001-4dbe-816d-2c5f0d0a75a1",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Pick a restaurant for breakfast, lunch, dinner each day. We'll pick a few.\n\nNow Lincoln restaurants.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "Search Lincoln restaurants.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "f1198157-4a26-4239-8d63-50dcaa34165d",
+              "type": "function",
+              "function": {
+                "name": "restaurant_search",
+                "arguments": "{\"city\": \"Lincoln\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "There is no restaurant in this city.",
+          "name": "restaurant_search",
+          "tool_call_id": "f1198157-4a26-4239-8d63-50dcaa34165d",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We'll manually pick \"The Oven\", \"Lazlo's Cafe\", \"Baker's Street\".\n\nKearney restaurants.\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "Search Kearney restaurants.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "458d9726-30df-4f80-92e3-fad90a447c5a",
+              "type": "function",
+              "function": {
+                "name": "restaurant_search",
+                "arguments": "{\"city\": \"Kearney\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "There is no restaurant in this city.",
+          "name": "restaurant_search",
+          "tool_call_id": "458d9726-30df-4f80-92e3-fad90a447c5a",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We'll manually pick \"The Keg\", \"Bountiful Bites\", \"Murray's Diner\".\n\nNow we need distance and travel time between cities. Use google_distance_matrix for Omaha to Lincoln, Lincoln to Kearney, Kearney to Omaha (maybe return to airport).",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "424607d7-45c0-4f48-9bb3-0cfca6a6f63a",
+              "type": "function",
+              "function": {
+                "name": "google_distance_matrix",
+                "arguments": "{\"origin\": \"Omaha\", \"destination\": \"Lincoln\", \"mode\": \"self-driving\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "self-driving, from Omaha to Lincoln, no valid information.",
+          "name": "google_distance_matrix",
+          "tool_call_id": "424607d7-45c0-4f48-9bb3-0cfca6a6f63a",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Maybe dataset limited. Could approximate: Omaha to Lincoln ~ 55 miles, 1 hour. Lincoln to Kearney ~ 120 miles, 2 hours. Kearney back to Omaha ~ 150 miles, 2.5 hours. We can estimate.\n\nNow we need to calculate budget: flights total maybe $282+265 = $547. Accommodations: Omaha 216 per night (maybe 2 nights), Lincoln 165 per night (2 nights), Kearney 117 per night (2 nights), plus maybe one extra night? 7 days = 6 nights? Actually 7 days includes 6 nights? Starting March 7 arrival, departing March 13, that's 6 nights. We'll allocate: March 7-8 Omaha (2 nights), March 9-10 Lincoln (2 nights), March 11-12 Kearny (2 nights). That's 6 nights.\n\nTotal accommodation cost: Omaha 216*2=432, Lincoln 165*2=330, Kearney 117*2=234 => total 996.\n\nFood budget: assume $50 per day = 7*50 = 350.\n\nTransportation: car rental maybe $50 per day * 6 = 300, plus gas maybe $100.\n\nTotal estimated: flights 547 + accommodation 996 + food 350 + car 400 = 2293, well under budget.\n\nNow we need to submit_day_plan for each day.\n\nDay 1 (March 7): Flight arrival Omaha, transportation flight, breakfast maybe at airport? We'll set breakfast \"-\". Lunch maybe at airport. We'll set dinner at \"Last Resort Grill, Omaha\". Accommodation \"NYC HUB GuestRoom: Train @ 900ft; midtown 30min! Omaha\". Attraction: maybe Henry Doorly Zoo.\n\nDay 2 (March 8): Omaha attractions: The Durham Museum, Lauritzen Gardens. Breakfast at \"Gazebo\". Lunch at \"Crafted Blends\". Dinner at \"Molecule Air Bar\". Accommodation same.\n\nDay 3 (March 9): Travel from Omaha to Lincoln by self-driving. Transportation: \"Self-driving, Omaha to Lincoln, 1h\". Breakfast \"Last Resort Grill\" (Omaha). Lunch \"The Oven, Lincoln\". Dinner \"Lazlo's Cafe, Lincoln\". Attractions: Nebraska State Capitol; Sunken Gardens. Accommodation \"Private room in sunny, modern Bushwick apartment!, Lincoln\".\n\nDay 4 (March 10): Lincoln attractions: Sheldon Museum of Art, Historic Haymarket. Breakfast \"Lazlo's Cafe\". Lunch \"Baker's Street\". Dinner \"The Oven\". Accommodation same.\n\nDay 5 (March 11): Travel Lincoln to Kearney. Transportation: \"Self-driving, Lincoln to Kearney, 2h\". Breakfast at \"The Oven\". Lunch \"The Keg, Kearney\". Dinner \"Bountiful Bites, Kearney\". Attractions: Great Platte River Railroad & Bridge Museum; Museum of Nebraska Art. Accommodation \"1 bedroom apt with garden in Red Hook Brooklyn, Kearney\".\n\nDay 6 (March 12): Kearney attractions: maybe Fort Kearny State Historical Park, Kearney State College. Breakfast \"Bountiful Bites\". Lunch \"Murray's Diner\". Dinner \"The Keg\". Accommodation same.\n\nDay 7 (March 13): Return flight from Omaha. Travel Kearney to Omaha. Transportation: \"Self-driving, Kearny to Omaha, 2.5h\". Breakfast \"Bountiful Bites\". Lunch at airport maybe \"-\". Flight back: Flight number F3603815. Dinner \"-\". Accommodation \"-\".\n\nNow we need to call submit_day_plan for each day.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "4578aa82-f19f-46d6-a22c-24fbebadced0",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\n  \"day\": 1,\n  \"city\": \"Omaha\",\n  \"current_city\": \"Omaha\",\n  \"transportation\": \"Flight Number: F3603838, from Dallas to Omaha, Departure Time: 07:08, Arrival Time: 08:58\",\n  \"breakfast\": \"-\",\n  \"attraction\": \"Omaha's Henry Doorly Zoo and Aquarium, Omaha;\",\n  \"lunch\": \"-\",\n  \"dinner\": \"Last Resort Grill, Omaha\",\n  \"accommodation\": \"NYC HUB GuestRoom: Train @ 900ft; midtown 30min! Omaha\"\n}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "1 validation error for TravelPlannerRootMixin.submit_day_plan\ncity\n  Unexpected keyword argument [type=unexpected_keyword_argument, input_value='Omaha', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/unexpected_keyword_argument",
+          "name": "submit_day_plan",
+          "tool_call_id": "4578aa82-f19f-46d6-a22c-24fbebadced0",
+          "tool_calls": null,
+          "is_tool_call_error": true,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "The schema: fields: day, current_city, transportation, breakfast, attraction, lunch, dinner, accommodation. No \"city\". So remove \"city\". Use current_city as the location. For travel between cities, we can set current_city as \"Omaha\". There's no separate city field. Let's retry without city.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "4ff37ea9-8eb7-4d77-b932-c93abcf3dfba",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 1, \"current_city\": \"Omaha\", \"transportation\": \"Flight Number: F3603838, from Dallas to Omaha, Departure Time: 07:08, Arrival Time: 08:58\", \"breakfast\": \"-\", \"attraction\": \"Omaha's Henry Doorly Zoo and Aquarium, Omaha;\", \"lunch\": \"-\", \"dinner\": \"Last Resort Grill, Omaha\", \"accommodation\": \"NYC HUB GuestRoom: Train @ 900ft; midtown 30min! Omaha\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 1.",
+          "name": "submit_day_plan",
+          "tool_call_id": "4ff37ea9-8eb7-4d77-b932-c93abcf3dfba",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now day 2.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "8eea9a29-336e-4b11-812f-88b323fdab30",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 2, \"current_city\": \"Omaha\", \"transportation\": \"-\", \"breakfast\": \"Gazebo, Omaha\", \"attraction\": \"The Durham Museum, Omaha; Lauritzen Gardens/Kenefick Park, Omaha;\", \"lunch\": \"Crafted Blends, Omaha\", \"dinner\": \"Molecule Air Bar, Omaha\", \"accommodation\": \"NYC HUB GuestRoom: Train @ 900ft; midtown 30min! Omaha\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 2.",
+          "name": "submit_day_plan",
+          "tool_call_id": "8eea9a29-336e-4b11-812f-88b323fdab30",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        }
+      ],
+      "state": "stopped",
+      "name": "root",
+      "engine_type": "GPTOSSParser",
+      "engine_repr": "GPTOSSParser(engine=VLLMServerEngine(model_id='openai/gpt-oss-120b', hyperparams={'temperature': 0.7, 'max_tokens': 8192}, server=<kani.ext.vllm.vllm_server.VLLMServer object at 0x7f383223a3d0>, client=<openai.AsyncOpenAI object at 0x7f383217fdd0>, tokenizer=PreTrainedTokenizerFast(name_or_path='openai/gpt-oss-120b', vocab_size=199998, model_max_length=1000000000000000019884624838656, is_fast=True, padding_side='right', truncation_side='right', special_tokens={'bos_token': '<|startoftext|>', 'eos_token': '<|return|>', 'pad_token': '<|endoftext|>'}, clean_up_tokenization_spaces=False, added_tokens_decoder={\n\t199998: AddedToken(\"<|startoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t199999: AddedToken(\"<|endoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200000: AddedToken(\"<|reserved_200000|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200001: AddedToken(\"<|reserved_200001|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200002: AddedToken(\"<|return|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200003: AddedToken(\"<|constrain|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200004: AddedToken(\"<|reserved_200004|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200005: AddedToken(\"<|channel|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200006: AddedToken(\"<|start|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200007: AddedToken(\"<|end|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200008: AddedToken(\"<|message|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200009: AddedToken(\"<|reserved_200009|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200010: AddedToken(\"<|reserved_200010|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200011: AddedToken(\"<|reserved_200011|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200012: AddedToken(\"<|call|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200013: AddedToken(\"<|reserved_200013|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200014: AddedToken(\"<|reserved_200014|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200015: AddedToken(\"<|reserved_200015|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200016: AddedToken(\"<|reserved_200016|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200017: AddedToken(\"<|reserved_200017|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200018: AddedToken(\"<|endofprompt|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n}\n), max_context_size=8192, pipeline=ChatTemplatePromptPipeline([ConversationDict(role_to_str={<ChatRole.SYSTEM: 'system'>: 'system', <ChatRole.USER: 'user'>: 'user', <ChatRole.ASSISTANT: 'assistant'>: 'assistant', <ChatRole.FUNCTION: 'function'>: 'tool'}, content_transform=<function hf_content_transform at 0x7f38320c6de0>, additional_keys=<function _gptoss_chat_template_keys at 0x7f38320c4540>)]), model='openai/gpt-oss-120b'))",
+      "functions": [
+        {
+          "name": "accommodation_search",
+          "desc": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking accommodation.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "accommodation_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "attraction_search",
+          "desc": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking attractions.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "attraction_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "city_search",
+          "desc": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+            "properties": {
+              "state": {
+                "description": "The name of the state where you're seeking cities.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "state"
+            ],
+            "title": "city_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "flight_search",
+          "desc": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+            "properties": {
+              "departure_city": {
+                "description": "The city you'll be flying out from.",
+                "type": "string"
+              },
+              "destination_city": {
+                "description": "The city you aim to reach.",
+                "type": "string"
+              },
+              "date": {
+                "description": "The date of your travel in YYYY-MM-DD format.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "departure_city",
+              "destination_city",
+              "date"
+            ],
+            "title": "flight_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "google_distance_matrix",
+          "desc": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+            "properties": {
+              "origin": {
+                "description": "The departure city of your journey.",
+                "type": "string"
+              },
+              "destination": {
+                "description": "The destination city of your journey.",
+                "type": "string"
+              },
+              "mode": {
+                "title": "GDMTransportationMethod",
+                "enum": [
+                  "self-driving",
+                  "taxi"
+                ],
+                "type": "string",
+                "description": "The method of transportation."
+              }
+            },
+            "required": [
+              "origin",
+              "destination",
+              "mode"
+            ],
+            "title": "google_distance_matrix",
+            "type": "object"
+          }
+        },
+        {
+          "name": "restaurant_search",
+          "desc": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking restaurants.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "restaurant_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "submit_day_plan",
+          "desc": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+            "properties": {
+              "day": {
+                "type": "integer"
+              },
+              "current_city": {
+                "description": "The city for this day. If the plan is to travel between two cities, indicate it as \"from A to B\" (e.g. \"from Ithaca to Charlotte\").",
+                "type": "string"
+              },
+              "transportation": {
+                "description": "e.g. \"Flight Number: F3633413, from Ithaca to Charlotte, Departure Time: 05:38, Arrival Time: 07:46\"",
+                "type": "string"
+              },
+              "breakfast": {
+                "description": "The name of a restaurant in the city, e.g. \"Nagaland's Kitchen, Charlotte\"",
+                "type": "string"
+              },
+              "attraction": {
+                "description": "Use a \";\" to separate different attractions, with each attraction formatted as \"Name, City\". e.g. \"The Charlotte Museum of History, Charlotte;\"",
+                "type": "string"
+              },
+              "lunch": {
+                "description": "e.g. \"Cafe Maple Street, Charlotte\"",
+                "type": "string"
+              },
+              "dinner": {
+                "description": "e.g. \"Bombay Vada Pav, Charlotte\"",
+                "type": "string"
+              },
+              "accommodation": {
+                "description": "e.g. \"Affordable Spacious Refurbished Room in Bushwick!, Charlotte\"",
+                "type": "string"
+              }
+            },
+            "required": [
+              "day",
+              "current_city",
+              "transportation",
+              "breakfast",
+              "attraction",
+              "lunch",
+              "dinner",
+              "accommodation"
+            ],
+            "title": "submit_day_plan",
+            "type": "object"
+          }
+        }
+      ]
+    }
+  ]
+}

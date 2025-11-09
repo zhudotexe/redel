@@ -1,0 +1,523 @@
+{
+  "id": "1762294614-a39804da-c2c4-4774-a9af-9d61ddf214d5",
+  "title": "travelplanner: Please create a travel plan for a 3-day trip from Missoula to Dallas scheduled from March 23rd to March 25th, 2022. The budget for this trip is set at $1,900. (37552b0214f57e43)",
+  "last_modified": 1762294635.7417068,
+  "n_events": 49,
+  "state": [
+    {
+      "id": "32b64797-48ee-426a-bc01-ced29fa0a88c",
+      "depth": 0,
+      "parent": null,
+      "children": [],
+      "always_included_messages": [
+        {
+          "role": "system",
+          "content": "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        }
+      ],
+      "chat_history": [
+        {
+          "role": "user",
+          "content": "Please create a travel plan for a 3-day trip from Missoula to Dallas scheduled from March 23rd to March 25th, 2022. The budget for this trip is set at $1,900.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need to create travel plan for 3-day trip from Missoula to Dallas, March 23-25 2022, budget $1900. Must not ask follow-up. Need to gather flight info, accommodation, attractions, restaurants. Then submit_day_plan for each day.\n\nWe should search flights from Missoula to Dallas on March 23, return? Probably roundtrip? The trip 3 days, maybe depart March 23, stay March 24, return March 25. So need flight out March 23, flight back March 25. Also need accommodation in Dallas for nights March 23-24 (two nights). Attractions in Dallas for day 2 (maybe March 24) and maybe day 1 arrival, day 3 departure.\n\nSearch flights.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "4dda47f8-a4ed-45b8-8aa1-8b6a70b33217",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\n  \"departure_city\": \"Missoula\",\n  \"destination_city\": \"Dallas\",\n  \"date\": \"2022-03-23\"\n}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3604254    288   14:27   18:26 2 hours 59 minutes 2022-03-23       Missoula       Dallas    1320.0",
+          "name": "flight_search",
+          "tool_call_id": "4dda47f8-a4ed-45b8-8aa1-8b6a70b33217",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now return flight March 25 from Dallas to Missoula.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "7c486cea-f470-4289-82c3-40eaf4c88848",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Dallas\", \"destination_city\": \"Missoula\", \"date\": \"2022-03-25\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3604227    356   11:28   13:48 3 hours 20 minutes 2022-03-25         Dallas     Missoula    1320.0",
+          "name": "flight_search",
+          "tool_call_id": "7c486cea-f470-4289-82c3-40eaf4c88848",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now need accommodation in Dallas for two nights.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "3ff46077-7407-4b63-882d-beaaf670df8b",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\":\"Dallas\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                            NAME  price       room type                                     house_rules  minimum nights  maximum occupancy  review rate number   city\n                1BR, elevator, kitchen, doorman!  475.0 Entire home/apt                                      No parties             1.0                  3                 2.0 Dallas\nLuxury Williamsburg duplex, private roof terrace  241.0 Entire home/apt                                     No visitors             4.0                  3                 5.0 Dallas\n               Take it now you won't find better  609.0 Entire home/apt                                         No pets             1.0                  4                 2.0 Dallas\n              E. W'burg Private Room near subway  272.0    Private room                        No visitors & No smoking            15.0                  2                 2.0 Dallas\n  Cozy&Central:EmpireState/Highline/Times Square  628.0 Entire home/apt              No visitors & No pets & No smoking             3.0                  4                 3.0 Dallas\n                              *Fresh Budget Room  262.0    Private room                        No visitors & No smoking             2.0                  1                 4.0 Dallas\n                   Chic Union Square One Bedroom 1096.0 Entire home/apt                                     No visitors             3.0                  5                 5.0 Dallas\n    Bright and modern apartment in Williamsburg!  865.0 Entire home/apt                                      No smoking             6.0                  5                 4.0 Dallas\n              Jackson Heights 2 bedrooms housing  747.0 Entire home/apt  No parties & No children under 10 & No smoking             2.0                  2                 3.0 Dallas\n            Exclusive Modern Penthouse Apartment  483.0 Entire home/apt                           No pets & No visitors             1.0                  3                 3.0 Dallas\n  SUNNY, SAFE and FRIENDLY minutes to Manhattan!  559.0 Entire home/apt                                         No pets             2.0                  4                 2.0 Dallas\n                             Sunny Brooklyn room  227.0    Private room                                         No pets             7.0                  2                 3.0 Dallas\n                 Charming Suite in Historic Home  348.0 Entire home/apt               No parties & No children under 10             1.0                  3                 3.0 Dallas\n              2 Bedroom Apt in downtown Brooklyn 1180.0 Entire home/apt No visitors & No children under 10 & No parties             4.0                  5                 2.0 Dallas\n              Quite & Cozy High Raise Atmosphere  635.0    Private room                                      No smoking             1.0                  1                 5.0 Dallas\n                          Upper east side duplex  819.0 Entire home/apt                                         No pets             3.0                  7                 2.0 Dallas\n                Central Park west. Big Cozy Room  709.0    Private room                                         No pets             1.0                  2                 4.0 Dallas\n            Huge Private Room Near Prospect Park   73.0    Private room                            No parties & No pets             7.0                  2                 2.0 Dallas\n Private room close to the center of Williamburg  231.0    Private room              No visitors & No children under 10             1.0                  1                 2.0 Dallas\n                         Spacious cozy apartment  314.0 Entire home/apt                            No children under 10             2.0                  3                 1.0 Dallas\nCharming Garden Apartment in Brooklyn Brownstone  434.0 Entire home/apt                                     No visitors             2.0                  2                 3.0 Dallas\n                                  Friendly hosts  806.0    Private room                                      No smoking             1.0                  2                 4.0 Dallas\n        Minutes from JFK airport and famous mall  711.0    Private room                        No visitors & No parties             2.0                  2                 3.0 Dallas",
+          "name": "accommodation_search",
+          "tool_call_id": "3ff46077-7407-4b63-882d-beaaf670df8b",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "The list seems to be for New York (Manhattan) maybe irrelevant. It shows Dallas but many entries are likely generic. Need a reasonable accommodation with price per night. Choose a budget-friendly option around $200 per night. There's \"Fresh Budget Room\" $262 per night private, \"Sunny Brooklyn room\" $227, \"Fresh Budget Room\" $262. Could pick \"Fresh Budget Room, Private room, $262 per night\". For two nights total $524.\n\nNow need attractions in Dallas.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "836e0f5a-d140-4aa4-8ab0-7286f2db1830",
+              "type": "function",
+              "function": {
+                "name": "attraction_search",
+                "arguments": "{\"city\": \"Dallas\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                     Name  Latitude  Longitude                                         Address          Phone                                                                                           Website   City\n                The Dallas World Aquarium 32.783474 -96.805358        1801 N Griffin St, Dallas, TX 75202, USA (214) 720-2224                                                                           https://www.dwazoo.com/ Dallas\n   The Sixth Floor Museum at Dealey Plaza 32.779819 -96.808484               411 Elm St, Dallas, TX 75202, USA (214) 747-6660                                                                              https://www.jfk.org/ Dallas\n                            Reunion Tower 32.775506 -96.808857       300 Reunion Blvd E, Dallas, TX 75207, USA (214) 296-9950                                                                      http://www.reuniontower.com/ Dallas\n                     Dallas Museum of Art 32.787696 -96.801044        1717 N Harwood St, Dallas, TX 75201, USA (214) 922-1200                                                                              https://www.dma.org/ Dallas\nThe Dallas Arboretum and Botanical Garden 32.823618 -96.716624          8525 Garland Rd, Dallas, TX 75218, USA (214) 515-6615                                                                  https://www.dallasarboretum.org/ Dallas\n                               Dallas Zoo 32.740970 -96.815320  650 S R.L. Thornton Fwy, Dallas, TX 75203, USA (469) 554-7501                                                                        https://www.dallaszoo.com/ Dallas\n                        Klyde Warren Park 32.789364 -96.801618 2012 Woodall Rodgers Fwy, Dallas, TX 75201, USA (214) 716-4500                                                                       http://klydewarrenpark.org/ Dallas\n                            Old City Park 32.772753 -96.786544        1515 S Harwood St, Dallas, TX 75215, USA (214) 421-5141                                                                 http://www.oldcityparkdallas.org/ Dallas\n       Perot Museum of Nature and Science 32.786943 -96.806584          2201 N Field St, Dallas, TX 75201, USA (214) 428-5555                                                                      https://www.perotmuseum.org/ Dallas\n                            Pioneer Plaza 32.776632 -96.801199            1428 Young St, Dallas, TX 75202, USA        Unknown                          http://www.dallasparks.org/Facilities/Facility/Details/Pioneer-Plaza-624 Dallas\n                  Nasher Sculpture Center 32.788182 -96.800157            2001 Flora St, Dallas, TX 75201, USA (214) 242-5100                                                             http://www.nashersculpturecenter.org/ Dallas\n                            Giant Eyeball 32.781406 -96.798312             1601 Main St, Dallas, TX 75201, USA        Unknown https://artandseek.org/2021/03/18/why-is-there-a-giant-eyeball-in-downtown-dallas-we-take-a-look/ Dallas\n           John F. Kennedy Memorial Plaza 32.778725 -96.806451              646 Main St, Dallas, TX 75202, USA (214) 747-6660                                                https://www.jfk.org/john-f-kennedy-memorial-plaza/ Dallas\n                             Dealey Plaza 32.778818 -96.808299                           Dallas, TX 75202, USA (214) 670-4100                           http://www.dallasparks.org/Facilities/Facility/Details/Dealey-Plaza-462 Dallas\n        African American Museum of Dallas 32.779057 -96.764414           3536 Grand Ave, Dallas, TX 75210, USA (214) 565-9026                                                                         http://www.aamdallas.org/ Dallas\n               Frontiers of Flight Museum 32.842602 -96.835202          6911 Lemmon Ave, Dallas, TX 75209, USA (214) 350-3600                                                                      http://www.flightmuseum.com/ Dallas\n                     White Rock Lake Park 32.836514 -96.721612        8300 E Lawther Dr, Dallas, TX 75218, USA (214) 660-1100                                                                     http://www.whiterocklake.org/ Dallas\n             Leonhardt Lagoon Nature Walk 32.777830 -96.761946             1121 1st Ave, Dallas, TX 75210, USA (214) 426-3400                                  https://eventseeker.com/venue/1132302-leonhardt-lagoon-dallas-tx Dallas\n       George W. Bush Presidential Center 32.841183 -96.778198       2943 SMU Boulevard, Dallas, TX 75205, USA (214) 200-4300                                                                        http://www.bushcenter.org/ Dallas\n            Trinity Forest Adventure Park 32.689810 -96.675766      1800 Dowdy Ferry Rd, Dallas, TX 75217, USA (214) 391-1000                                                                       http://trinitytreetops.com/ Dallas",
+          "name": "attraction_search",
+          "tool_call_id": "836e0f5a-d140-4aa4-8ab0-7286f2db1830",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now restaurants.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "96c69a4a-36e9-4e52-923d-568ac8f78a9a",
+              "type": "function",
+              "function": {
+                "name": "restaurant_search",
+                "arguments": "{\"city\": \"Dallas\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                       Name  Average Cost                                               Cuisines  Aggregate Rating   City\n         Coconuts Fish Cafe            38                    Cafe, BBQ, Mediterranean, Fast Food               4.5 Dallas\n        1918 Bistro & Grill            90                               Tea, Pizza, BBQ, Seafood               4.4 Dallas\n             Yanki Sizzlers            96                       Cafe, French, Tea, Mediterranean               4.1 Dallas\n               Aravali Owls            53                Pizza, Italian, Bakery, Fast Food, Cafe               0.0 Dallas\n               Kebab Xpress            93                      Tea, Bakery, Pizza, Mediterranean               2.7 Dallas\n                 Haldiram's            94                                             Tea, Pizza               3.6 Dallas\n                  Delhicacy            67            Desserts, Mexican, Bakery, Chinese, Seafood               3.8 Dallas\n                    L'Opera            77                French, Bakery, BBQ, Fast Food, Seafood               3.8 Dallas\n            Cafe Gatherings            17                               Bakery, Indian, Desserts               4.4 Dallas\n              Drifters Cafe            21                    Tea, French, Mexican, Cafe, Seafood               3.9 Dallas\n           Uma Foodies' Hut            49                                French, Bakery, Seafood               3.1 Dallas\nBelfrance Luxury Chocolates            96             Desserts, Pizza, Fast Food, Cafe, American               4.4 Dallas\n                Puri Bakers            33        Pizza, Mexican, Bakery, Fast Food, Cafe, Indian               3.7 Dallas\n             Bikaner Sweets            23                     Tea, French, Bakery, Cafe, Seafood               3.3 Dallas\n            Metro Fast Food            45             Tea, Pizza, Mexican, Bakery, BBQ, American               2.7 Dallas\n                    Wheelyz            60        Tea, Pizza, Bakery, BBQ, Chinese, Mediterranean               2.5 Dallas\n              R. Ahmad Food            58 Desserts, Bakery, BBQ, Chinese, Mediterranean, Seafood               3.0 Dallas\n                   Castle 9            32        Mexican, Bakery, BBQ, Fast Food, Cafe, American               3.1 Dallas\n               Cafe Hawkers            72                                    Bakery, Indian, BBQ               3.7 Dallas\n              Firefly India            87                        Cafe, Bakery, American, Italian               3.4 Dallas\n            Zaaika Junction            48                                      Desserts, Seafood               2.6 Dallas\n                  Papa Buns            75                       French, Pizza, Indian, Fast Food               0.0 Dallas\n                TiffinToons            99            Seafood, Mediterranean, Desserts, Fast Food               0.0 Dallas\n               Mamma Drools            45           BBQ, Fast Food, Cafe, Mediterranean, Seafood               0.0 Dallas\n                 McDonald's            56                                          Cafe, Seafood               3.5 Dallas\n            Cafe Coffee Day            76                           Fast Food, Desserts, Italian               2.9 Dallas\n                   Hardwari            28               Desserts, Tea, Pizza, Mexican, Fast Food               0.0 Dallas\n               Baker's Stop            69                Cafe, American, Mediterranean, Desserts               3.8 Dallas\n          Delhi Biryani Hut            90                               Pizza, American, Seafood               0.0 Dallas\n             Tikka Junction            86  Tea, Bakery, Fast Food, Cafe, American, Mediterranean               3.5 Dallas\n            Nutrition Theka            77                             Pizza, American, Fast Food               3.3 Dallas\n               Relax Xpress            53           Desserts, Pizza, Bakery, Cafe, Mediterranean               3.2 Dallas\n              Lodhi Knights            18                       Tea, Pizza, French, Bakery, Cafe               3.1 Dallas\n           Tandoori Khazana            61              Tea, Pizza, BBQ, Chinese, Indian, Seafood               0.0 Dallas\n                Madras Cafe            90                     Bakery, Pizza, American, Fast Food               0.0 Dallas\n                  Bake Club           100                       Cafe, Indian, Mediterranean, BBQ               3.1 Dallas\n                   Yo Tibet            96         Desserts, Pizza, BBQ, Chinese, Indian, Seafood               3.3 Dallas\n                 The Kahuna            23                          Bakery, Pizza, BBQ, Fast Food               3.1 Dallas\n            Cafe Hera Pheri            18                                         Cafe, Desserts               3.8 Dallas\n  Chanana Ice Cream Parlour            77                           Chinese, Pizza, BBQ, Italian               2.9 Dallas\n               Dilli Darbar            64                      Tea, Cafe, Mediterranean, Italian               3.3 Dallas\n     New Tayal's Restaurant            67                        Mexican, Bakery, BBQ, Fast Food               2.8 Dallas\n              Subs n Shakes            74                 French, Bakery, Mediterranean, Seafood               3.1 Dallas\n                 Soya Grill            84                            Cafe, Pizza, BBQ, Fast Food               3.0 Dallas\n             Bikaner Sweets            33                        Bakery, Pizza, Indian, Desserts               0.0 Dallas\n                     Scoops            76                       Tea, Chinese, Seafood, Fast Food               2.8 Dallas\n              Food N Shakes            23                  Desserts, Pizza, French, BBQ, Seafood               0.0 Dallas\n              Cake Knighter            95     Pizza, Fast Food, American, Mediterranean, Seafood               0.0 Dallas\n            Cafe Coffee Day            22                           Cafe, BBQ, Desserts, Seafood               3.0 Dallas\n            Sona Restaurant            47                            Tea, Cafe, Pizza, Fast Food               3.2 Dallas\n           Pirates of Grill            72                   Desserts, Italian, BBQ, Bakery, Cafe               3.9 Dallas\n    Aim Cafe And Restaurant            85                                       Tea, French, BBQ               3.3 Dallas\n             Wich 'N' Shake            31                  Tea, Mexican, Bakery, Fast Food, Cafe               0.0 Dallas\n      Kolkata Biryani House            11                     Tea, French, Cafe, Indian, Seafood               2.8 Dallas\n          Flames of Tandoor            57                      Tea, Chinese, Desserts, Fast Food               3.5 Dallas\n                 Shahenshah            92                       Fast Food, Seafood, BBQ, Italian               3.5 Dallas\n                   MS Foods            55                                   Cafe, Pizza, Italian               3.1 Dallas\n               Food Weavers            71             Tea, Bakery, BBQ, Fast Food, Mediterranean               0.0 Dallas\n             The Grill @ 76            51                                         BBQ, Fast Food               3.5 Dallas\n                      MONKS            24               Tea, Pizza, Cafe, Mediterranean, Seafood               4.2 Dallas\n        Salsa Mexican Grill            63                  Desserts, BBQ, Bakery, Cafe, American               4.3 Dallas\n                Dem Karak\u97c4y            44                                       Pizza, Fast Food               4.5 Dallas",
+          "name": "restaurant_search",
+          "tool_call_id": "96c69a4a-36e9-4e52-923d-568ac8f78a9a",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need pick breakfast, lunch, dinner spots.\n\nNow compute budget.\n\nFlight costs: $288 + $356 = $644.\n\nAccommodation: $262 per night *2 = $524.\n\nAttractions: likely free or low cost. Let's assume $100 for tickets (e.g., Perot Museum $20, Dallas World Aquarium $30, etc). We'll allocate $150.\n\nRestaurants: average cost per meal ~ $30 per person. 3 days * 3 meals = 9 meals * $30 = $270.\n\nTotal approx: 644+524+150+270 = $1588. Under budget 1900, leaving $312 for misc.\n\nNow create day plans:\n\nDay 1 March 23: Flight from Missoula to Dallas, arrival ~18:26. Check-in accommodation. Dinner at Coconuts Fish Cafe (average cost $38). Breakfast maybe not (since travel). Lunch maybe at airport? Could skip. Use \"-\" for missing.\n\nDay 2 March 24: Full day in Dallas. Breakfast at Cafe Gatherings ($17). Attractions: The Dallas World Aquarium; Perot Museum of Nature and Science; Reunion Tower. Lunch at Salsa Mexican Grill ($63). Dinner at MONKS ($24). Accommodation same.\n\nDay 3 March 25: Morning maybe breakfast at Cafe Gatherings again. Visit Dallas Museum of Art perhaps. Lunch at Drifters Cafe ($21). Flight back Dallas to Missoula at 11:28, arrival 13:48. No dinner.\n\nNow need to submit_day_plan for each day.\n\nWe must format fields as required: day (number), current_city, transportation, breakfast, attraction (semicolon separated \"Name, City;\"), lunch, dinner, accommodation.\n\nTransportation description include flight details. Use flight numbers from search.\n\nAccommodation: use \"Fresh Budget Room, Dallas\" (private room). Provide name.\n\nNow call submit_day_plan for day1, day2, day3.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "a1713140-ede6-4eeb-b208-fc5e12805eac",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\n  \"day\": 1,\n  \"current_city\": \"Dallas\",\n  \"transportation\": \"Flight Number: F3604254, from Missoula to Dallas, Departure Time: 14:27, Arrival Time: 18:26\",\n  \"breakfast\": \"-\",\n  \"attraction\": \"-\",\n  \"lunch\": \"-\",\n  \"dinner\": \"Coconuts Fish Cafe, Dallas\",\n  \"accommodation\": \"Fresh Budget Room, Dallas\"\n}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 1.",
+          "name": "submit_day_plan",
+          "tool_call_id": "a1713140-ede6-4eeb-b208-fc5e12805eac",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now day2.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "9ef2e606-2544-4e3e-843d-6883d426f690",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 2, \"current_city\": \"Dallas\", \"transportation\": \"-\", \"breakfast\": \"Cafe Gatherings, Dallas\", \"attraction\": \"The Dallas World Aquarium, Dallas; Perot Museum of Nature and Science, Dallas; Reunion Tower, Dallas;\", \"lunch\": \"Salsa Mexican Grill, Dallas\", \"dinner\": \"MONKS, Dallas\", \"accommodation\": \"Fresh Budget Room, Dallas\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 2.",
+          "name": "submit_day_plan",
+          "tool_call_id": "9ef2e606-2544-4e3e-843d-6883d426f690",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now day3.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "beb070ba-5b3d-4766-8f09-4525c956a39a",
+              "type": "function",
+              "function": {
+                "name": "submit_day_plan",
+                "arguments": "{\"day\": 3, \"current_city\": \"Dallas\", \"transportation\": \"Flight Number: F3604227, from Dallas to Missoula, Departure Time: 11:28, Arrival Time: 13:48\", \"breakfast\": \"Cafe Gatherings, Dallas\", \"attraction\": \"Dallas Museum of Art, Dallas;\", \"lunch\": \"Drifters Cafe, Dallas\", \"dinner\": \"-\", \"accommodation\": \"-\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Saved plan for day 3.",
+          "name": "submit_day_plan",
+          "tool_call_id": "beb070ba-5b3d-4766-8f09-4525c956a39a",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            "Your 3\u2011day Missoula\u2011to\u2011Dallas itinerary (March\u202f23\u201125\u202f2022) stays within the $1,900 budget.\n\n**Budget Overview**\n- Flights: $644 (Missoula\u202f\u2192\u202fDallas $288, Dallas\u202f\u2192\u202fMissoula $356)  \n- Accommodation: $262\u202f\u00d7\u202f2 nights = $524 (Fresh Budget Room, Dallas)  \n- Meals: ~ $270 (average $30 per meal)  \n- Attractions & incidentals: ~ $150  \n- **Total \u2248 $1,588**, leaving ~ $312 for extra expenses.\n\n**Day\u2011by\u2011Day Plan**\n\n| Day | City | Transportation | Breakfast | Attractions (city) | Lunch | Dinner | Accommodation |\n|-----|------|----------------|-----------|--------------------|-------|--------|----------------|\n| **1** (Mar\u202f23) | Dallas | Flight\u202fF3604254, Missoula \u2192 Dallas, Dep\u202f14:27, Arr\u202f18:26 | \u2013 | \u2013 | \u2013 | **Coconuts Fish Cafe, Dallas** | Fresh Budget Room, Dallas |\n| **2** (Mar\u202f24) | Dallas | \u2013 (local travel) | **Cafe Gatherings, Dallas** | The Dallas World Aquarium, Dallas; Perot Museum of Nature and Science, Dallas; Reunion Tower, Dallas; | **Salsa Mexican Grill, Dallas** | **MONKS, Dallas** | Fresh Budget Room, Dallas |\n| **3** (Mar\u202f25) | Dallas | Flight\u202fF3604227, Dallas \u2192 Missoula, Dep\u202f11:28, Arr\u202f13:48 | **Cafe Gatherings, Dallas** | Dallas Museum of Art, Dallas; | **Drifters Cafe, Dallas** | \u2013 | \u2013 |\n\nAll details have been saved via the travel\u2011plan tool. Have a wonderful trip!"
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [],
+          "is_tool_call_error": null,
+          "extra": {}
+        }
+      ],
+      "state": "stopped",
+      "name": "root",
+      "engine_type": "GPTOSSParser",
+      "engine_repr": "GPTOSSParser(engine=VLLMServerEngine(model_id='openai/gpt-oss-120b', hyperparams={'temperature': 0.7, 'max_tokens': 8192}, server=<kani.ext.vllm.vllm_server.VLLMServer object at 0x7f5277c72950>, client=<openai.AsyncOpenAI object at 0x7f51fc017bd0>, tokenizer=PreTrainedTokenizerFast(name_or_path='openai/gpt-oss-120b', vocab_size=199998, model_max_length=1000000000000000019884624838656, is_fast=True, padding_side='right', truncation_side='right', special_tokens={'bos_token': '<|startoftext|>', 'eos_token': '<|return|>', 'pad_token': '<|endoftext|>'}, clean_up_tokenization_spaces=False, added_tokens_decoder={\n\t199998: AddedToken(\"<|startoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t199999: AddedToken(\"<|endoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200000: AddedToken(\"<|reserved_200000|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200001: AddedToken(\"<|reserved_200001|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200002: AddedToken(\"<|return|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200003: AddedToken(\"<|constrain|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200004: AddedToken(\"<|reserved_200004|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200005: AddedToken(\"<|channel|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200006: AddedToken(\"<|start|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200007: AddedToken(\"<|end|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200008: AddedToken(\"<|message|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200009: AddedToken(\"<|reserved_200009|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200010: AddedToken(\"<|reserved_200010|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200011: AddedToken(\"<|reserved_200011|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200012: AddedToken(\"<|call|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200013: AddedToken(\"<|reserved_200013|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200014: AddedToken(\"<|reserved_200014|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200015: AddedToken(\"<|reserved_200015|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200016: AddedToken(\"<|reserved_200016|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200017: AddedToken(\"<|reserved_200017|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200018: AddedToken(\"<|endofprompt|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n}\n), max_context_size=131072, pipeline=ChatTemplatePromptPipeline([ConversationDict(role_to_str={<ChatRole.SYSTEM: 'system'>: 'system', <ChatRole.USER: 'user'>: 'user', <ChatRole.ASSISTANT: 'assistant'>: 'assistant', <ChatRole.FUNCTION: 'function'>: 'tool'}, content_transform=<function hf_content_transform at 0x7f51fc006ca0>, additional_keys=<function _gptoss_chat_template_keys at 0x7f51fc004400>)]), model='openai/gpt-oss-120b'))",
+      "functions": [
+        {
+          "name": "accommodation_search",
+          "desc": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking accommodation.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "accommodation_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "attraction_search",
+          "desc": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking attractions.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "attraction_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "city_search",
+          "desc": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+            "properties": {
+              "state": {
+                "description": "The name of the state where you're seeking cities.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "state"
+            ],
+            "title": "city_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "flight_search",
+          "desc": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+            "properties": {
+              "departure_city": {
+                "description": "The city you'll be flying out from.",
+                "type": "string"
+              },
+              "destination_city": {
+                "description": "The city you aim to reach.",
+                "type": "string"
+              },
+              "date": {
+                "description": "The date of your travel in YYYY-MM-DD format.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "departure_city",
+              "destination_city",
+              "date"
+            ],
+            "title": "flight_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "google_distance_matrix",
+          "desc": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+            "properties": {
+              "origin": {
+                "description": "The departure city of your journey.",
+                "type": "string"
+              },
+              "destination": {
+                "description": "The destination city of your journey.",
+                "type": "string"
+              },
+              "mode": {
+                "title": "GDMTransportationMethod",
+                "enum": [
+                  "self-driving",
+                  "taxi"
+                ],
+                "type": "string",
+                "description": "The method of transportation."
+              }
+            },
+            "required": [
+              "origin",
+              "destination",
+              "mode"
+            ],
+            "title": "google_distance_matrix",
+            "type": "object"
+          }
+        },
+        {
+          "name": "restaurant_search",
+          "desc": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking restaurants.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "restaurant_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "submit_day_plan",
+          "desc": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+            "properties": {
+              "day": {
+                "type": "integer"
+              },
+              "current_city": {
+                "description": "The city for this day. If the plan is to travel between two cities, indicate it as \"from A to B\" (e.g. \"from Ithaca to Charlotte\").",
+                "type": "string"
+              },
+              "transportation": {
+                "description": "e.g. \"Flight Number: F3633413, from Ithaca to Charlotte, Departure Time: 05:38, Arrival Time: 07:46\"",
+                "type": "string"
+              },
+              "breakfast": {
+                "description": "The name of a restaurant in the city, e.g. \"Nagaland's Kitchen, Charlotte\"",
+                "type": "string"
+              },
+              "attraction": {
+                "description": "Use a \";\" to separate different attractions, with each attraction formatted as \"Name, City\". e.g. \"The Charlotte Museum of History, Charlotte;\"",
+                "type": "string"
+              },
+              "lunch": {
+                "description": "e.g. \"Cafe Maple Street, Charlotte\"",
+                "type": "string"
+              },
+              "dinner": {
+                "description": "e.g. \"Bombay Vada Pav, Charlotte\"",
+                "type": "string"
+              },
+              "accommodation": {
+                "description": "e.g. \"Affordable Spacious Refurbished Room in Bushwick!, Charlotte\"",
+                "type": "string"
+              }
+            },
+            "required": [
+              "day",
+              "current_city",
+              "transportation",
+              "breakfast",
+              "attraction",
+              "lunch",
+              "dinner",
+              "accommodation"
+            ],
+            "title": "submit_day_plan",
+            "type": "object"
+          }
+        }
+      ]
+    }
+  ]
+}

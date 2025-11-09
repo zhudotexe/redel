@@ -1,0 +1,763 @@
+{
+  "id": "1762320201-4d1ae09e-6582-4eda-9923-776faad2336c",
+  "title": "travelplanner: Could you design a one-week travel itinerary for two, departing from Houston and touring three cities in Tennessee from March 21st to March 27th, 2022? Our budget is now $8,200. We require accommodations that allow smoking and should ideally be private rooms. As for transportation, we would prefer not to self-drive. (4cc3648be0e19f7a)",
+  "last_modified": 1762320229.953665,
+  "n_events": 77,
+  "state": [
+    {
+      "id": "7837dcb1-5638-4d47-bb4b-44441fbef49b",
+      "depth": 0,
+      "parent": null,
+      "children": [],
+      "always_included_messages": [
+        {
+          "role": "system",
+          "content": "Based on the user's query, make the best travel plan for the user and save it. Do not ask follow-up questions.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        }
+      ],
+      "chat_history": [
+        {
+          "role": "user",
+          "content": "Could you design a one-week travel itinerary for two, departing from Houston and touring three cities in Tennessee from March 21st to March 27th, 2022? Our budget is now $8,200. We require accommodations that allow smoking and should ideally be private rooms. As for transportation, we would prefer not to self-drive.",
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": null,
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "The user wants a one-week travel itinerary (March 21-27, 2022) for two people, departing from Houston, touring three cities in Tennessee. They need accommodations allowing smoking, private rooms. Transportation: not self-driving (so flights or maybe train/bus). Budget $8,200.\n\nWe need to produce a plan with daily entries using submit_day_plan function for each day (7 days). We need to search for flights from Houston to first Tennessee city, maybe between cities (could be flights or perhaps bus). Also need accommodations (smoking allowed private rooms) in each city. Also need attractions and restaurants. We'll need to use functions: flight_search, accommodation_search, attraction_search, restaurant_search.\n\nWe need three cities in Tennessee; maybe Nashville, Memphis, and Knoxville. Or could be Gatlinburg, Chattanooga, etc. We'll choose Nashville, Memphis, and Knoxville for variety.\n\nWe need flights: Houston (IAH or HOU) to Nashville, then maybe flight or bus between Nashville and Memphis, then Memphis to Knoxville, then Knoxville back to Houston? Actually they depart from Houston and tour three cities; they might return to Houston after. So need flights: Houston -> Nashville (March 21), Nashville -> Memphis (maybe March 23), Memphis -> Knoxville (March 25), Knoxville -> Houston (March 27). Or could stay longer in each city.\n\nLet's allocate days: March 21: travel from Houston to Nashville, arrival day, maybe afternoon/evening. March 22: full day Nashville. March 23: travel to Memphis morning, afternoon/evening. March 24: full day Memphis. March 25: travel to Knoxville morning, afternoon/evening. March 26: full day Knoxville. March 27: travel back to Houston.\n\nWe need accommodations each night: Nashville (night 1-2?), Memphis (night 3-4?), Knoxville (night 5-6?). Actually nights: March 21 night in Nashville, March 22 night in Nashville, March 23 night in Memphis, March 24 night in Memphis, March 25 night in Knoxville, March 26 night in Knoxville, March 27 maybe travel back, no accommodation.\n\nWe need to find accommodations that allow smoking and private rooms. Use accommodation_search(city) and then maybe filter. We'll just pick a hotel known to allow smoking (e.g., \"Holiday Inn Express\", \"Motel 6\", \"Best Western\"). We'll assume they have smoking rooms.\n\nWe'll need attractions for each city. Use attraction_search.\n\nRestaurants for breakfast, lunch, dinner each day.\n\nWe need to call submit_day_plan for each day (1-7). Fill fields: day, city, current_city, transportation, breakfast, attraction, lunch, dinner, accommodation.\n\nFor days where travel occurs, transportation field shows flight details.\n\nWe need to get flight info. Use flight_search for each leg.\n\nLet's start calling flight_search for each leg.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "dc5c6eb3-073e-460d-b77a-92dc2ef0dee4",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\n  \"departure_city\": \"Houston\",\n  \"destination_city\": \"Nashville\",\n  \"date\": \"2022-03-21\"\n}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3827247    241   14:22   16:10 1 hours 48 minutes 2022-03-21        Houston    Nashville     657.0\n     F3827724    147   18:35   20:33 1 hours 58 minutes 2022-03-21        Houston    Nashville     657.0\n     F3827820    157   12:07   14:02 1 hours 55 minutes 2022-03-21        Houston    Nashville     657.0\n     F3827930    305   07:36   09:41  2 hours 5 minutes 2022-03-21        Houston    Nashville     657.0\n     F3956407    264   11:38   13:15 1 hours 37 minutes 2022-03-21        Houston    Nashville     670.0\n     F3956408    246   08:08   09:47 1 hours 39 minutes 2022-03-21        Houston    Nashville     670.0\n     F3956409    145   17:36   19:12 1 hours 36 minutes 2022-03-21        Houston    Nashville     670.0\n     F3956532    225   07:14   08:52 1 hours 38 minutes 2022-03-21        Houston    Nashville     657.0\n     F3956533    292   11:42   13:19 1 hours 37 minutes 2022-03-21        Houston    Nashville     657.0\n     F3956534    248   18:20   20:06 1 hours 46 minutes 2022-03-21        Houston    Nashville     657.0\n     F4038756    272   10:11   11:52 1 hours 41 minutes 2022-03-21        Houston    Nashville     657.0\n     F4038966    149   16:33   18:13 1 hours 40 minutes 2022-03-21        Houston    Nashville     657.0",
+          "name": "flight_search",
+          "tool_call_id": "dc5c6eb3-073e-460d-b77a-92dc2ef0dee4",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We have many options. Choose a reasonable flight: e.g., Flight F3956408 at 08:08 depart, arrive 09:47. Use that.\n\nNow flight from Nashville to Memphis on March 23.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "6f3a4cbc-cf77-4928-a9e7-4c9349dbc21c",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Nashville\", \"destination_city\": \"Memphis\", \"date\": \"2022-03-23\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "There is no flight from Nashville to Memphis on 2022-03-23.",
+          "name": "flight_search",
+          "tool_call_id": "6f3a4cbc-cf77-4928-a9e7-4c9349dbc21c",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Possibly no direct flights? Could be bus or train. Since they prefer not self-driving, we could use a short flight (maybe there are flights). Let's try another date maybe March 23. Or we could use flight on March 23 but need to check. Let's try March 23 again maybe there are flights but tool says none. Could try March 24.",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "c04df160-1d97-474f-9e7d-866ad80ba70a",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Nashville\", \"destination_city\": \"Memphis\", \"date\": \"2022-03-24\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "There is no flight from Nashville to Memphis on 2022-03-24.",
+          "name": "flight_search",
+          "tool_call_id": "c04df160-1d97-474f-9e7d-866ad80ba70a",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Maybe there are no direct flights; could use connecting flights through other city, but that's complex. Could use bus or train but not in tools. Could use flight from Nashville to Memphis via a hub like Atlanta? That would be two legs. For simplicity, maybe we can use flight from Nashville to Memphis via a connecting flight (like Nashville to Atlanta, then Atlanta to Memphis). But we have limited tools. Could just use \"Airline flight from Nashville to Memphis (via connecting)\". Or choose different cities with direct flights like Nashville to Knoxville? Let's check flight Nashville to Knoxville.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "54179149-4de8-480f-b98e-1cca3f486c8e",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Nashville\", \"destination_city\": \"Knoxville\", \"date\": \"2022-03-23\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "There is no flight from Nashville to Knoxville on 2022-03-23.",
+          "name": "flight_search",
+          "tool_call_id": "54179149-4de8-480f-b98e-1cca3f486c8e",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Maybe flight connections are limited. Could consider using flight from Nashville to Memphis not available; perhaps we can use flight from Nashville to Memphis on a different date? Let's search March 22.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "9c14bc60-2f22-43bf-a0cb-d1f557a28ee7",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Nashville\", \"destination_city\": \"Memphis\", \"date\": \"2022-03-22\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "There is no flight from Nashville to Memphis on 2022-03-22.",
+          "name": "flight_search",
+          "tool_call_id": "9c14bc60-2f22-43bf-a0cb-d1f557a28ee7",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Probably the flight data set doesn't include those short routes. We could use bus/coach but not available. We might need to adjust plan: maybe use flight from Houston to Nashville, then drive? But they said not self-driving. Could use train? Not available.\n\nAlternative: choose three cities that have flights from each other: e.g., Nashville, Atlanta, Charlotte? But they must be Tennessee cities. Maybe use flight from Nashville to Memphis via a connecting hub (like Nashville to Dallas then Dallas to Memphis). Could try flight from Nashville to Dallas, then Dallas to Memphis same day.\n\nSearch Nashville to Dallas on March 23.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "809afd9c-2623-4347-a300-adb7111cfa8e",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\":\"Nashville\",\"destination_city\":\"Dallas\",\"date\":\"2022-03-23\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3677044    130   05:25   07:33  2 hours 8 minutes 2022-03-23      Nashville       Dallas     631.0\n     F3700672    285   17:01   19:01  2 hours 0 minutes 2022-03-23      Nashville       Dallas     631.0\n     F3700784    297   09:24   11:32  2 hours 8 minutes 2022-03-23      Nashville       Dallas     631.0\n     F3701281    309   13:37   15:44  2 hours 7 minutes 2022-03-23      Nashville       Dallas     631.0\n     F3710991    158   17:21   19:33 2 hours 12 minutes 2022-03-23      Nashville       Dallas     631.0\n     F3726993    282   06:48   09:09 2 hours 21 minutes 2022-03-23      Nashville       Dallas     631.0\n     F3985018    291   12:05   14:27 2 hours 22 minutes 2022-03-23      Nashville       Dallas     623.0\n     F3985019    286   14:59   16:49 1 hours 50 minutes 2022-03-23      Nashville       Dallas     623.0\n     F3985020    208   04:57   06:52 1 hours 55 minutes 2022-03-23      Nashville       Dallas     623.0\n     F3985021    216   18:42   20:39 1 hours 57 minutes 2022-03-23      Nashville       Dallas     623.0\n     F3985022    217   07:09   08:59 1 hours 50 minutes 2022-03-23      Nashville       Dallas     623.0\n     F3985023    254   19:24   21:32  2 hours 8 minutes 2022-03-23      Nashville       Dallas     623.0",
+          "name": "flight_search",
+          "tool_call_id": "809afd9c-2623-4347-a300-adb7111cfa8e",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now Dallas to Memphis on same day March 23.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "39da9ac8-923d-4367-bb2b-5f5c63427bb2",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Dallas\", \"destination_city\": \"Memphis\", \"date\": \"2022-03-23\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3603117    181   16:01   17:21 1 hours 20 minutes 2022-03-23         Dallas      Memphis     431.0\n     F3664429    183   21:19   22:36 1 hours 17 minutes 2022-03-23         Dallas      Memphis     431.0\n     F3671954     99   19:51   21:07 1 hours 16 minutes 2022-03-23         Dallas      Memphis     431.0\n     F3707166    195   17:10   18:27 1 hours 17 minutes 2022-03-23         Dallas      Memphis     431.0\n     F3726185    197   13:32   14:53 1 hours 21 minutes 2022-03-23         Dallas      Memphis     431.0\n     F3726359    196   10:23   11:58 1 hours 35 minutes 2022-03-23         Dallas      Memphis     431.0\n     F3985559    153   15:34   17:07 1 hours 33 minutes 2022-03-23         Dallas      Memphis     423.0",
+          "name": "flight_search",
+          "tool_call_id": "39da9ac8-923d-4367-bb2b-5f5c63427bb2",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We could pick flight Nashville to Dallas at 07:09 (arrive 08:59), then Dallas to Memphis at 10:23 (arrive 11:58). That's a connection but okay. We'll note transportation as two flights.\n\nAlternatively could use flight from Nashville to Memphis via connecting, but okay.\n\nNow flight from Memphis to Knoxville? Check.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "a3ca6d6a-b539-48d0-b106-a094014da91e",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Memphis\", \"destination_city\": \"Knoxville\", \"date\": \"2022-03-25\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "There is no flight from Memphis to Knoxville on 2022-03-25.",
+          "name": "flight_search",
+          "tool_call_id": "a3ca6d6a-b539-48d0-b106-a094014da91e",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Maybe need connection again via Atlanta. Let's search Memphis to Atlanta.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "541ab0ac-0630-4010-92c6-c93756941a43",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Memphis\",\"destination_city\":\"Atlanta\",\"date\":\"2022-03-25\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3514965     92   19:33   21:43 1 hours 10 minutes 2022-03-25        Memphis      Atlanta     332.0\n     F3515281     83   06:03   08:17 1 hours 14 minutes 2022-03-25        Memphis      Atlanta     332.0\n     F3524453     69   08:00   10:14 1 hours 14 minutes 2022-03-25        Memphis      Atlanta     332.0\n     F3525989    145   17:52   20:00  1 hours 8 minutes 2022-03-25        Memphis      Atlanta     332.0\n     F3541617    113   07:00   09:07  1 hours 7 minutes 2022-03-25        Memphis      Atlanta     332.0\n     F3548920    156   14:16   16:18  1 hours 2 minutes 2022-03-25        Memphis      Atlanta     332.0\n     F3777770     79   11:40   13:52 1 hours 12 minutes 2022-03-25        Memphis      Atlanta     332.0\n     F3779723    119   10:29   12:45 1 hours 16 minutes 2022-03-25        Memphis      Atlanta     332.0\n     F4014097    120   19:56   22:01  1 hours 5 minutes 2022-03-25        Memphis      Atlanta     332.0\n     F4014098     98   07:27   09:32  1 hours 5 minutes 2022-03-25        Memphis      Atlanta     332.0",
+          "name": "flight_search",
+          "tool_call_id": "541ab0ac-0630-4010-92c6-c93756941a43",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Now Atlanta to Knoxville.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "fe0d2382-ca40-4f24-b323-349901865442",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Atlanta\", \"destination_city\": \"Knoxville\", \"date\": \"2022-03-25\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3518888     58   16:55   17:44 0 hours 49 minutes 2022-03-25        Atlanta    Knoxville     152.0\n     F3528849     49   13:35   14:20 0 hours 45 minutes 2022-03-25        Atlanta    Knoxville     152.0\n     F3537372     35   23:01   23:50 0 hours 49 minutes 2022-03-25        Atlanta    Knoxville     152.0\n     F3556199     47   11:45   12:30 0 hours 45 minutes 2022-03-25        Atlanta    Knoxville     152.0\n     F3642787     39   19:27   20:24 0 hours 57 minutes 2022-03-25        Atlanta    Knoxville     152.0\n     F3645545     60   08:14   09:02 0 hours 48 minutes 2022-03-25        Atlanta    Knoxville     152.0\n     F3651352     71   21:07   22:00 0 hours 53 minutes 2022-03-25        Atlanta    Knoxville     152.0",
+          "name": "flight_search",
+          "tool_call_id": "fe0d2382-ca40-4f24-b323-349901865442",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We'll pick Memphis to Atlanta flight at 07:27-09:32, then Atlanta to Knoxville at 11:45-12:30. Good.\n\nNow flight from Knoxville back to Houston on March 27.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "e63c4187-b6c9-44d0-9d1e-2b09bc514ddb",
+              "type": "function",
+              "function": {
+                "name": "flight_search",
+                "arguments": "{\"departure_city\": \"Knoxville\", \"destination_city\": \"Houston\", \"date\": \"2022-03-27\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "Flight Number  Price DepTime ArrTime  ActualElapsedTime FlightDate OriginCityName DestCityName  Distance\n     F3578765    387   17:24   18:36 2 hours 12 minutes 2022-03-27      Knoxville      Houston     782.0\n     F3919259    267   07:07   08:35 2 hours 28 minutes 2022-03-27      Knoxville      Houston     771.0\n     F3919293    248   11:48   13:04 2 hours 16 minutes 2022-03-27      Knoxville      Houston     771.0",
+          "name": "flight_search",
+          "tool_call_id": "e63c4187-b6c9-44d0-9d1e-2b09bc514ddb",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "Pick flight at 07:07-08:35.\n\nNow accommodation searches. For each city, find hotels allowing smoking private rooms. Use accommodation_search.\n\nSearch Nashville.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "450720c2-90a0-45af-98b3-e02fadf8ab71",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\":\"Nashville\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                         NAME  price       room type                                 house_rules  minimum nights  maximum occupancy  review rate number      city\nHuge 2 Bedroom, Great Location, Express Metro  745.0 Entire home/apt No smoking & No children under 10 & No pets             4.0                  4                 5.0 Nashville\n   Clean and large bedroom in a private house  474.0    Private room                                  No smoking             1.0                  1                 4.0 Nashville\n                         Brooklyn Heights gem  993.0 Entire home/apt                                     No pets             2.0                  6                 5.0 Nashville\n         Lovely room in heart of Williamsburg   61.0    Private room                                     No pets             2.0                  1                 4.0 Nashville\n   *Light & Love* vibrant, historic, sleeps 4  679.0 Entire home/apt                                     No pets             5.0                  2                 2.0 Nashville\n        FiDi Cozy room overlooking East River  870.0    Private room                                  No parties             1.0                  2                 5.0 Nashville\n       Charming 1BR with sun-nook in Brooklyn  256.0 Entire home/apt No children under 10 & No pets & No smoking             3.0                  2                 4.0 Nashville\n              Cozy bedroom close to Manhattan  576.0    Private room                        No children under 10             1.0                  1                 3.0 Nashville",
+          "name": "accommodation_search",
+          "tool_call_id": "450720c2-90a0-45af-98b3-e02fadf8ab71",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need smoking allowed. The list shows many \"No smoking\". We need a property that allows smoking. Not obvious. Could be not filtered. Maybe we need to search for \"smoking allowed\". Not sure. Could try search again maybe more results include smoking. Might need to manually assume a hotel like \"Holiday Inn Express Nashville - Downtown\" which allows smoking rooms. But we need to use function to get accommodation. Could search for \"Motel 6 Nashville\". Let's try.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "Search for \"Motel 6 Nashville\"? Not sure if function supports. The function just takes city. It returns list of accommodations. The list may include some that allow smoking. In the list above, most have \"No smoking\". The \"Clean and large bedroom in a private house\" has No smoking. \"Lovely room in heart of Williamsburg\" no pets but no mention of smoking. Might be allowed? The house_rules column shows restrictions. If \"No smoking\" not present, maybe smoking allowed. For \"Lovely room in heart of Williamsburg\", house_rules: \"No pets\". No \"No smoking\". So smoking allowed. So we can pick that: price 61.0, private room, review 4.0. Good.\n\nNow Memphis.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "Search Memphis.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "6d0a475a-c91d-4a51-97fb-18e92cbfb748",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\": \"Memphis\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                             NAME  price       room type                        house_rules  minimum nights  maximum occupancy  review rate number    city\n                             Cozy Brooklyn Studio 1152.0 Entire home/apt     No children under 10 & No pets             2.0                 11                 3.0 Memphis\n              Large, sunny, private studio Apt 2R  925.0 Entire home/apt               No children under 10             2.0                  5                 5.0 Memphis\n                        East Village Large Studio  957.0 Entire home/apt           No visitors & No parties             2.0                  9                 1.0 Memphis\n~*PLANT HAVEN*~ Private Room -Charming Garden Apt  354.0    Private room            No parties & No smoking             3.0                  2                 3.0 Memphis\n                   Beautiful, bright and friendly  985.0    Private room                            No pets             1.0                  2                 5.0 Memphis\n                Comfy room (only) in my apt - UWS  546.0    Private room                        No visitors             2.0                  2                 4.0 Memphis\n                 Cozy Gem in Harlem Close to ALL!  260.0 Entire home/apt No smoking & No visitors & No pets             2.0                  2                 1.0 Memphis",
+          "name": "accommodation_search",
+          "tool_call_id": "6d0a475a-c91d-4a51-97fb-18e92cbfb748",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need smoking allowed. Look at entries: \"Cozy Gem in Harlem Close to ALL!\" has No smoking, not allowed. \"~*PLANT HAVEN*~ Private Room -Charming Garden Apt\" has No smoking, not allowed. \"Beautiful, bright and friendly\" has No pets only, so smoking allowed. That's private room, price 985.0, review 5.0. Good.\n\nNow Knoxville.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "Search Knoxville.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            },
+            {
+              "extra": {},
+              "content": "",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "060d69c6-3e06-4df0-a482-b7a6c7eeb7a1",
+              "type": "function",
+              "function": {
+                "name": "accommodation_search",
+                "arguments": "{\"city\": \"Knoxville\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                              NAME  price       room type                                     house_rules  minimum nights  maximum occupancy  review rate number      city\n   Cozy Private Room in Chinatown/ Lower East Side  132.0    Private room                           No pets & No visitors             7.0                  2                 4.0 Knoxville\n                                  The Diamond Room 1008.0    Private room                        No parties & No visitors             1.0                  1                 5.0 Knoxville\n                Light-filled Room in Renovated Apt  310.0    Private room                                         No pets             2.0                  2                 2.0 Knoxville\n                                      Private Room  922.0    Private room                                     No visitors             1.0                  1                 4.0 Knoxville\n                Beautiful & Private Manhattan Room  721.0    Private room                         No parties & No smoking             1.0                  1                 2.0 Knoxville\n               Lg Quiet Artist Home -Ditmas Park -  561.0 Entire home/apt              No visitors & No pets & No smoking            24.0                  4                 2.0 Knoxville\n Beautiful 1- bdrm apt in tranquil Inwood building 1091.0 Entire home/apt                            No smoking & No pets             2.0                  4                 4.0 Knoxville\n 1,600sq ft modern duplex in new harlem brownstone 1159.0 Entire home/apt     No smoking & No children under 10 & No pets             2.0                  5                 2.0 Knoxville\n               Brooklyn Sunny room 5 min to subway  793.0    Private room              No visitors & No children under 10             2.0                  2                 5.0 Knoxville\n   Amazing Large Sunny Studio in Greenwich Village  144.0 Entire home/apt                         No parties & No smoking            30.0                  3                 4.0 Knoxville\n       Private 1 Bdrm Suite in Historic Brownstone  479.0    Private room                                     No visitors             2.0                  2                 2.0 Knoxville\n  Charming bedroom with huge terrace in Greenpoint  712.0    Private room No parties & No children under 10 & No visitors             2.0                  1                 3.0 Knoxville\n                           Huge quiet modern oasis 1165.0 Entire home/apt                         No smoking & No parties             2.0                  8                 2.0 Knoxville\nPrivate large room near LGA airport with queen bed  552.0    Private room                                         No pets             1.0                  1                 2.0 Knoxville\n       12 east 86th Steet Upper East Side Building  632.0 Entire home/apt                                      No smoking            30.0                  3                 2.0 Knoxville\n     Spacious Garden Apt in Clinton Hill/Ft Greene 1006.0 Entire home/apt No children under 10 & No visitors & No smoking             3.0                  3                 3.0 Knoxville\n                                     LES Penthouse  993.0 Entire home/apt               No children under 10 & No parties             2.0                  8                 4.0 Knoxville",
+          "name": "accommodation_search",
+          "tool_call_id": "060d69c6-3e06-4df0-a482-b7a6c7eeb7a1",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "extra": {},
+              "content": "We need smoking allowed. Look at entries: \"Cozy Private Room in Chinatown/ Lower East Side\" house_rules: No pets & No visitors, no smoking restriction, so smoking allowed. That's private room, price 132.0, review 4.0. Good.\n\nNow attractions for each city.\n\nSearch Nashville attractions.\n\n",
+              "__kani_messagepart_type__": "kani.parts.reasoning.ReasoningPart"
+            }
+          ],
+          "name": null,
+          "tool_call_id": null,
+          "tool_calls": [
+            {
+              "id": "2203e7e6-d54d-4030-8646-bbaa4b405c3a",
+              "type": "function",
+              "function": {
+                "name": "attraction_search",
+                "arguments": "{\"city\":\"Nashville\"}"
+              }
+            }
+          ],
+          "is_tool_call_error": null,
+          "extra": {}
+        },
+        {
+          "role": "function",
+          "content": "                                 Name  Latitude  Longitude                                             Address          Phone                                                                                                                                                                                  Website      City\nCountry Music Hall of Fame and Museum 36.158263 -86.776126 222 Rep. John Lewis Way S, Nashville, TN 37203, USA (615) 416-2001                                                                                                                                                      https://countrymusichalloffame.org/ Nashville\n           Nashville Zoo at Grassmere 36.089705 -86.742096       3777 Nolensville Pk, Nashville, TN 37211, USA (615) 833-1534                                                                                                                                                             http://www.nashvillezoo.org/ Nashville\n   Belle Meade Historic Site & Winery 36.104916 -86.864695         5025 Harding Pike, Nashville, TN 37205, USA (615) 356-0501                                                                                                                                                             https://visitbellemeade.com/ Nashville\n                   Johnny Cash Museum 36.160939 -86.775757             119 3rd Ave S, Nashville, TN 37201, USA (615) 256-1777                                                                                                                                                         http://www.johnnycashmuseum.com/ Nashville\n                      Centennial Park 36.148946 -86.812750         2500 West End Ave, Nashville, TN 37203, USA (615) 862-8400                                                                                                                https://www.nashville.gov/Parks-and-Recreation/Parks/Centennial-Park.aspx Nashville\n                       Grand Ole Opry 36.206857 -86.692108         600 Opry Mills Dr, Nashville, TN 37214, USA (615) 871-6779   https://www.opry.com/?utm_campaign=opry&utm_medium=organicsearch&utm_source=googlemybusiness&utm_audience=tofu_googlemybusiness&utm_content=brandstory_google_my_business_website_link Nashville\n                     Frist Art Museum 36.157897 -86.783853              919 Broadway, Nashville, TN 37203, USA (615) 244-3340                                                                                                                                                              https://fristartmuseum.org/ Nashville\n                        The Parthenon 36.149674 -86.813347         2500 West End Ave, Nashville, TN 37203, USA (615) 862-8431                                                                                                                                                      https://www.nashvilleparthenon.com/ Nashville\n                     Nashville Shores 36.158209 -86.604915              4001 Bell Rd, Hermitage, TN 37076, USA (615) 889-7050                                                                                                                                                   http://www.nashvilleshores.com/lodging Nashville\n    Musicians Hall of Fame and Museum 36.167668 -86.782399                401 Gay St, Nashville, TN 37219, USA (615) 244-3263                                                                                                                                                     https://www.musicianshalloffame.com/ Nashville\n Bicentennial Capitol Mall State Park 36.170887 -86.787589  600 James Robertson Pkwy, Nashville, TN 37243, USA (888) 867-2757                                                                                                                                         https://tnstateparks.com/parks/bicentennial-mall Nashville\n                    Lane Motor Museum 36.140197 -86.734580     702 Murfreesboro Pike, Nashville, TN 37210, USA (615) 742-7445                                                                                                                                                          http://www.lanemotormuseum.org/ Nashville\n                   Honky Tonk Highway 36.160393 -86.778432              501 Broadway, Nashville, TN 37203, USA (800) 657-6910                                                                                                                                 https://www.visitmusiccity.com/visitors/honkytonkhighway Nashville\n             Adventure Science Center 36.146614 -86.775481      800 Fort Negley Blvd, Nashville, TN 37203, USA (615) 862-5160                                                                                                                                                             http://www.adventuresci.org/ Nashville\n                   Patsy Cline Museum 36.160904 -86.776030             119 3rd Ave S, Nashville, TN 37201, USA (615) 454-4722                                                                                                                                                             https://www.patsymuseum.com/ Nashville\n           Andrew Jackson\u2019s Hermitage 36.213757 -86.615310           4580 Rachels Ln, Hermitage, TN 37076, USA (615) 889-2941                                                                                                                                                             http://www.thehermitage.com/ Nashville\n                      NashTrash Tours 36.169474 -86.788254     900 Rosa L Parks Blvd, Nashville, TN 37208, USA (615) 226-7300                                                                                                                                                                http://www.nashtrash.com/ Nashville\n                     Fort Nashborough 36.164268 -86.775430             170 1st Ave N, Nashville, TN 37201, USA (615) 862-8400                                                                                                      https://www.nashville.gov/Parks-and-Recreation/Historic-Sites/Fort-Nashborough.aspx Nashville\n                     Ryman Auditorium 36.161248 -86.778471             116 5th Ave N, Nashville, TN 37219, USA (615) 889-3060 https://www.ryman.com/?utm_campaign=ryman&utm_medium=organicsearch&utm_source=googlemybusiness&utm_audience=tofu_googlemybusiness&utm_content=brandstory_google_my_business_website_link Nashville\n         Nashville Public Square Park 36.166611 -86.778126      Union St & 3rd Ave N, Nashville, TN 37201, USA (615) 743-3090                                                                                                                                  https://www.nashvilledowntown.com/go/public-square-park Nashville",
+          "name": "attraction_search",
+          "tool_call_id": "2203e7e6-d54d-4030-8646-bbaa4b405c3a",
+          "tool_calls": null,
+          "is_tool_call_error": false,
+          "extra": {}
+        }
+      ],
+      "state": "stopped",
+      "name": "root",
+      "engine_type": "GPTOSSParser",
+      "engine_repr": "GPTOSSParser(engine=VLLMServerEngine(model_id='openai/gpt-oss-120b', hyperparams={'temperature': 0.7, 'max_tokens': 8192}, server=<kani.ext.vllm.vllm_server.VLLMServer object at 0x7f383223a3d0>, client=<openai.AsyncOpenAI object at 0x7f383217fdd0>, tokenizer=PreTrainedTokenizerFast(name_or_path='openai/gpt-oss-120b', vocab_size=199998, model_max_length=1000000000000000019884624838656, is_fast=True, padding_side='right', truncation_side='right', special_tokens={'bos_token': '<|startoftext|>', 'eos_token': '<|return|>', 'pad_token': '<|endoftext|>'}, clean_up_tokenization_spaces=False, added_tokens_decoder={\n\t199998: AddedToken(\"<|startoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t199999: AddedToken(\"<|endoftext|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200000: AddedToken(\"<|reserved_200000|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200001: AddedToken(\"<|reserved_200001|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200002: AddedToken(\"<|return|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200003: AddedToken(\"<|constrain|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200004: AddedToken(\"<|reserved_200004|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200005: AddedToken(\"<|channel|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200006: AddedToken(\"<|start|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200007: AddedToken(\"<|end|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200008: AddedToken(\"<|message|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200009: AddedToken(\"<|reserved_200009|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200010: AddedToken(\"<|reserved_200010|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200011: AddedToken(\"<|reserved_200011|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200012: AddedToken(\"<|call|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200013: AddedToken(\"<|reserved_200013|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200014: AddedToken(\"<|reserved_200014|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200015: AddedToken(\"<|reserved_200015|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200016: AddedToken(\"<|reserved_200016|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200017: AddedToken(\"<|reserved_200017|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n\t200018: AddedToken(\"<|endofprompt|>\", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),\n}\n), max_context_size=8192, pipeline=ChatTemplatePromptPipeline([ConversationDict(role_to_str={<ChatRole.SYSTEM: 'system'>: 'system', <ChatRole.USER: 'user'>: 'user', <ChatRole.ASSISTANT: 'assistant'>: 'assistant', <ChatRole.FUNCTION: 'function'>: 'tool'}, content_transform=<function hf_content_transform at 0x7f38320c6de0>, additional_keys=<function _gptoss_chat_template_keys at 0x7f38320c4540>)]), model='openai/gpt-oss-120b'))",
+      "functions": [
+        {
+          "name": "accommodation_search",
+          "desc": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Discover accommodations in your desired city.\nExample: accommodation_search(\"Rome\") would present a list of hotel rooms in Rome.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking accommodation.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "accommodation_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "attraction_search",
+          "desc": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find attractions in a city of your choice.\nExample: attraction_search(\"London\") would return attractions in London.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking attractions.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "attraction_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "city_search",
+          "desc": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Find cities in a state of your choice.\nExample: city_search(\"California\") would return cities in California.",
+            "properties": {
+              "state": {
+                "description": "The name of the state where you're seeking cities.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "state"
+            ],
+            "title": "city_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "flight_search",
+          "desc": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "A flight information retrieval tool.\nExample: flight_search(\"New York\", \"London\", \"2022-10-01\") would fetch flights from New York to London on October 1, 2022.",
+            "properties": {
+              "departure_city": {
+                "description": "The city you'll be flying out from.",
+                "type": "string"
+              },
+              "destination_city": {
+                "description": "The city you aim to reach.",
+                "type": "string"
+              },
+              "date": {
+                "description": "The date of your travel in YYYY-MM-DD format.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "departure_city",
+              "destination_city",
+              "date"
+            ],
+            "title": "flight_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "google_distance_matrix",
+          "desc": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Estimate the distance, time and cost between two cities.\nExample: google_distance_matrix(\"Paris\", \"Lyon\", \"self-driving\") would provide driving distance, time and cost between Paris and Lyon.",
+            "properties": {
+              "origin": {
+                "description": "The departure city of your journey.",
+                "type": "string"
+              },
+              "destination": {
+                "description": "The destination city of your journey.",
+                "type": "string"
+              },
+              "mode": {
+                "title": "GDMTransportationMethod",
+                "enum": [
+                  "self-driving",
+                  "taxi"
+                ],
+                "type": "string",
+                "description": "The method of transportation."
+              }
+            },
+            "required": [
+              "origin",
+              "destination",
+              "mode"
+            ],
+            "title": "google_distance_matrix",
+            "type": "object"
+          }
+        },
+        {
+          "name": "restaurant_search",
+          "desc": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Explore dining options in a city of your choice.\nExample: restaurant_search(\"Tokyo\") would show a curated list of restaurants in Tokyo.",
+            "properties": {
+              "city": {
+                "description": "The name of the city where you're seeking restaurants.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "city"
+            ],
+            "title": "restaurant_search",
+            "type": "object"
+          }
+        },
+        {
+          "name": "submit_day_plan",
+          "desc": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+          "auto_retry": true,
+          "auto_truncate": null,
+          "after": "assistant",
+          "json_schema": {
+            "description": "Once you have collected information about the trip, call this function once for each day of the trip, starting on day 1.\nIf a field does not apply for a given day, use \"-\" to indicate this.\nYou MUST call this function to save the plan for each query.",
+            "properties": {
+              "day": {
+                "type": "integer"
+              },
+              "current_city": {
+                "description": "The city for this day. If the plan is to travel between two cities, indicate it as \"from A to B\" (e.g. \"from Ithaca to Charlotte\").",
+                "type": "string"
+              },
+              "transportation": {
+                "description": "e.g. \"Flight Number: F3633413, from Ithaca to Charlotte, Departure Time: 05:38, Arrival Time: 07:46\"",
+                "type": "string"
+              },
+              "breakfast": {
+                "description": "The name of a restaurant in the city, e.g. \"Nagaland's Kitchen, Charlotte\"",
+                "type": "string"
+              },
+              "attraction": {
+                "description": "Use a \";\" to separate different attractions, with each attraction formatted as \"Name, City\". e.g. \"The Charlotte Museum of History, Charlotte;\"",
+                "type": "string"
+              },
+              "lunch": {
+                "description": "e.g. \"Cafe Maple Street, Charlotte\"",
+                "type": "string"
+              },
+              "dinner": {
+                "description": "e.g. \"Bombay Vada Pav, Charlotte\"",
+                "type": "string"
+              },
+              "accommodation": {
+                "description": "e.g. \"Affordable Spacious Refurbished Room in Bushwick!, Charlotte\"",
+                "type": "string"
+              }
+            },
+            "required": [
+              "day",
+              "current_city",
+              "transportation",
+              "breakfast",
+              "attraction",
+              "lunch",
+              "dinner",
+              "accommodation"
+            ],
+            "title": "submit_day_plan",
+            "type": "object"
+          }
+        }
+      ]
+    }
+  ]
+}
