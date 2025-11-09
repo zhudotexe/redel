@@ -1,4 +1,4 @@
-WA_SCRIPTS_BASE="/nlpgpu/data/andrz/webarena-setup/webarena"
+WA_SCRIPTS_BASE="/nlpgpu/data/andrz/deps/webarena-setup/webarena"
 pushd $WA_SCRIPTS_BASE
 
 bash 01_docker_load_images.sh
