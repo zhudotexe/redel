@@ -89,7 +89,6 @@ MODELS = [
         small="Qwen/Qwen3-4B-Thinking-2507",
         size=8,
         extras="--engine-timeout 1800",  # 30 min timeout per trial
-        benches=["fanoutqa", "travelplanner"],
     ),
     ModelConfig(
         model_class="gpt-oss",
@@ -97,8 +96,7 @@ MODELS = [
         small="openai/gpt-oss-20b",
         size=8,
         extras="--engine-timeout 1800",  # 30 min timeout per trial
-        benches=["fanoutqa", "travelplanner"],
-    ),
+    ),p
 ]
 
 
