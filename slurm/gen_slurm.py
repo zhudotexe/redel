@@ -1,14 +1,31 @@
 import dataclasses
 import os
-from dataclasses import dataclass
+
+
+CLUSTERS = {
+    "nlpgpu": {
+        "project_home": "/nlpgpu/data/andrz",
+        "partition": "p_nlp",
+        "max_mem_gb": 400,
+        "mem_per_gpu": 64,
+        "gpu_constraints": "#SBATCH --constraint=48GBgpu",
+    },
+    "betty": {
+        "project_home": "/vast/projects/ccb/lab/andrz",
+        "partition": "dgx-b200",
+        "max_mem_gb": 512,
+        "mem_per_gpu": 180,
+        "gpu_constraints": "",
+    }
+}
 
 HEADER_TEMPLATE = """\
 #!/bin/bash
 #
-#SBATCH --partition=p_nlp
+#SBATCH --partition={partition}
 #SBATCH --job-name=rd-{config}-{bench}-{model_class}
-#SBATCH --output=/nlpgpu/data/andrz/logs/%j.%x.log
-#SBATCH --error=/nlpgpu/data/andrz/logs/%j.%x.log
+#SBATCH --output={project_home}/logs/%j.%x.log
+#SBATCH --error={project_home}/logs/%j.%x.log
 #SBATCH --time=7-0
 #SBATCH --nodes=1
 #SBATCH -c {cpus}
@@ -28,7 +45,7 @@ python bench_{bench}.py \
 --model-class {model_class} \
 --large-model {large_model} \
 --small-model {small_model} \
---save-dir /nlpgpu/data/andrz/redel/experiments/{bench}/{model_class}/{config} \
+--save-dir {project_home}/redel/experiments/{bench}/{model_class}/{config} \
 {engine_extras}
 {bench_extras}
 """
@@ -49,10 +66,11 @@ CONFIGS = [
 class ModelConfig:
     model_class: str
     large: str
-    small: str
+    small: str | None
     size: int
     extras: str
     benches: list[str] = dataclasses.field(default_factory=lambda: BENCHES)
+    cluster: str = "nlpgpu"
 
 
 MODELS = [
@@ -96,16 +114,29 @@ MODELS = [
         small="openai/gpt-oss-20b",
         size=8,
         extras="--engine-timeout 1800",  # 30 min timeout per trial
-    ),p
+    ),
+    ModelConfig(
+        model_class="glm",
+        large="zai-org/GLM-4.6-FP8",
+        small=None,
+        size=4,  # on PARCC
+        cluster="betty",
+        extras="--engine-timeout 1800",  # 30 min timeout per trial
+        benches=["fanoutqa", "travelplanner"]
+    ),
 ]
 
 
 def main():
     for model in MODELS:
+        cluster = CLUSTERS[model.cluster]
+
+        project_home = cluster["project_home"]
+        partition = cluster["partition"]
         cpus = min(16, max(1, model.size * 4))
-        mem = str(min(400, max(32, 64 * model.size))) + "G"
+        mem = str(min(cluster["max_mem_gb"], max(32, cluster["mem_per_gpu"] * model.size))) + "G"
         gpus = model.size
-        gpuconstraint = "#SBATCH --constraint=48GBgpu" if model.size else ""
+        gpuconstraint = cluster["gpu_constraints"] if model.size else ""
 
         for bench in model.benches:
             # WA needs extra env vars
@@ -130,7 +161,11 @@ def main():
             all_commands = []
 
             for idx, config in enumerate(CONFIGS):
+                if model.small is None and "small" in config:
+                    continue
                 header = HEADER_TEMPLATE.format(
+                    partition=partition,
+                    project_home=project_home,
                     config=config,
                     bench=bench,
                     model_class=model.model_class,
@@ -141,6 +176,7 @@ def main():
                     bench_startup=bench_startup,
                 ).strip()
                 content = RUN_TEMPLATE.format(
+                    project_home=project_home,
                     bench_extras=bench_extras,
                     config=config,
                     bench=bench,
@@ -160,6 +196,8 @@ def main():
 
             # write all file
             header = HEADER_TEMPLATE.format(
+                partition=partition,
+                project_home=project_home,
                 config="all",
                 bench=bench,
                 model_class=model.model_class,
