@@ -211,6 +211,58 @@ def get_engine(
         )
         model.model = model_id
         return Qwen3ThinkingParser(model)
+    # ===== GLM =====
+    if model_class == "glm":
+        from kani.ext.vllm import VLLMOpenAIEngine
+
+        # vllm serve zai-org/GLM-4.5-Air \
+        #     --tensor-parallel-size 8 \
+        #     --tool-call-parser glm45 \
+        #     --reasoning-parser glm45 \
+        #     --enable-auto-tool-choice \
+        #     --served-model-name glm-4.5-air
+        # "zai-org/GLM-4.6-FP8"
+        engine = VLLMOpenAIEngine(
+            model_id=model_id,
+            max_context_size=context_size or 131072,
+            vllm_args={
+                "tensor_parallel_size": 4,
+                "tool-call-parser": "glm45",
+                "reasoning-parser": "glm45",
+                "enable-auto-tool-choice": True,
+            },
+            temperature=1,
+        )
+        engine.model = model_id
+        return engine
+    # ===== kimi-k2 =====
+    if model_class == "kimi":
+        from kani.ext.vllm import VLLMOpenAIEngine
+
+        # vllm serve $MODEL_PATH \
+        #   --served-model-name kimi-k2-thinking \
+        #   --trust-remote-code \
+        #   --tensor-parallel-size 8 \
+        #   --enable-auto-tool-choice \
+        #   --max-num-batched-tokens 32768 \
+        #   --tool-call-parser kimi_k2 \
+        #   --reasoning-parser kimi_k2
+        # moonshotai/Kimi-K2-Thinking
+        engine = VLLMOpenAIEngine(
+            model_id=model_id,
+            max_context_size=context_size or 256000,
+            vllm_args={
+                "tensor_parallel_size": 8,
+                "trust-remote-code": True,
+                "tool-call-parser": "kimi_k2",
+                "reasoning-parser": "kimi_k2",
+                "enable-auto-tool-choice": True,
+                "max-num-batched-tokens": 32768,
+            },
+            temperature=1,
+        )
+        engine.model = model_id
+        return engine
     raise ValueError("unknown engine")
 
 

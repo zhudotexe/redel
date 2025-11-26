@@ -48,14 +48,14 @@ class EventLogger:
             return
         self.last_modified = time.time()
         # since this is a synch operation we don't need a lock here (though it is thread-unsafe)
-        self.event_file.write(event.model_dump_json())
+        self.event_file.write(event.model_dump_json(fallback=repr))
         self.event_file.write("\n")
         self.event_count[event.type] += 1
 
     async def write_state(self):
         """Write the full state of the app to the state file, with a basic checksum against the AOF to check validity"""
         self.log_dir.mkdir(exist_ok=True)
-        state = [ai.get_save_state().model_dump(mode="json") for ai in self.app.kanis.values()]
+        state = [ai.get_save_state().model_dump(mode="json", fallback=repr) for ai in self.app.kanis.values()]
         data = {
             "id": self.session_id,
             "title": self.app.title,
