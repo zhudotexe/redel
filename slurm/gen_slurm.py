@@ -1,7 +1,6 @@
 import dataclasses
 import os
 
-
 CLUSTERS = {
     "nlpgpu": {
         "project_home": "/nlpgpu/data/andrz",
@@ -16,7 +15,7 @@ CLUSTERS = {
         "max_mem_gb": 512,
         "mem_per_gpu": 180,
         "gpu_constraints": "",
-    }
+    },
 }
 
 HEADER_TEMPLATE = """\
@@ -122,7 +121,7 @@ MODELS = [
         size=4,  # on PARCC
         cluster="betty",
         extras="--engine-timeout 1800",  # 30 min timeout per trial
-        benches=["fanoutqa", "travelplanner"]
+        benches=["fanoutqa", "travelplanner"],
     ),
 ]
 

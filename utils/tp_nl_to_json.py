@@ -58,7 +58,7 @@ async def nl_to_tp_json(text):
 
 
 async def _nl_to_tp_json(text):
-    engine = OpenAIEngine(model="gpt-4", temperature=0)
+    engine = OpenAIEngine(model="gpt-5-mini")
     ai = Kani(engine)
     query = f"{prefix}\nText: {text}\nPlease output the corresponding JSON only."
     resp = await ai.chat_round_str(query)
