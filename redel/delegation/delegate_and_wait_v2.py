@@ -39,7 +39,7 @@ class DelegateWait2(DelegationBase):
         You can call this multiple times to take multiple actions. Do not delegate the entire task you were given. \
         If the user's query can be resolved in parallel, call this multiple times then use join("all").
         """
-        if self.depth >= self.max_depth:
+        if self.kani.depth >= self.max_depth:
             return "Cannot fork; maximum fork depth reached"
 
         log.info(f"Delegated with instructions: {instructions}")
