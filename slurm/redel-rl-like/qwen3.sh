@@ -16,7 +16,7 @@
 source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
 python bench_fanoutqa.py \
-  --config full \
+  --config root-fc \
   --model-class qwen3 \
   --large-model Qwen/Qwen3-30B-A3B-Thinking-2507 \
   --small-model Qwen/Qwen3-4B-Thinking-2507 \
