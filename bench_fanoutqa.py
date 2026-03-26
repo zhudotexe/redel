@@ -24,6 +24,8 @@ from kani import ChatRole
 
 from bench_engines import get_experiment_config
 from redel import ReDel, events
+from redel.delegation.delegate_and_wait_v2 import DelegateWait2
+from redel.prompts import REDEL_RL_SYSTEM_PROMPT_V3
 from redel.tools.fanoutqa.impl import FanOutQAMixin
 from redel.utils import read_jsonl
 
@@ -35,8 +37,8 @@ async def query(q: DevQuestion | TestQuestion):
     ai = ReDel(
         root_engine=config.root_engine,
         delegate_engine=config.delegate_engine,
-        root_system_prompt=None,
-        delegate_system_prompt=None,
+        root_system_prompt=REDEL_RL_SYSTEM_PROMPT_V3,
+        delegate_system_prompt=REDEL_RL_SYSTEM_PROMPT_V3,
         delegation_scheme=config.delegation_scheme,
         tool_configs={
             FanOutQAMixin: {
@@ -105,5 +107,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    config = get_experiment_config()
+    config = get_experiment_config(delegation_scheme=DelegateWait2)
     asyncio.run(main())

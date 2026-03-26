@@ -1,4 +1,5 @@
 import itertools
+import uuid
 
 
 class Namer:
@@ -34,3 +35,8 @@ class Namer:
 
     def get_name(self):
         return next(self.gen)
+
+
+class UUIDNamer:
+    def get_name(self):
+        return str(uuid.uuid4().hex[:6])

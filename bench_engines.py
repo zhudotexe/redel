@@ -205,8 +205,8 @@ def get_engine(
                 "enable_prefix_caching": True,
                 "gpu_memory_utilization": gpu_proportion,
             },
-            temperature=0.6,
-            top_p=0.95,
+            temperature=1.0,
+            top_p=1.0,
             max_tokens=8192,
         )
         model.model = model_id

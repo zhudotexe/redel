@@ -7,7 +7,7 @@ from kani import AIFunction, ChatMessage
 
 from .base_kani import BaseKani
 from .delegation import DelegationBase
-from .namer import Namer
+from .namer import UUIDNamer
 from .tool_config import ToolConfigType
 from .tools import ToolBase
 
@@ -49,7 +49,7 @@ class ReDelKani(BaseKani):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("retry_attempts", 10)
         super().__init__(*args, **kwargs)
-        self.namer = Namer()
+        self.namer = UUIDNamer()
         self.delegator = None
         self.tools = []
 
