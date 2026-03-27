@@ -7,6 +7,8 @@ Outputs `score.json` files next to each input `results.jsonl` file.
 import asyncio
 import glob
 import json
+import os
+import re
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -14,6 +16,9 @@ from typing import List
 
 import fanoutqa
 from fanoutqa.eval.scorer import Scorer
+
+LLM_JUDGE_MODEL = os.getenv("FANOUTQA_JUDGE_MODEL", "gpt-4o-2024-11-20")
+JUDGE_MODEL_ID_SLUG = re.sub(r"\W", "-", LLM_JUDGE_MODEL.split("/", 1)[-1])
 
 
 def read_jsonl_answers(fp: Path) -> List[dict]:
@@ -37,13 +42,16 @@ async def eval_submission(fp: Path):
 
     print("Evaluating open book answers...")
     openbook_answers = read_jsonl_answers(fp)
-    openbook_scorer = Scorer(questions, openbook_answers, llm_cache_key=fp.parent.name)
+    openbook_scorer = Scorer(questions, openbook_answers, llm_cache_key=JUDGE_MODEL_ID_SLUG)
     openbook_results = asdict(await openbook_scorer.score())
 
     result_fp = fp.parent / "score.json"
     with open(result_fp, "w") as f:
         json.dump(openbook_results, f, indent=2)
-    print(f"Written to {result_fp.resolve()}.")
+    result_fp2 = fp.parent / f"score-{JUDGE_MODEL_ID_SLUG}.json"
+    with open(result_fp2, "w") as f:
+        json.dump(openbook_results, f, indent=2)
+    print(f"Written to {result_fp.resolve()} and {result_fp2.resolve()}.")
     return result_fp
 
 
