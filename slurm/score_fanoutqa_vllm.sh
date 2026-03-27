@@ -26,7 +26,11 @@ MODEL_NAME="${1:-Qwen/Qwen3-4B}"
 echo "launching vllm judge with model MODEL_NAME"
 
 # launch vllm and wait for healthy
-vllm serve "$MODEL_NAME" --tensor-parallel-size 8 -- &
+vllm serve "$MODEL_NAME" \
+  --tensor-parallel-size 8 \
+  --max-model-len 16384 \
+  --enable-chunked-prefill \
+  --max-num-batched-tokens 8192 &
 VLLM_PID=$!
 export FANOUTQA_JUDGE_MODEL="$MODEL_NAME"
 export FANOUTQA_OPENAI_API_KEY=dummy
