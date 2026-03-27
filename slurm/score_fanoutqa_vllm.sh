@@ -37,7 +37,7 @@ export FANOUTQA_JUDGE_MODEL="$MODEL_NAME"
 export FANOUTQA_OPENAI_API_KEY=dummy
 export FANOUTQA_OPENAI_API_BASE="http://127.0.0.1:8000/v1"
 
-until curl --output /dev/null --silent --fail "$FANOUTQA_OPENAI_API_BASE/health"; do
+until curl --output /dev/null --silent --fail "http://127.0.0.1:8000/health"; do
     printf '.'
     sleep 5
 done
