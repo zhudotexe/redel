@@ -22,12 +22,13 @@ source slurm/fanout-eval-env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
 export PYTHONUNBUFFERED=1
 
+NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
 MODEL_NAME="${1:-Qwen/Qwen3-4B}"
 echo "launching vllm judge with model MODEL_NAME"
 
 # launch vllm and wait for healthy
 vllm serve "$MODEL_NAME" \
-  --tensor-parallel-size 8 \
+  --tensor-parallel-size $NUM_GPUS \
   --max-model-len 16384 \
   --enable-chunked-prefill \
   --max-num-batched-tokens 8192 &
@@ -36,7 +37,7 @@ export FANOUTQA_JUDGE_MODEL="$MODEL_NAME"
 export FANOUTQA_OPENAI_API_KEY=dummy
 export FANOUTQA_OPENAI_API_BASE="http://127.0.0.1:8000/v1"
 
-until curl --output /dev/null --silent --head --fail "$FANOUTQA_OPENAI_API_BASE/health"; do
+until curl --output /dev/null --silent --fail "$FANOUTQA_OPENAI_API_BASE/health"; do
     printf '.'
     sleep 5
 done
