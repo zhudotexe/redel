@@ -39,7 +39,7 @@ def get_embeddings(qs: list[str], model: str) -> list[EmbeddingResult]:
         text_hash = hashlib.sha256(text.encode()).hexdigest()
         cache_dir = VECTOR_CACHE_DIR / model
         cache_dir.mkdir(exist_ok=True)
-        fp = cache_dir / f"{text_hash}.npy"
+        fp = cache_dir / text_hash[:3] / f"{text_hash}.npy"
         if fp.exists():
             try:
                 vec = np.load(fp)
