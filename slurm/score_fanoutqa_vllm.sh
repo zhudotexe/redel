@@ -29,6 +29,7 @@ echo "launching vllm judge with model MODEL_NAME"
 # launch vllm and wait for healthy
 vllm serve "$MODEL_NAME" \
   --tensor-parallel-size $NUM_GPUS \
+  --gpu-memory-utilization 0.7 \
   --max-model-len 16384 \
   --enable-chunked-prefill \
   --max-num-batched-tokens 8192 &
