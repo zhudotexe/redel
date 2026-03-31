@@ -63,7 +63,11 @@ class DelegateWait2(DelegationBase):
                 return f"encountered an exception: {e}", helper.name
 
         self.helper_futures[helper.name] = asyncio.create_task(_task())
-        return f"{helper.name!r} is helping you with this request."
+        return {
+            "id": helper.name,
+            "status": "running",
+            "task": instructions if len(instructions) < 50 else f"{instructions[:50]}[...]",
+        }
 
     @ai_function()
     async def join(
