@@ -37,13 +37,12 @@ async def query(q: DevQuestion | TestQuestion):
     ai = ReDel(
         root_engine=config.root_engine,
         delegate_engine=config.delegate_engine,
-        root_system_prompt=REDEL_RL_SYSTEM_PROMPT_V2,
-        delegate_system_prompt=REDEL_RL_SYSTEM_PROMPT_V2,
+        root_system_prompt=REDEL_RL_SYSTEM_PROMPT_V3,
+        delegate_system_prompt=REDEL_RL_SYSTEM_PROMPT_V3,
         delegation_scheme=config.delegation_scheme,
         tool_configs={
             FanOutQAMixin: {
                 "always_include": True,
-                "kwargs": {"retrieval_type": "openai"},
             },
         },
         root_has_tools=config.root_has_tools,
@@ -73,26 +72,39 @@ async def run():
 
     # run on dev set questions
     results_file = open(results_fp, "a")
-    qs = fanoutqa.load_dev()
-    for q in tqdm.tqdm(qs):
-        # skip if already set
-        if q.id in existing_results:
-            continue
+    results_lock = asyncio.Lock()
+    parallel_sem = asyncio.Semaphore(32)
+    qs = fanoutqa.load_dev("fanoutqa-test-answers.json")
+    tasks = []
 
-        # run query
-        log.info(q.question)
-        try:
-            result, result_log_dir = await asyncio.wait_for(query(q), timeout=config.engine_timeout)
-            log.info(result)
-            results_file.write(
-                json.dumps(
-                    {"id": q.id, "answer": result, "question": q.question, "log_dir": str(result_log_dir.resolve())}
-                )
-            )
-            results_file.write("\n")
-            results_file.flush()
-        except Exception as e:
-            log.exception(e)
+    async def task(q):
+        async with parallel_sem:
+            # run query
+            log.info(q.question)
+            try:
+                result, result_log_dir = await asyncio.wait_for(query(q), timeout=config.engine_timeout)
+                log.info(result)
+                async with results_lock:
+                    results_file.write(
+                        json.dumps({
+                            "id": q.id,
+                            "answer": result,
+                            "question": q.question,
+                            "log_dir": str(result_log_dir.resolve()),
+                        })
+                    )
+                    results_file.write("\n")
+                    results_file.flush()
+            except Exception as e:
+                log.exception(e)
+
+    for q_ in qs:
+        # skip if already set
+        if q_.id in existing_results:
+            continue
+        tasks.append(asyncio.create_task(task(q_)))
+    await asyncio.gather(*tasks)
+
     results_file.close()
 
 

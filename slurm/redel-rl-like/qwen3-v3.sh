@@ -15,10 +15,16 @@
 
 source slurm/env.sh
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
+
+# launch kiwix
+free_port=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
+export KIWIX_HOST_FOQA="http://127.0.0.1:$free_port"
+experiments/fanoutqa/_wikipedia/kiwix-tools/kiwix-serve --port "$free_port" --threads 32 experiments/fanoutqa/_wikipedia/wikipedia_en_all_nopic_2023-09.zim &
+
 python bench_fanoutqa.py \
   --config root-fc \
   --model-class qwen3 \
   --large-model Qwen/Qwen3-30B-A3B-Thinking-2507 \
   --small-model Qwen/Qwen3-4B-Thinking-2507 \
-  --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/redel-rl-like/qwen3 \
+  --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/rdrl-v3/qwen3 \
   --engine-timeout 1800
