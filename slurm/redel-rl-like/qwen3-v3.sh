@@ -6,7 +6,7 @@
 #SBATCH --error=/nlpgpu/data/andrz/logs/%j.%x.log
 #SBATCH --time=7-0
 #SBATCH --nodes=1
-#SBATCH -c 16
+#SBATCH -c 48
 #SBATCH --mem=400G
 #SBATCH --gpus=8
 #SBATCH --mail-user=andrz@seas.upenn.edu
