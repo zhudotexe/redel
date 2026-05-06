@@ -18,14 +18,24 @@ import json
 import logging
 
 import fanoutqa
-import tqdm
 from fanoutqa.models import DevQuestion, TestQuestion
 from kani import ChatRole
+from kani.ext.vllm import VLLMServerEngine
+from rich.progress import (
+    BarColumn,
+    MofNCompleteColumn,
+    Progress,
+    SpinnerColumn,
+    TaskProgressColumn,
+    TextColumn,
+    TimeElapsedColumn,
+    TimeRemainingColumn,
+)
 
 from bench_engines import get_experiment_config
 from redel import ReDel, events
 from redel.delegation.delegate_and_wait_v2 import DelegateWait2
-from redel.prompts import REDEL_RL_SYSTEM_PROMPT_V2, REDEL_RL_SYSTEM_PROMPT_V3
+from redel.prompts import REDEL_RL_SYSTEM_PROMPT_V3
 from redel.tools.fanoutqa.impl import FanOutQAMixin
 from redel.utils import read_jsonl
 
@@ -76,6 +86,17 @@ async def run():
     parallel_sem = asyncio.Semaphore(32)
     qs = fanoutqa.load_dev("fanoutqa-test-answers.json")
     tasks = []
+    progress = Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        MofNCompleteColumn(),
+        TimeElapsedColumn(),
+        TimeRemainingColumn(),
+    )
+    progress.start()
+    ptask = progress.add_task("Generating...")
 
     async def task(q):
         async with parallel_sem:
@@ -97,18 +118,24 @@ async def run():
                     results_file.flush()
             except Exception as e:
                 log.exception(e)
+            finally:
+                progress.update(ptask, advance=1)
 
     for q_ in qs:
         # skip if already set
         if q_.id in existing_results:
             continue
         tasks.append(asyncio.create_task(task(q_)))
+    progress.update(ptask, total=len(tasks))
     await asyncio.gather(*tasks)
 
     results_file.close()
+    progress.stop()
 
 
 async def main():
+    if isinstance(config.root_engine, VLLMServerEngine):
+        await config.root_engine.server.wait_for_healthy()
     logging.basicConfig(level=logging.WARNING)
     log.setLevel(logging.INFO)
     config.save_dir.mkdir(parents=True, exist_ok=True)
