@@ -20,7 +20,6 @@ import logging
 import fanoutqa
 from fanoutqa.models import DevQuestion, TestQuestion
 from kani import ChatRole
-from kani.ext.vllm import VLLMServerEngine
 from rich.progress import (
     BarColumn,
     MofNCompleteColumn,
@@ -134,7 +133,7 @@ async def run():
 
 
 async def main():
-    if isinstance(config.root_engine, VLLMServerEngine):
+    if hasattr(config.root_engine, "server"):
         await config.root_engine.server.wait_for_healthy()
     logging.basicConfig(level=logging.WARNING)
     log.setLevel(logging.INFO)
