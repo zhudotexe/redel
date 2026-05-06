@@ -211,6 +211,25 @@ def get_engine(
         )
         model.model = model_id
         return Qwen3ThinkingParser(model)
+    # ===== QWEN3.5 =====
+    if model_class == "qwen3.5":
+        from kani.ext.vllm import VLLMServerEngine
+        from kani.model_specific.qwen3_5 import Qwen3_5Parser
+
+        model = VLLMServerEngine(
+            model_id=model_id,
+            max_context_size=context_size or 262144,
+            vllm_args={
+                "tensor_parallel_size": 8,
+                "enable_prefix_caching": True,
+                "gpu_memory_utilization": gpu_proportion,
+            },
+            temperature=1.0,
+            top_p=1.0,
+            max_tokens=16384,
+        )
+        model.model = model_id
+        return Qwen3_5Parser(model)
     # ===== GLM =====
     if model_class == "glm":
         from kani.ext.vllm import VLLMOpenAIEngine
