@@ -49,6 +49,7 @@ async def query(q: DevQuestion | TestQuestion):
         root_system_prompt=REDEL_RL_SYSTEM_PROMPT_V3,
         delegate_system_prompt=REDEL_RL_SYSTEM_PROMPT_V3,
         delegation_scheme=config.delegation_scheme,
+        max_delegation_depth=3,
         tool_configs={
             FanOutQAMixin: {
                 "always_include": True,
@@ -82,7 +83,7 @@ async def run():
     # run on dev set questions
     results_file = open(results_fp, "a")
     results_lock = asyncio.Lock()
-    parallel_sem = asyncio.Semaphore(32)
+    parallel_sem = asyncio.Semaphore(10)
     qs = fanoutqa.load_dev("fanoutqa-test-answers.json")
     tasks = []
     progress = Progress(
