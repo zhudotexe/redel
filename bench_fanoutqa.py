@@ -83,7 +83,7 @@ async def run():
     # run on dev set questions
     results_file = open(results_fp, "a")
     results_lock = asyncio.Lock()
-    parallel_sem = asyncio.Semaphore(10)
+    parallel_sem = asyncio.Semaphore(5)
     qs = fanoutqa.load_dev("fanoutqa-test-answers.json")
     tasks = []
     progress = Progress(
