@@ -23,8 +23,8 @@ experiments/fanoutqa/_wikipedia/kiwix-tools/kiwix-serve --port "$free_port" --th
 
 python bench_fanoutqa.py \
   --config root-fc \
-  --model-class qwen3.5 \
-  --large-model Qwen/Qwen3.5-122B-A10B \
+  --model-class qwen3 \
+  --large-model Qwen/Qwen3-30B-A3B \
   --small-model Qwen/Qwen3-4B-Thinking-2507 \
-  --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/rdrl-v3/qwen3.5 \
+  --save-dir /nlpgpu/data/andrz/redel/experiments/fanoutqa/rdrl-v3/qwen3-30a3 \
   --engine-timeout 1800
