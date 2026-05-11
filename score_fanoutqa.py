@@ -38,7 +38,7 @@ def read_jsonl_answers(fp: Path) -> List[dict]:
 
 async def eval_submission(fp: Path):
     """Read in the answers and generations and eval them all, then write the results file."""
-    questions = fanoutqa.load_dev()
+    questions = fanoutqa.load_dev("fanoutqa-test-answers.json")
 
     print("Evaluating open book answers...")
     openbook_answers = read_jsonl_answers(fp)
